@@ -5,7 +5,6 @@ import { checkURLForRoom } from "./utils.js";
 
 document.addEventListener("DOMContentLoaded", () => {
    (function () {
-      //loadImages();
       initSocket();
       initUI();
       initGame();

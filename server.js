@@ -10,7 +10,6 @@ const io = socketIo(server);
 // Serve static files
 app.use(express.static(path.join(__dirname, "public")));
 
-// Handle /games/* routes
 app.get("/games/:roomCode([A-Z0-9]{4})", (req, res) => {
    res.sendFile(path.join(__dirname, "public", "index.html"));
 });
@@ -48,9 +47,6 @@ function getTeamCount(room, team) {
    return Array.from(room.players.values()).filter((p) => p.team === team).length;
 }
 
-/**
- * Generates the public list of lobbies and broadcasts it to all connected sockets.
- */
 function broadcastLobbiesList() {
    const publicLobbies = Array.from(rooms.values())
       .filter((room) => room.gameState === "lobby" && room.players.size < 8)
@@ -61,17 +57,13 @@ function broadcastLobbiesList() {
          blueCount: getTeamCount(room, "blue"),
       }));
 
-   // Emit to ALL connected sockets
    io.emit("lobbies-list", publicLobbies);
 }
-// ------------------------------------------------------------------
 
 io.on("connection", (socket) => {
    console.log("User connected:", socket.id);
 
-   // Update: This is still here for initial load, but now we'll rely on the broadcast
    socket.on("get-lobbies", () => {
-      // The logic is moved into broadcastLobbiesList, so we call that
       broadcastLobbiesList();
    });
 
@@ -110,7 +102,6 @@ io.on("connection", (socket) => {
 
       room.chatMessages.push(chatMessage);
 
-      // Keep only last 50 messages
       if (room.chatMessages.length > 50) {
          room.chatMessages = room.chatMessages.slice(-50);
       }
@@ -119,7 +110,6 @@ io.on("connection", (socket) => {
    });
 
    socket.on("create-room", () => {
-      // If all 4 alphanumeric characters are used, stop creating new rooms
       if (rooms.size >= 10000) {
          socket.emit("room-error", "Maximum number of rooms reached");
          return;
@@ -152,7 +142,6 @@ io.on("connection", (socket) => {
 
       console.log(`Room ${roomCode} created by ${socket.id}`);
 
-      // NEW: Broadcast the updated lobby list
       broadcastLobbiesList();
    });
 
@@ -198,7 +187,6 @@ io.on("connection", (socket) => {
 
       console.log(`${socket.id} joined room ${roomCode}`);
 
-      // NEW: Broadcast the updated lobby list only if the player count changed a lobby's status
       if (room.players.size === 1 || (wasJoinable && room.players.size === 8) || room.gameState !== "lobby") {
          broadcastLobbiesList();
       }
@@ -265,11 +253,17 @@ io.on("connection", (socket) => {
       player.x = Math.max(15, Math.min(785, data.x));
       player.y = Math.max(15, Math.min(585, data.y));
 
+      player.dashX = data.dashX;
+      player.dashY = data.dashY;
+
       // Broadcast to all players in room
       socket.to(socket.roomCode).emit("player-moved", {
          id: socket.id,
          x: player.x,
          y: player.y,
+
+         dashX: player.dashX,
+         dashY: player.dashY,
       });
    });
 

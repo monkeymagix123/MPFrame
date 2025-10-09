@@ -50,6 +50,10 @@ export function updatePlayerPosition(data) {
    if (player) {
       player.x = data.x;
       player.y = data.y;
+
+      // dash copy
+      player.dashX = data.dashX;
+      player.dashy = data.dashY;
    }
 }
 

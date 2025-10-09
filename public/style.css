@@ -23,7 +23,6 @@ body {
 #lobby .container {
    background: white;
    border-radius: 20px;
-   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
    width: 100%;
    max-width: 900px;
    padding: 40px;
@@ -105,7 +104,6 @@ label {
 .form-group input:focus {
    outline: none;
    border-color: #667eea;
-   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 .name-section,
@@ -141,16 +139,11 @@ button {
 
 button:hover {
    transform: translateY(-2px);
-   box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
 }
 
 #refresh-lobbies-btn {
    background: #ff9800;
    margin-bottom: 15px;
-}
-
-#refresh-lobbies-btn:hover {
-   box-shadow: 0 10px 20px rgba(255, 152, 0, 0.3);
 }
 
 #lobbies-list {
@@ -291,7 +284,7 @@ button:hover {
 }
 
 .player {
-   background: rgba(0, 0, 0, 0.05);
+   background: #cccccc;
    padding: 8px 12px;
    border-radius: 6px;
    display: flex;
@@ -300,7 +293,7 @@ button:hover {
 }
 
 .player.ready {
-   background: rgba(76, 175, 80, 0.2);
+   background: #e5f2e6;
    border: 1px solid #4caf50;
 }
 
@@ -368,15 +361,10 @@ button:hover {
 
 #ready-btn:hover {
    transform: translateY(-2px);
-   box-shadow: 0 10px 20px rgba(76, 175, 80, 0.3);
 }
 
 #ready-btn.ready {
    background: #ff9800;
-}
-
-#ready-btn.ready:hover {
-   box-shadow: 0 10px 20px rgba(255, 152, 0, 0.3);
 }
 
 #leave-room-btn {
@@ -393,7 +381,6 @@ button:hover {
 
 #leave-room-btn:hover {
    transform: translateY(-2px);
-   box-shadow: 0 10px 20px rgba(244, 67, 54, 0.3);
 }
 
 /* ===== GAME SCREEN ===== */
@@ -414,13 +401,12 @@ button:hover {
    color: white;
    display: flex;
    flex-direction: column;
-   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
    z-index: 10;
 }
 
 #sidebar-header {
    padding: 20px;
-   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+   border-bottom: 1px solid #1a1a1a;
 }
 
 #game-title {
@@ -430,7 +416,7 @@ button:hover {
 }
 
 #leave-game-btn {
-   background: rgba(231, 76, 60, 0.8);
+   background: #d64939;
    color: white;
    padding: 8px 16px;
    border: none;
@@ -443,7 +429,7 @@ button:hover {
 }
 
 #leave-game-btn:hover {
-   background: rgba(231, 76, 60, 1);
+   background: #e74c3c;
 }
 
 #chat-section {
@@ -462,7 +448,7 @@ button:hover {
 
 #chat-messages {
    flex: 1;
-   background: rgba(255, 255, 255, 0.1);
+   background: #3a4a5a;
    border-radius: 8px;
    padding: 15px;
    overflow-y: auto;
@@ -479,7 +465,6 @@ button:hover {
 }
 
 .chat-message.own {
-   background: rgba(52, 152, 219, 0.2);
    color: #3498db;
 }
 
@@ -499,21 +484,21 @@ button:hover {
    flex: 1;
    min-width: 0;
    padding: 8px 12px;
-   border: 1px solid rgba(255, 255, 255, 0.2);
+   border: 1px solid #7c7c7c;
    border-radius: 6px;
    font-size: 13px;
-   background: rgba(255, 255, 255, 0.1);
+   background: #3a4a5a;
    color: white;
 }
 
 #chat-input:focus {
    outline: none;
    border-color: #667eea;
-   background: rgba(255, 255, 255, 0.15);
+   background: #4a5a6a;
 }
 
 #chat-input::placeholder {
-   color: rgba(255, 255, 255, 0.6);
+   color: #b3b3b3;
 }
 
 #send-chat-btn {
@@ -558,10 +543,10 @@ button:hover {
    font-weight: bold;
    margin-top: 15px;
    text-align: center;
-   background: rgba(244, 67, 54, 0.1);
+   background: #fae0de;
    padding: 10px;
    border-radius: 6px;
-   border: 1px solid rgba(244, 67, 54, 0.2);
+   border: 1px solid #f9c7c4;
 }
 
 #menu-error:empty,
@@ -593,7 +578,7 @@ button:hover {
    #sidebar-header {
       flex: 1;
       border-bottom: none;
-      border-right: 1px solid rgba(255, 255, 255, 0.1);
+      border-right: 1px solid #1a1a1a;
    }
 
    #chat-section {

@@ -34,20 +34,15 @@ function setupUIListeners() {
 
    document.getElementById("player-name-input").addEventListener("keypress", (e) => {
       if (e.key === "Enter") {
-         document.getElementById("set-name-btn").click();
+         state.socket.emit("get-lobbies");
       }
    });
 
    // Player name setting (lobby)
    document.getElementById("lobby-name-input").addEventListener("keypress", (e) => {
       if (e.key === "Enter") {
-         document.getElementById("lobby-set-name-btn").click();
+         state.socket.emit("get-lobbies");
       }
-   });
-
-   // Refresh lobbies button
-   document.getElementById("refresh-lobbies-btn").addEventListener("click", () => {
-      state.socket.emit("get-lobbies");
    });
 
    // Lobby buttons
