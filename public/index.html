@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Multiplayer Game</title>
+      <link rel="stylesheet" href="/style.css" />
+      <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+   </head>
+
+   <body>
+      <!-- MENU SCREEN -->
+      <div id="menu" class="screen">
+         <div class="container">
+            <h1 id="menu-header">Multiplayer Game</h1>
+
+            <div id="menu-content">
+               <div id="create-section">
+                  <h2 class="section-title">Create New Room</h2>
+                  <div class="menu-section">
+                     <div class="name-section">
+                        <div class="form-group">
+                           <label for="player-name-input">Your Name</label>
+                           <input type="text" id="player-name-input" placeholder="Enter your name" maxlength="20" required />
+                        </div>
+                     </div>
+                  </div>
+
+                  <div class="menu-section">
+                     <div>
+                        <button id="create-room-btn">Create Room</button>
+                     </div>
+                  </div>
+               </div>
+
+               <div id="join-section">
+                  <h2 class="section-title">Join Existing Room</h2>
+                  <div class="menu-section">
+                     <div class="join-room">
+                        <div class="form-group">
+                           <label for="room-code-input">Room Code</label>
+                           <input type="text" id="room-code-input" placeholder="Enter room code" maxlength="4" required />
+                        </div>
+                        <button id="join-room-btn">Join Room</button>
+                     </div>
+                  </div>
+
+                  <div class="menu-section">
+                     <h3>Available Lobbies</h3>
+                     <button id="refresh-lobbies-btn">Refresh</button>
+                     <div id="lobbies-list">
+                        <div class="no-lobbies">
+                           <p>🔍 No lobbies available</p>
+                           <p style="font-size: 12px; margin-top: 5px">Create a new room or wait for others to host!</p>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+
+            <div id="menu-error"></div>
+         </div>
+      </div>
+
+      <!-- LOBBY SCREEN -->
+      <div id="lobby" class="screen hidden">
+         <div class="container">
+            <h2 id="lobby-title">Room: <span id="room-code-display"></span></h2>
+            <div id="lobby-url"></div>
+
+            <div id="lobby-content">
+               <div class="name-section">
+                  <div class="form-group">
+                     <label for="lobby-name-input">Your Name</label>
+                     <input type="text" id="lobby-name-input" placeholder="Enter your name" maxlength="20" required />
+                  </div>
+               </div>
+
+               <div id="teams">
+                  <div id="red-team">
+                     <h3>🔴 Red Team</h3>
+                     <div id="red-players"></div>
+                     <button id="join-red-btn">Join Red</button>
+                  </div>
+
+                  <div id="blue-team">
+                     <h3>🔵 Blue Team</h3>
+                     <div id="blue-players"></div>
+                     <button id="join-blue-btn">Join Blue</button>
+                  </div>
+               </div>
+
+               <div id="lobby-controls">
+                  <button id="ready-btn">✅ Ready</button>
+                  <button id="leave-room-btn">🚪 Leave Room</button>
+               </div>
+            </div>
+
+            <div id="lobby-error"></div>
+         </div>
+      </div>
+
+      <!-- GAME SCREEN -->
+      <div id="game" class="screen hidden">
+         <div id="game-sidebar">
+            <div id="sidebar-header">
+               <div id="game-title">Room: <span id="game-room-code"></span></div>
+               <button id="leave-game-btn">Leave Game</button>
+            </div>
+
+            <div id="chat-section">
+               <div id="chat-title">💬 Game Chat</div>
+               <div id="chat-messages"></div>
+               <div id="chat-input-container">
+                  <input type="text" id="chat-input" placeholder="Type message..." maxlength="200" />
+                  <button id="send-chat-btn">➤</button>
+               </div>
+            </div>
+         </div>
+
+         <div id="game-area">
+            <canvas id="game-canvas" width="1600" height="1200"></canvas>
+         </div>
+      </div>
+
+      <script src="/socket.io/socket.io.js"></script>
+      <script type="module" src="/client.js"></script>
+   </body>
+</html>
