@@ -1,4 +1,13 @@
-import { Player } from "./types";
+export interface Player {
+	id: string;
+	name?: string;
+	team: "red" | "blue";
+	ready: boolean;
+	x: number;
+	y: number;
+	dashX?: number;
+	dashY?: number;
+}
 
 // export class CurrentPlayer extends Player {
 //     startDash: boolean = false;

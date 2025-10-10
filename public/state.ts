@@ -1,5 +1,6 @@
 import { io, Socket } from "socket.io-client";
-import { Player, ChatMessage, PlayerMoveData, Keys } from "../shared/types";
+import { ChatMessage, PlayerMoveData, Keys } from "../shared/types";
+import { Player } from "../shared/player";
 
 import { Config } from "../shared/config";
 

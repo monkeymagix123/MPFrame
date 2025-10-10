@@ -2,7 +2,8 @@ import * as state from "./state";
 import * as ui from "./ui";
 import { startGameLoop } from "./game";
 import { updateURL } from "./utils";
-import { Player, ChatMessage, RoomData, PlayerMoveData, Lobby } from "../shared/types";
+import { ChatMessage, RoomData, PlayerMoveData, Lobby } from "../shared/types";
+import { Player } from "../shared/player";
 
 export function initSocket(): void {
 	state.socket.on("room-joined", (data: RoomData) => {

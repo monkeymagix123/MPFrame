@@ -1,6 +1,6 @@
 import { Config } from "../shared/config";
 import { clamp } from "../shared/math";
-import { Player } from "../shared/types";
+import { Player } from "../shared/player";
 import { clampPos } from "./canvasUtil";
 import * as state from "./state";
 

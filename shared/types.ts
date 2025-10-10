@@ -1,15 +1,5 @@
 import { Socket } from "socket.io-client";
-
-export interface Player {
-	id: string;
-	name?: string;
-	team: "red" | "blue";
-	ready: boolean;
-	x: number;
-	y: number;
-	dashX?: number;
-	dashY?: number;
-}
+import { Player } from "./player";
 
 export interface ChatMessage {
 	playerId: string;
