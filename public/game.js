@@ -4,6 +4,8 @@ import { clamp } from "./mathUtil.js";
 // Global variable to store the timestamp of the last frame
 let lastTime = 0;
 
+let lastDrawTime = 0;
+
 export function initGame() {
    const canvas = document.getElementById("game-canvas");
    state.setCanvas(canvas);
@@ -59,6 +61,9 @@ function setupGameControls() {
    });
 
    document.addEventListener("mousemove", (e) => {
+      if (Date.now() - lastDrawTime < 20) return;
+      lastDrawTime = Date.now();
+      if (!state.currentPlayer) return;
       redrawArrow(e.clientX, e.clientY);
    });
 }
@@ -186,45 +191,20 @@ function renderGame() {
       state.ctx.textAlign = "center";
       const name = player.id === state.socket.id ? "You" : player.name || player.id.substring(0, 4);
       state.ctx.fillText(name, player.x, player.y - 25);
-
-      // arrow update
-      if (true) {
-         //if (player.id === state.socket.id) {
-         state.ctx.strokeStyle = "rgba(250, 227, 17, 1)";
-         state.ctx.fillStyle = "rgba(250, 227, 17, 1)";
-         state.ctx.lineWidth = 50;
-
-         let dx = player.dashX - player.x;
-         let dy = player.dashY - player.y;
-
-         let length = Math.sqrt(dx * dx + dy * dy);
-
-         // Using the same 100 unit distance for the arrow display
-         const arrowDistance = 100.0;
-
-         let arrowVecX = (dx / length) * arrowDistance;
-         let arrowVecY = (dy / length) * arrowDistance;
-
-         let toX = clamp(player.x + arrowVecX, playerRadius, state.canvas.width - playerRadius);
-         let toY = clamp(player.y + arrowVecY, playerRadius, state.canvas.height - playerRadius);
-
-         console.log(Object.keys(player));
-         drawArrow(player.x, player.y, toX, toY);
-      }
    });
 }
 
+// dash cooldown thing
 function redrawArrow(x, y) {
+   const playerRadius = 15;
+   if (!state.currentPlayer) return;
+
    const rect = state.canvas.getBoundingClientRect();
    x -= rect.left;
    y -= rect.top;
 
-   state.ctx.strokeStyle = "rgba(250, 227, 17, 1)";
-   state.ctx.fillStyle = "rgba(250, 227, 17, 1)";
-   state.ctx.lineWidth = 50;
-
-   let dx = player.dashX - player.x;
-   let dy = player.dashY - player.y;
+   let dx = x - state.currentPlayer.x;
+   let dy = y - state.currentPlayer.y;
 
    let length = Math.sqrt(dx * dx + dy * dy);
 
@@ -234,11 +214,14 @@ function redrawArrow(x, y) {
    let arrowVecX = (dx / length) * arrowDistance;
    let arrowVecY = (dy / length) * arrowDistance;
 
-   let toX = clamp(player.x + arrowVecX, playerRadius, state.canvas.width - playerRadius);
-   let toY = clamp(player.y + arrowVecY, playerRadius, state.canvas.height - playerRadius);
+   let toX = clamp(state.currentPlayer.x + arrowVecX, playerRadius, state.canvas.width - playerRadius);
+   let toY = clamp(state.currentPlayer.y + arrowVecY, playerRadius, state.canvas.height - playerRadius);
 
-   console.log(Object.keys(player));
-   drawArrow(player.x, player.y, toX, toY);
+   console.log(Object.keys(state.currentPlayer));
+
+   console.log("Drawing arrow to:", toX, toY);
+   
+   drawArrow(state.currentPlayer.x, state.currentPlayer.y, toX, toY);
 }
 
 function drawArrow(fromX, fromY, toX, toY) {
@@ -250,9 +233,13 @@ function drawArrow(fromX, fromY, toX, toY) {
    const angle = Math.atan2(dy, dx);
 
    // draw the line
+   state.ctx.lineWidth = 50;
+   
    state.ctx.beginPath();
    state.ctx.moveTo(fromX, fromY);
    state.ctx.lineTo(toX, toY);
+
+   state.ctx.strokeStyle = "rgba(250, 227, 17, 1)";
    state.ctx.stroke();
 
    // draw the arrowhead
@@ -261,5 +248,14 @@ function drawArrow(fromX, fromY, toX, toY) {
    state.ctx.lineTo(toX - headLength * Math.cos(angle - Math.PI / 6), toY - headLength * Math.sin(angle - Math.PI / 6));
    state.ctx.lineTo(toX - headLength * Math.cos(angle + Math.PI / 6), toY - headLength * Math.sin(angle + Math.PI / 6));
    state.ctx.lineTo(toX, toY);
+   
+   state.ctx.fillStyle = "rgba(250, 227, 17, 1)";
    state.ctx.fill();
+
+         state.ctx.beginPath();
+      state.ctx.arc(toX, toY, 15, 0, Math.PI * 2);
+      // state.ctx.fillStyle = player.team === "red" ? "#f44336" : "#2196F3";
+      state.ctx.fill();
+   
+      console.log("hi");
 }
