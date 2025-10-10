@@ -103,7 +103,7 @@ function drawArrow(fromX: number, fromY: number, toX: number, toY: number): void
 	// draw anti-line for not done part
 	state.ctx.lineWidth = 6;
 	state.ctx.beginPath();
-	state.ctx.moveTo(toX - length * 0.12 * Math.cos(angle), toY - length * 0.12 * Math.sin(angle));
+	state.ctx.moveTo(toX - (length * 0.1 + 2) * Math.cos(angle), toY - (length * 0.1 + 2) * Math.sin(angle));
 	state.ctx.lineTo(toX - lengthMissing * Math.cos(angle), toY - lengthMissing * Math.sin(angle));
 	state.ctx.strokeStyle = "rgba(240, 240, 240, 1)";
 	state.ctx.stroke();
