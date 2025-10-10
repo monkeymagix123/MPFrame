@@ -69,6 +69,13 @@ function drawDashArrow(x: number, y: number): void {
 	drawArrow(state.currentPlayer.x, state.currentPlayer.y, toX, toY);
 }
 
+function drawHealthBar(): void {
+	// Placeholder for health bar drawing logic
+}
+
+
+
+
 function drawArrow(fromX: number, fromY: number, toX: number, toY: number): void {
 	if (!state.ctx) return;
 
