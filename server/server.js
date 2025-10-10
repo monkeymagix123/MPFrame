@@ -7,11 +7,12 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
-// Serve static files
-app.use(express.static(path.join(__dirname, "public")));
+// Serve static files from both public and shared folders
+app.use(express.static(path.join(__dirname, "..", "public")));
+app.use(express.static(path.join(__dirname, "..", "shared")));
 
 app.get("/games/:roomCode([A-Z0-9]{4})", (req, res) => {
-   res.sendFile(path.join(__dirname, "public", "index.html"));
+   res.sendFile(path.join(__dirname, "..", "public", "index.html"));
 });
 
 // Game state

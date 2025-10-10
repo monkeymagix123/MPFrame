@@ -196,12 +196,15 @@ export function updateLobbiesList(lobbies) {
       const lobbyDiv = document.createElement("div");
       lobbyDiv.className = "lobby-item";
       lobbyDiv.innerHTML = `
-            <div class="lobby-info">
-                <div class="lobby-code">${lobby.code}</div>
-                <div class="lobby-players">${lobby.playerCount}/8 players (Red: ${lobby.redCount}, Blue: ${lobby.blueCount})</div>
+         <div class="lobby-info">
+            <div class="lobby-code">${lobby.code}</div>
+            <div class="lobby-players">
+               (<span style="color: #f44336;">${lobby.redCount}</span>/<span style="color: #2196f3;">${lobby.blueCount}</span>)
             </div>
-            <button class="lobby-join-btn">Join</button>
-        `;
+         </div>
+         <button class="lobby-join-btn">Join </button>
+      `;
+
       lobbyDiv.addEventListener("click", () => {
          document.getElementById("room-code-input").value = lobby.code;
          state.socket.emit("join-room", lobby.code);

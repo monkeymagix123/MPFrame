@@ -14,3 +14,7 @@
 -  [x] Adding arrow
 -  [ ] Fix join game
 -  [ ] Fix leave game
+
+## Code Practices
+
+-  [ ] Clean up CSS

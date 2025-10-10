@@ -141,11 +141,6 @@ button:hover {
    transform: translateY(-2px);
 }
 
-#refresh-lobbies-btn {
-   background: #ff9800;
-   margin-bottom: 15px;
-}
-
 #lobbies-list {
    max-height: 300px;
    overflow-y: auto;
@@ -188,6 +183,7 @@ button:hover {
 .lobby-players {
    font-size: 12px;
    color: #6c757d;
+   font-weight: bold;
 }
 
 .lobby-join-btn {
