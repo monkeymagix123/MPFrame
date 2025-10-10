@@ -1,42 +1,42 @@
 import { Socket } from "socket.io-client";
 
 export interface Player {
-  id: string;
-  name?: string;
-  team: "red" | "blue";
-  ready: boolean;
-  x: number;
-  y: number;
-  dashX?: number;
-  dashY?: number;
+	id: string;
+	name?: string;
+	team: "red" | "blue";
+	ready: boolean;
+	x: number;
+	y: number;
+	dashX?: number;
+	dashY?: number;
 }
 
 export interface ChatMessage {
-  playerId: string;
-  playerName: string;
-  message: string;
+	playerId: string;
+	playerName: string;
+	message: string;
 }
 
 export interface RoomData {
-  roomCode: string;
-  players: Player[];
-  chatMessages: ChatMessage[];
+	roomCode: string;
+	players: Player[];
+	chatMessages: ChatMessage[];
 }
 
 export interface Lobby {
-  code: string;
-  redCount: number;
-  blueCount: number;
+	code: string;
+	redCount: number;
+	blueCount: number;
 }
 
 export interface PlayerMoveData {
-  id: string;
-  x: number;
-  y: number;
-  dashX?: number;
-  dashY?: number;
+	id: string;
+	x: number;
+	y: number;
+	dashX?: number;
+	dashY?: number;
 }
 
 export interface Keys {
-  [key: string]: boolean;
+	[key: string]: boolean;
 }

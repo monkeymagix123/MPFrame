@@ -1,6 +1,8 @@
 import { io, Socket } from "socket.io-client";
 import { Player, ChatMessage, PlayerMoveData, Keys } from "../shared/types";
 
+import { Config } from "../shared/config";
+
 // --- State Variables ---
 export const socket: Socket = io();
 export let currentRoom: string | null = null;
@@ -22,81 +24,81 @@ export let mouseY = 0;
 
 // --- State Modifiers ---
 export function setCurrentRoom(roomCode: string): void {
-  currentRoom = roomCode;
+	currentRoom = roomCode;
 }
 
 export function setCanvas(canvasElement: HTMLCanvasElement): void {
-  canvas = canvasElement;
-  ctx = canvas.getContext("2d");
+	canvas = canvasElement;
+	ctx = canvas.getContext("2d");
 }
 
 export function setGameLoop(loop: number | null): void {
-  gameLoop = loop;
+	gameLoop = loop;
 }
 
 export function addPlayer(player: Player): void {
-  players.set(player.id, player);
-  if (player.id === socket.id) {
-    currentPlayer = player;
-  }
+	players.set(player.id, player);
+	if (player.id === socket.id) {
+		currentPlayer = player;
+	}
 }
 
 export function removePlayer(playerId: string): void {
-  players.delete(playerId);
+	players.delete(playerId);
 }
 
 export function clearPlayers(): void {
-  players.clear();
+	players.clear();
 }
 
 export function updatePlayerPosition(data: PlayerMoveData): void {
-  const player = players.get(data.id);
-  if (player) {
-    player.x = data.x;
-    player.y = data.y;
+	const player = players.get(data.id);
+	if (player) {
+		player.x = data.x;
+		player.y = data.y;
 
-    // dash copy
-    player.dashX = data.dashX;
-    player.dashY = data.dashY;
-  }
+		// dash copy
+		player.dashX = data.dashX;
+		player.dashY = data.dashY;
+	}
 }
 
 export function addChatMessage(message: ChatMessage): void {
-  chatMessages.push(message);
+	chatMessages.push(message);
 }
 
 export function resetState(): void {
-  currentRoom = null;
-  players.clear();
-  currentPlayer = null;
+	currentRoom = null;
+	players.clear();
+	currentPlayer = null;
 
-  if (gameLoop !== null) {
-    cancelAnimationFrame(gameLoop);
-    gameLoop = null;
-  }
+	if (gameLoop !== null) {
+		cancelAnimationFrame(gameLoop);
+		gameLoop = null;
+	}
 
-  chatMessages = [];
+	chatMessages = [];
 }
 
 export function doDash(x: number, y: number): void {
-  startDash = true;
-  dashX = x;
-  dashY = y;
+	startDash = true;
+	dashX = x;
+	dashY = y;
 }
 
 export function resetDash(): void {
-  startDash = false;
+	startDash = false;
 }
 
 export function startCooldown(): void {
-  dashCooldown = 1;
+	dashCooldown = Config.dashCooldown;
 }
 
 export function decrementCooldown(dt: number): void {
-  dashCooldown -= dt;
+	dashCooldown -= dt;
 }
 
 export function setMousePosition(x: number, y: number): void {
-  mouseX = x;
-  mouseY = y;
+	mouseX = x;
+	mouseY = y;
 }
