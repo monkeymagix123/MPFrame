@@ -32,16 +32,39 @@ function setupUIListeners() {
       }
    });
 
+   // Player name setting (in-game)
+
    document.getElementById("player-name-input").addEventListener("keypress", (e) => {
       if (e.key === "Enter") {
-         state.socket.emit("get-lobbies");
+         const name = e.target.value.trim();
+         if (name) {
+            state.socket.emit("set-name", name);
+         }
+      }
+   });
+
+   document.getElementById("player-name-input").addEventListener("blur", (e) => {
+      const name = e.target.value.trim();
+      if (name) {
+         state.socket.emit("set-name", name);
       }
    });
 
    // Player name setting (lobby)
+
    document.getElementById("lobby-name-input").addEventListener("keypress", (e) => {
       if (e.key === "Enter") {
-         state.socket.emit("get-lobbies");
+         const name = e.target.value.trim();
+         if (name) {
+            state.socket.emit("set-name", name);
+         }
+      }
+   });
+
+   document.getElementById("lobby-name-input").addEventListener("blur", (e) => {
+      const name = e.target.value.trim();
+      if (name) {
+         state.socket.emit("set-name", name);
       }
    });
 

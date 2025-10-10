@@ -6,7 +6,6 @@
 ## UI Changes
 
 -  [x] Fix name changing
--  [ ] Increase canvas resolution
 
 ## Game/Server
 

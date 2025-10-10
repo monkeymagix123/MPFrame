@@ -281,7 +281,6 @@ io.on("connection", (socket) => {
          if (room.players.size === 0) {
             rooms.delete(socket.roomCode);
             console.log(`Room ${socket.roomCode} deleted (empty)`);
-            // NEW: Broadcast because a room was deleted
             broadcastLobbiesList();
          } else if (teamsIngame() === 1) {
             console.log(`Game ${socket.roomCode} Finished`);
