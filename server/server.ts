@@ -1,27 +1,56 @@
-const express = require("express");
-const http = require("http");
-const socketIo = require("socket.io");
-const path = require("path");
+import express from "express";
+import http from "http";
+import { Server, Socket } from "socket.io";
+import path from "path";
+import { Player, ChatMessage, RoomData, PlayerMoveData } from "../shared/types";
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server);
+const io = new Server(server);
 
-// Serve static files from both public and shared folders
-app.use(express.static(path.join(__dirname, "..", "public")));
-app.use(express.static(path.join(__dirname, "..", "shared")));
+// Serve static files from public directory
+app.use(express.static(path.join(__dirname, "..", "..", "public")));
 
-app.get("/games/:roomCode([A-Z0-9]{4})", (req, res) => {
-   res.sendFile(path.join(__dirname, "..", "public", "index.html"));
+// Serve compiled client JS
+app.use("/dist", express.static(path.join(__dirname, "..", "..", "public", "dist")));
+
+console.log("Serving static files from:", path.join(__dirname, "..", "..", "public"));
+console.log("Serving /dist files from:", path.join(__dirname, "..", "..", "public", "dist"));
+
+app.get("/games/:roomCode", (req, res) => {
+   const roomCode = req.params.roomCode as string;
+   
+   // Validate the room code format
+   if (!/^[A-Z0-9]{4}$/.test(roomCode)) {
+      return res.status(404).send("Invalid room code format");
+   }
+   
+   res.sendFile(path.join(__dirname, "..", "..", "public", "index.html"));
 });
 
-// Game state
-const rooms = new Map();
+// Extended socket interface to include roomCode
+interface GameSocket extends Socket {
+   roomCode?: string;
+}
 
-function generateRoomCode() {
+// Room interface
+interface Room {
+   code: string;
+   players: Map<string, Player>;
+   gameState: "lobby" | "starting" | "playing";
+   startVotes: Set<string>;
+   lastUpdate: number;
+   chatMessages: ChatMessage[];
+}
+
+// Game state
+const rooms = new Map<string, Room>();
+
+function generateRoomCode(): string {
    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
    let result = "";
    do {
+      result = "";
       for (let i = 0; i < 4; i++) {
          result += chars.charAt(Math.floor(Math.random() * chars.length));
       }
@@ -29,26 +58,26 @@ function generateRoomCode() {
    return result;
 }
 
-function createRoom(code) {
+function createRoom(code: string): Room {
    return {
       code,
       players: new Map(),
-      gameState: "lobby", // lobby, starting, playing
+      gameState: "lobby",
       startVotes: new Set(),
       lastUpdate: Date.now(),
       chatMessages: [],
    };
 }
 
-function getPlayerCount(room) {
+function getPlayerCount(room: Room): number {
    return room.players.size;
 }
 
-function getTeamCount(room, team) {
+function getTeamCount(room: Room, team: "red" | "blue"): number {
    return Array.from(room.players.values()).filter((p) => p.team === team).length;
 }
 
-function broadcastLobbiesList() {
+function broadcastLobbiesList(): void {
    const publicLobbies = Array.from(rooms.values())
       .filter((room) => room.gameState === "lobby" && room.players.size < 8)
       .map((room) => ({
@@ -61,17 +90,17 @@ function broadcastLobbiesList() {
    io.emit("lobbies-list", publicLobbies);
 }
 
-io.on("connection", (socket) => {
+io.on("connection", (socket: GameSocket) => {
    console.log("User connected:", socket.id);
 
    socket.on("get-lobbies", () => {
       broadcastLobbiesList();
    });
 
-   socket.on("set-name", (name) => {
+   socket.on("set-name", (name: string) => {
       if (!socket.roomCode || !rooms.has(socket.roomCode)) return;
 
-      const room = rooms.get(socket.roomCode);
+      const room = rooms.get(socket.roomCode)!;
       const player = room.players.get(socket.id);
 
       if (!player) return;
@@ -85,20 +114,18 @@ io.on("connection", (socket) => {
       io.to(socket.roomCode).emit("player-updated", Array.from(room.players.values()));
    });
 
-   socket.on("send-chat", (message) => {
+   socket.on("send-chat", (message: string) => {
       if (!socket.roomCode || !rooms.has(socket.roomCode)) return;
 
-      const room = rooms.get(socket.roomCode);
+      const room = rooms.get(socket.roomCode)!;
       const player = room.players.get(socket.id);
 
       if (!player || !message.trim()) return;
 
-      const chatMessage = {
-         id: Date.now(),
+      const chatMessage: ChatMessage = {
          playerId: socket.id,
          playerName: player.name || `Player ${socket.id.substring(0, 6)}`,
          message: message.trim().substring(0, 200), // Limit message length
-         timestamp: Date.now(),
       };
 
       room.chatMessages.push(chatMessage);
@@ -127,7 +154,7 @@ io.on("connection", (socket) => {
       // Add player to room
       room.players.set(socket.id, {
          id: socket.id,
-         name: null,
+         name: undefined,
          x: Math.random() * 760 + 20,
          y: Math.random() * 560 + 20,
          team: "red",
@@ -146,7 +173,7 @@ io.on("connection", (socket) => {
       broadcastLobbiesList();
    });
 
-   socket.on("join-room", (roomCode) => {
+   socket.on("join-room", (roomCode: string) => {
       roomCode = roomCode.toUpperCase();
 
       if (!rooms.has(roomCode)) {
@@ -154,7 +181,7 @@ io.on("connection", (socket) => {
          return;
       }
 
-      const room = rooms.get(roomCode);
+      const room = rooms.get(roomCode)!;
 
       if (room.players.size >= 8) {
          socket.emit("room-error", "Room is full");
@@ -169,7 +196,7 @@ io.on("connection", (socket) => {
       // Add player to room
       room.players.set(socket.id, {
          id: socket.id,
-         name: null,
+         name: undefined,
          x: Math.random() * 760 + 20,
          y: Math.random() * 560 + 20,
          team: getTeamCount(room, "red") > getTeamCount(room, "blue") ? "blue" : "red",
@@ -193,10 +220,10 @@ io.on("connection", (socket) => {
       }
    });
 
-   socket.on("change-team", (team) => {
+   socket.on("change-team", (team: "red" | "blue") => {
       if (!socket.roomCode || !rooms.has(socket.roomCode)) return;
 
-      const room = rooms.get(socket.roomCode);
+      const room = rooms.get(socket.roomCode)!;
       const player = room.players.get(socket.id);
 
       if (!player || room.gameState !== "lobby") return;
@@ -218,7 +245,7 @@ io.on("connection", (socket) => {
    socket.on("ready-toggle", () => {
       if (!socket.roomCode || !rooms.has(socket.roomCode)) return;
 
-      const room = rooms.get(socket.roomCode);
+      const room = rooms.get(socket.roomCode)!;
       const player = room.players.get(socket.id);
 
       if (!player || room.gameState !== "lobby") return;
@@ -242,10 +269,10 @@ io.on("connection", (socket) => {
       }
    });
 
-   socket.on("player-move", (data) => {
+   socket.on("player-move", (data: PlayerMoveData) => {
       if (!socket.roomCode || !rooms.has(socket.roomCode)) return;
 
-      const room = rooms.get(socket.roomCode);
+      const room = rooms.get(socket.roomCode)!;
       const player = room.players.get(socket.id);
 
       if (!player || room.gameState !== "playing") return;
@@ -262,7 +289,6 @@ io.on("connection", (socket) => {
          id: socket.id,
          x: player.x,
          y: player.y,
-
          dashX: player.dashX,
          dashY: player.dashY,
       });
@@ -272,7 +298,7 @@ io.on("connection", (socket) => {
       console.log("User disconnected:", socket.id);
 
       if (socket.roomCode && rooms.has(socket.roomCode)) {
-         const room = rooms.get(socket.roomCode);
+         const room = rooms.get(socket.roomCode)!;
          const wasFull = room.players.size === 8;
          const wasLobby = room.gameState === "lobby";
 
@@ -288,7 +314,7 @@ io.on("connection", (socket) => {
             socket.to(socket.roomCode).emit("game-ended", Array.from(room.players.values()));
          } else {
             socket.to(socket.roomCode).emit("player-left", Array.from(room.players.values()));
-            // NEW: Broadcast if the room was a lobby and is now joinable (was full)
+            // Broadcast if the room was a lobby and is now joinable (was full)
             if (wasLobby && wasFull) {
                broadcastLobbiesList();
             }
@@ -296,16 +322,16 @@ io.on("connection", (socket) => {
       }
    });
 
-   function teamsIngame() {
+   function teamsIngame(): number {
       if (!socket.roomCode || !rooms.has(socket.roomCode)) return 0;
-      const room = rooms.get(socket.roomCode);
+      const room = rooms.get(socket.roomCode)!;
       const redCount = getTeamCount(room, "red");
       const blueCount = getTeamCount(room, "blue");
       return (redCount > 0 ? 1 : 0) + (blueCount > 0 ? 1 : 0);
    }
 
-   function startGame(room) {
-      const wasLobby = room.gameState === "lobby"; // Check before changing
+   function startGame(room: Room): void {
+      const wasLobby = room.gameState === "lobby";
       room.gameState = "playing";
       room.startVotes.clear();
 
@@ -319,7 +345,7 @@ io.on("connection", (socket) => {
 
       io.to(room.code).emit("game-started", Array.from(room.players.values()));
 
-      // NEW: Broadcast the updated lobby list because a room is no longer in "lobby" state
+      // Broadcast the updated lobby list because a room is no longer in "lobby" state
       if (wasLobby) {
          broadcastLobbiesList();
       }
@@ -343,7 +369,7 @@ setInterval(() => {
       }
    }
 
-   // NEW: Broadcast the updated list if any rooms were removed
+   // Broadcast the updated list if any rooms were removed
    if (roomsRemoved) {
       broadcastLobbiesList();
    }
