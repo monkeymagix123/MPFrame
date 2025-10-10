@@ -16,6 +16,9 @@ export let dashX = 0;
 export let dashY = 0;
 export let dashCooldown = 0;
 
+export let mouseX = 0;
+export let mouseY = 0;
+
 // --- State Modifiers ---
 export function setCurrentRoom(roomCode) {
    currentRoom = roomCode;
@@ -90,4 +93,9 @@ export function startCooldown() {
 
 export function decrementCooldown(dt) {
    dashCooldown -= dt;
+}
+
+export function setMousePosition(x, y) {
+   mouseX = x;
+   mouseY = y;
 }
