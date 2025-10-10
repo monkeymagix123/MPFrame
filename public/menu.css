@@ -1,0 +1,138 @@
+/* Menu screen styles */
+#menu .container {
+   background: white;
+   border-radius: 20px;
+   width: 100%;
+   max-width: 900px;
+   padding: 40px;
+   text-align: center;
+}
+
+#menu-header {
+   margin-bottom: 40px;
+   font-size: 3em;
+   color: #2c3e50;
+   background: #667eea;
+   -webkit-background-clip: text;
+   -webkit-text-fill-color: transparent;
+   background-clip: text;
+}
+
+#menu-content {
+   display: flex;
+   gap: 40px;
+   align-items: flex-start;
+}
+
+#create-section,
+#join-section {
+   flex: 1;
+   background: #f8f9fa;
+   border-radius: 15px;
+   padding: 30px;
+}
+
+.section-title {
+   font-size: 1.5em;
+   color: #2c3e50;
+   margin-bottom: 20px;
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   gap: 10px;
+}
+
+.menu-section {
+   margin-bottom: 20px;
+}
+
+.menu-section h3 {
+   color: #2c3e50;
+   margin-bottom: 15px;
+   font-size: 1.2em;
+}
+
+.name-section,
+.join-room {
+   display: flex;
+   gap: 15px;
+   align-items: flex-end;
+}
+
+.name-section .form-group,
+.join-room .form-group {
+   flex: 2;
+   margin-bottom: 0;
+}
+
+.name-section button,
+.join-room button {
+   flex: 1;
+}
+
+/* Lobbies list */
+#lobbies-list {
+   max-height: 300px;
+   overflow-y: auto;
+   border: 2px solid #e9ecef;
+   border-radius: 10px;
+   background: white;
+}
+
+.lobby-item {
+   padding: 15px;
+   border-bottom: 1px solid #f1f3f4;
+   cursor: pointer;
+   transition: background 0.2s;
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+}
+
+.lobby-item:last-child {
+   border-bottom: none;
+}
+
+.lobby-item:hover {
+   background: #f8f9fa;
+}
+
+.lobby-info {
+   display: flex;
+   flex-direction: column;
+   align-items: flex-start;
+}
+
+.lobby-code {
+   color: #2c3e50;
+   font-weight: bold;
+   font-size: 16px;
+   margin-bottom: 5px;
+}
+
+.lobby-players {
+   font-size: 12px;
+   color: #6c757d;
+   font-weight: bold;
+}
+
+.lobby-join-btn {
+   background: #28a745;
+   color: white;
+   border: none;
+   padding: 8px 16px;
+   border-radius: 6px;
+   font-size: 14px;
+   cursor: pointer;
+   transition: background 0.2s;
+}
+
+.lobby-join-btn:hover {
+   background: #218838;
+}
+
+.no-lobbies {
+   padding: 40px;
+   text-align: center;
+   color: #6c757d;
+}

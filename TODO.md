@@ -20,3 +20,4 @@
 ## Code Practices
 
 -  [ ] Clean up CSS
+-  [ ] Set up gamestate and userstate
