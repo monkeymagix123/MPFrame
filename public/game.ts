@@ -2,6 +2,7 @@ import * as state from "./state";
 import { clamp } from "../shared/math";
 import { Config } from "../shared/config";
 import { renderGame } from "./canvas"; 
+import { clampPos } from "./canvasUtil";
 
 // Global variable to store the timestamp of the last frame
 let lastTime = 0;
@@ -151,8 +152,9 @@ function updateGame(dt: number): void {
   if (state.startDash) {
     if (state.dashCooldown <= 0.1) {
       // do a dash
-      state.currentPlayer.x = clamp(state.currentPlayer.x + dashVecX, playerRadius, canvasWidth - playerRadius);
-      state.currentPlayer.y = clamp(state.currentPlayer.y + dashVecY, playerRadius, canvasHeight - playerRadius);
+      const { x: clampedX, y: clampedY } = clampPos(state.currentPlayer.x + dashVecX, state.currentPlayer.y + dashVecY);
+      state.currentPlayer.x = clampedX;
+      state.currentPlayer.y = clampedY;
 
       // 1 sec dash cooldown
       state.startCooldown();

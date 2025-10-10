@@ -1,6 +1,7 @@
 import { Config } from "../shared/config";
 import { clamp } from "../shared/math";
 import { Player } from "../shared/types";
+import { clampPos } from "./canvasUtil";
 import * as state from "./state";
 
 export function renderGame(): void {
@@ -60,25 +61,13 @@ function drawDashArrow(x: number, y: number): void {
 	let arrowVecX = (dx / length) * arrowDistance;
 	let arrowVecY = (dy / length) * arrowDistance;
 
-	let { x: toX, y: toY } = clampDash(state.currentPlayer.x + arrowVecX, state.currentPlayer.y + arrowVecY);
+	let { x: toX, y: toY } = clampPos(state.currentPlayer.x + arrowVecX, state.currentPlayer.y + arrowVecY);
 
 	console.log(Object.keys(state.currentPlayer));
 	console.log("Drawing arrow to:", toX, toY);
 
 	drawArrow(state.currentPlayer.x, state.currentPlayer.y, toX, toY);
 }
-
-
-function clampDash(x: number, y: number): { x: number; y: number } {
-	if (!state.canvas) return { x, y };
-
-	const playerRadius = Config.playerRadius;
-	const clampedX = clamp(x, playerRadius, state.canvas.width - playerRadius);
-	const clampedY = clamp(y, playerRadius, state.canvas.height - playerRadius);
-
-	return { x: clampedX, y: clampedY };
-}
-
 
 function drawArrow(fromX: number, fromY: number, toX: number, toY: number): void {
 	if (!state.ctx) return;
