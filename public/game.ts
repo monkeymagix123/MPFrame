@@ -246,20 +246,33 @@ function drawArrow(fromX: number, fromY: number, toX: number, toY: number): void
   // draw the line
   state.ctx.lineWidth = 10;
 
+  let length = Math.sqrt(dx * dx + dy * dy);
+  let lengthMissing = length * Math.max(0, state.dashCooldown);
+
   state.ctx.beginPath();
   state.ctx.moveTo(fromX, fromY);
-  state.ctx.lineTo(toX, toY);
+  state.ctx.lineTo(toX - length * 0.1 * Math.cos(angle), toY - length * 0.1 * Math.sin(angle));
   state.ctx.strokeStyle = "rgba(250, 227, 17, 1)";
   state.ctx.stroke();
 
-  // draw the arrowhead
+  // draw anti-line for not done part
+  state.ctx.lineWidth = 6;
   state.ctx.beginPath();
-  state.ctx.moveTo(toX, toY);
-  state.ctx.lineTo(toX - headLength * Math.cos(angle - Math.PI / 6), toY - headLength * Math.sin(angle - Math.PI / 6));
-  state.ctx.lineTo(toX - headLength * Math.cos(angle + Math.PI / 6), toY - headLength * Math.sin(angle + Math.PI / 6));
-  state.ctx.lineTo(toX, toY);
-  state.ctx.fillStyle = "rgba(250, 227, 17, 1)";
-  state.ctx.fill();
+  state.ctx.moveTo(toX - length * 0.12 * Math.cos(angle), toY - length * 0.12 * Math.sin(angle));
+  state.ctx.lineTo(toX - lengthMissing * Math.cos(angle), toY - lengthMissing * Math.sin(angle));
+  state.ctx.strokeStyle = "rgba(240, 240, 240, 1)";
+  state.ctx.stroke();
+
+  // draw the arrowhead
+  if (state.dashCooldown < 0.1) {
+    state.ctx.beginPath();
+    state.ctx.moveTo(toX, toY);
+    state.ctx.lineTo(toX - headLength * Math.cos(angle - Math.PI / 6), toY - headLength * Math.sin(angle - Math.PI / 6));
+    state.ctx.lineTo(toX - headLength * Math.cos(angle + Math.PI / 6), toY - headLength * Math.sin(angle + Math.PI / 6));
+    state.ctx.lineTo(toX, toY);
+    state.ctx.fillStyle = "rgba(250, 227, 17, 1)";
+    state.ctx.fill();
+  }
 
   console.log("hi");
 }
