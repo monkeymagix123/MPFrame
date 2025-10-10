@@ -1,6 +1,7 @@
 import { Config } from "../shared/config";
 import { clamp } from "../shared/math";
-import { Player } from "../shared/types";
+import { Player } from "../shared/player";
+import { clampPos } from "./canvasUtil";
 import * as state from "./state";
 
 export function renderGame(): void {
@@ -11,54 +12,36 @@ export function renderGame(): void {
 	state.ctx.fillStyle = "#f0f0f0";
 	state.ctx.fillRect(0, 0, state.canvas.width, state.canvas.height);
 
-	state.players.forEach((player) => {
-		if (!state.ctx) return;
+	state.players.forEach((player) => { drawPlayer(player); });
 
-		state.ctx.beginPath();
-		state.ctx.arc(player.x, player.y, playerRadius, 0, Math.PI * 2);
-		state.ctx.fillStyle = player.team === "red" ? "#f44336" : "#2196F3";
-		state.ctx.fill();
-
-		if (player.id === state.socket.id) {
-			state.ctx.strokeStyle = "#333";
-			state.ctx.lineWidth = 3;
-			state.ctx.stroke();
-		}
-
-		state.ctx.fillStyle = "#333";
-		state.ctx.font = "12px Arial";
-		state.ctx.textAlign = "center";
-		const name = player.id === state.socket.id ? "You" : player.name || player.id.substring(0, 4);
-		state.ctx.fillText(name, player.x, player.y - 25);
-	});
-
-	redrawArrow(state.mouseX, state.mouseY);
+	if (state.currentPlayer)
+		drawDashArrow(state.mouseX, state.mouseY);
 }
 
 function drawPlayer(player: Player): void {
 	if (!state.ctx) return;
 		
 	state.ctx.beginPath();
-		state.ctx.arc(player.x, player.y, Config.playerRadius, 0, Math.PI * 2);
-		state.ctx.fillStyle = player.team === "red" ? "#f44336" : "#2196F3";
-		state.ctx.fill();
+	state.ctx.arc(player.x, player.y, Config.playerRadius, 0, Math.PI * 2);
+	state.ctx.fillStyle = player.team === "red" ? "#f44336" : "#2196F3";
+	state.ctx.fill();
 
-		if (player.id === state.socket.id) {
-			state.ctx.strokeStyle = "#333";
-			state.ctx.lineWidth = 3;
-			state.ctx.stroke();
-		}
+	if (player.id === state.socket.id) {
+		state.ctx.strokeStyle = "#333";
+		state.ctx.lineWidth = 3;
+		state.ctx.stroke();
+	}
 
-		state.ctx.fillStyle = "#333";
-		state.ctx.font = "12px Arial";
-		state.ctx.textAlign = "center";
-		const name = player.id === state.socket.id ? "You" : player.name || player.id.substring(0, 4);
-		state.ctx.fillText(name, player.x, player.y - 25);
+	state.ctx.fillStyle = "#333";
+	state.ctx.font = "12px Arial";
+	state.ctx.textAlign = "center";
+	const name = player.id === state.socket.id ? "You" : player.name || player.id.substring(0, 4);
+	state.ctx.fillText(name, player.x, player.y - 25);
 }
 
 
 // dash cooldown thing
-function redrawArrow(x: number, y: number): void {
+function drawDashArrow(x: number, y: number): void {
 	const playerRadius = Config.playerRadius;
 
 	if (!state.currentPlayer || !state.canvas) return;
@@ -78,14 +61,21 @@ function redrawArrow(x: number, y: number): void {
 	let arrowVecX = (dx / length) * arrowDistance;
 	let arrowVecY = (dy / length) * arrowDistance;
 
-	let toX = clamp(state.currentPlayer.x + arrowVecX, playerRadius, state.canvas.width - playerRadius);
-	let toY = clamp(state.currentPlayer.y + arrowVecY, playerRadius, state.canvas.height - playerRadius);
+	let { x: toX, y: toY } = clampPos(state.currentPlayer.x + arrowVecX, state.currentPlayer.y + arrowVecY);
 
 	console.log(Object.keys(state.currentPlayer));
 	console.log("Drawing arrow to:", toX, toY);
 
 	drawArrow(state.currentPlayer.x, state.currentPlayer.y, toX, toY);
 }
+
+function drawHealthBar(): void {
+	// Placeholder for health bar drawing logic
+}
+
+
+
+
 function drawArrow(fromX: number, fromY: number, toX: number, toY: number): void {
 	if (!state.ctx) return;
 
@@ -113,7 +103,7 @@ function drawArrow(fromX: number, fromY: number, toX: number, toY: number): void
 	// draw anti-line for not done part
 	state.ctx.lineWidth = 6;
 	state.ctx.beginPath();
-	state.ctx.moveTo(toX - length * 0.12 * Math.cos(angle), toY - length * 0.12 * Math.sin(angle));
+	state.ctx.moveTo(toX - (length * 0.1 + 2) * Math.cos(angle), toY - (length * 0.1 + 2) * Math.sin(angle));
 	state.ctx.lineTo(toX - lengthMissing * Math.cos(angle), toY - lengthMissing * Math.sin(angle));
 	state.ctx.strokeStyle = "rgba(240, 240, 240, 1)";
 	state.ctx.stroke();

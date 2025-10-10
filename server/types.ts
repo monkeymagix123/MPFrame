@@ -1,5 +1,6 @@
 import { Socket } from "socket.io";
-import { Player, ChatMessage } from "../shared/types";
+import { ChatMessage } from "../shared/types";
+import { Player } from "../shared/player";
 
 
 // Extended socket interface to include roomCode
