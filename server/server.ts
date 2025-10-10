@@ -1,8 +1,9 @@
 import express from "express";
 import http from "http";
-import { Server, Socket } from "socket.io";
+import { Server } from "socket.io";
 import path from "path";
-import { Player, ChatMessage, RoomData, PlayerMoveData } from "../shared/types";
+import { ChatMessage, RoomData, PlayerMoveData } from "../shared/types";
+import { Room, GameSocket } from "types";
 
 const app = express();
 const server = http.createServer(app);
@@ -13,9 +14,6 @@ app.use(express.static(path.join(__dirname, "..", "..", "public")));
 
 // Serve compiled client JS
 app.use("/dist", express.static(path.join(__dirname, "..", "..", "public", "dist")));
-
-console.log("Serving static files from:", path.join(__dirname, "..", "..", "public"));
-console.log("Serving /dist files from:", path.join(__dirname, "..", "..", "public", "dist"));
 
 app.get("/games/:roomCode", (req, res) => {
    const roomCode = req.params.roomCode as string;
@@ -28,23 +26,10 @@ app.get("/games/:roomCode", (req, res) => {
    res.sendFile(path.join(__dirname, "..", "..", "public", "index.html"));
 });
 
-// Extended socket interface to include roomCode
-interface GameSocket extends Socket {
-   roomCode?: string;
-}
-
-// Room interface
-interface Room {
-   code: string;
-   players: Map<string, Player>;
-   gameState: "lobby" | "starting" | "playing";
-   startVotes: Set<string>;
-   lastUpdate: number;
-   chatMessages: ChatMessage[];
-}
-
 // Game state
 const rooms = new Map<string, Room>();
+// Store player names globally, independent of rooms
+const playerNames = new Map<string, string>();
 
 function generateRoomCode(): string {
    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -67,10 +52,6 @@ function createRoom(code: string): Room {
       lastUpdate: Date.now(),
       chatMessages: [],
    };
-}
-
-function getPlayerCount(room: Room): number {
-   return room.players.size;
 }
 
 function getTeamCount(room: Room, team: "red" | "blue"): number {
@@ -98,20 +79,39 @@ io.on("connection", (socket: GameSocket) => {
    });
 
    socket.on("set-name", (name: string) => {
-      if (!socket.roomCode || !rooms.has(socket.roomCode)) return;
-
-      const room = rooms.get(socket.roomCode)!;
-      const player = room.players.get(socket.id);
-
-      if (!player) return;
-
       // Sanitize and limit name length
       const sanitizedName = name.trim().substring(0, 20);
-      if (sanitizedName.length === 0) return;
+      if (sanitizedName.length === 0) {
+         // If empty name, remove from storage
+         playerNames.delete(socket.id);
+         socket.emit("name-updated", undefined);
+         
+         // If in a room, update other players
+         if (socket.roomCode && rooms.has(socket.roomCode)) {
+            const room = rooms.get(socket.roomCode)!;
+            const player = room.players.get(socket.id);
+            if (player) {
+               player.name = undefined;
+               io.to(socket.roomCode).emit("player-updated", Array.from(room.players.values()));
+            }
+         }
+         return;
+      }
 
-      player.name = sanitizedName;
+      // Store name globally
+      playerNames.set(socket.id, sanitizedName);
+      socket.emit("name-updated", sanitizedName);
 
-      io.to(socket.roomCode).emit("player-updated", Array.from(room.players.values()));
+      // If player is in a room, update their name in the room too
+      if (socket.roomCode && rooms.has(socket.roomCode)) {
+         const room = rooms.get(socket.roomCode)!;
+         const player = room.players.get(socket.id);
+
+         if (player) {
+            player.name = sanitizedName;
+            io.to(socket.roomCode).emit("player-updated", Array.from(room.players.values()));
+         }
+      }
    });
 
    socket.on("send-chat", (message: string) => {
@@ -151,10 +151,10 @@ io.on("connection", (socket: GameSocket) => {
       socket.join(roomCode);
       socket.roomCode = roomCode;
 
-      // Add player to room
+      // Add player to room, use stored name if available
       room.players.set(socket.id, {
          id: socket.id,
-         name: undefined,
+         name: playerNames.get(socket.id),
          x: Math.random() * 760 + 20,
          y: Math.random() * 560 + 20,
          team: "red",
@@ -193,10 +193,10 @@ io.on("connection", (socket: GameSocket) => {
       socket.join(roomCode);
       socket.roomCode = roomCode;
 
-      // Add player to room
+      // Add player to room, use stored name if available
       room.players.set(socket.id, {
          id: socket.id,
-         name: undefined,
+         name: playerNames.get(socket.id),
          x: Math.random() * 760 + 20,
          y: Math.random() * 560 + 20,
          team: getTeamCount(room, "red") > getTeamCount(room, "blue") ? "blue" : "red",
@@ -296,6 +296,9 @@ io.on("connection", (socket: GameSocket) => {
 
    socket.on("disconnect", () => {
       console.log("User disconnected:", socket.id);
+
+      // Clean up player name
+      playerNames.delete(socket.id);
 
       if (socket.roomCode && rooms.has(socket.roomCode)) {
          const room = rooms.get(socket.roomCode)!;

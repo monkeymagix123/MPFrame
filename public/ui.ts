@@ -38,7 +38,7 @@ function setupUIListeners(): void {
     }
   });
 
-  // Player name setting (in-game)
+  // Player name setting (menu)
   const playerNameInput = document.getElementById("player-name-input");
   playerNameInput?.addEventListener("keypress", (e: Event) => {
     const keyEvent = e as KeyboardEvent;
