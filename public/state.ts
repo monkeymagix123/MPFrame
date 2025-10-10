@@ -8,17 +8,12 @@ import { Config } from "../shared/config";
 export const socket: Socket = io();
 export let currentRoom: string | null = null;
 export const players: Map<string, Player> = new Map();
-export let currentPlayer: Player | null = null;
+export let currentPlayer: Player | undefined = undefined;
 export const keys: Keys = {};
 export let canvas: HTMLCanvasElement | null = null;
 export let ctx: CanvasRenderingContext2D | null = null;
 export let gameLoop: number | null = null;
 export let chatMessages: ChatMessage[] = [];
-
-export let startDash = false;
-export let dashX = 0;
-export let dashY = 0;
-export let dashCooldown = 0;
 
 export let mouseX = 0;
 export let mouseY = 0;
@@ -40,7 +35,7 @@ export function setGameLoop(loop: number | null): void {
 export function addPlayer(player: Player): void {
 	players.set(player.id, player);
 	if (player.id === socket.id) {
-		currentPlayer = player;
+		currentPlayer = Object.setPrototypeOf(player, Player.prototype);
 	}
 }
 
@@ -71,7 +66,7 @@ export function addChatMessage(message: ChatMessage): void {
 export function resetState(): void {
 	currentRoom = null;
 	players.clear();
-	currentPlayer = null;
+	currentPlayer = undefined;
 
 	if (gameLoop !== null) {
 		cancelAnimationFrame(gameLoop);
@@ -79,24 +74,6 @@ export function resetState(): void {
 	}
 
 	chatMessages = [];
-}
-
-export function doDash(x: number, y: number): void {
-	startDash = true;
-	dashX = x;
-	dashY = y;
-}
-
-export function resetDash(): void {
-	startDash = false;
-}
-
-export function startCooldown(): void {
-	dashCooldown = Config.dashCooldown;
-}
-
-export function decrementCooldown(dt: number): void {
-	dashCooldown -= dt;
 }
 
 export function setMousePosition(x: number, y: number): void {

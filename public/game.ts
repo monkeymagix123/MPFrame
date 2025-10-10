@@ -2,7 +2,7 @@ import * as state from "./state";
 import { clamp } from "../shared/math";
 import { Config } from "../shared/config";
 import { renderGame } from "./canvas"; 
-import { clampPos } from "./canvasUtil";
+import { Player } from "../shared/player";
 
 // Global variable to store the timestamp of the last frame
 let lastTime = 0;
@@ -63,7 +63,7 @@ function setupGameControls(): void {
   document.addEventListener("click", (e: MouseEvent) => {
     if (!state.canvas) return;
     const rect = state.canvas.getBoundingClientRect();
-    state.doDash(e.clientX - rect.left, e.clientY - rect.top);
+    state.currentPlayer?.attemptDash(e.clientX - rect.left, e.clientY - rect.top);
   });
 
   document.addEventListener("mousemove", (e: MouseEvent) => {
@@ -114,8 +114,10 @@ function updateGame(dt: number): void {
   // Actual speed is speedPerSecond * dt, which is a consistent distance regardless of frame rate
 
   // Use canvas dimensions for boundary checking
-  const canvasWidth = state.canvas.width;
-  const canvasHeight = state.canvas.height;
+  const canvasWidth = state.canvas.width / Config.scale;
+  const canvasHeight = state.canvas.height / Config.scale;
+  // const canvasWidth = Config.canvasWidth;
+  // const canvasHeight = Config.canvasHeight;
   const playerRadius = Config.playerRadius;
 
   const distance = speedPerSecond * dt; // The distance to move this frame
@@ -137,39 +139,13 @@ function updateGame(dt: number): void {
     moved = true;
   }
 
-  // dash & arrow calculation
-  let dx = state.dashX - state.currentPlayer.x;
-  let dy = state.dashY - state.currentPlayer.y;
-
-  let length = Math.sqrt(dx * dx + dy * dy);
-
-  // Assuming a fixed dash distance of 100 units (original code logic)
-  const dashDistance = Config.dashDistance;
-  // Normalize and scale the dash vector
-  let dashVecX = (dx / length) * dashDistance;
-  let dashVecY = (dy / length) * dashDistance;
-
-  if (state.startDash) {
-    if (state.dashCooldown <= 0.1) {
-      // do a dash
-      const { x: clampedX, y: clampedY } = clampPos(state.currentPlayer.x + dashVecX, state.currentPlayer.y + dashVecY);
-      state.currentPlayer.x = clampedX;
-      state.currentPlayer.y = clampedY;
-
-      // 1 sec dash cooldown
-      state.startCooldown();
-    }
-
-    state.resetDash();
-  }
-
   // Decrement cooldown based on delta time in seconds
-  state.decrementCooldown(dt);
+  state.currentPlayer.decrementCooldown(dt);
 
   if (moved) {
     state.socket.emit("player-move", {
-      x: state.currentPlayer.x,
-      y: state.currentPlayer.y,
+      x: state.currentPlayer?.x,
+      y: state.currentPlayer?.y,
     });
   }
 }

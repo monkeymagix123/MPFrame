@@ -1,7 +1,6 @@
 import { Config } from "../shared/config";
-import { clamp } from "../shared/math";
+import { clamp, clampPos } from "../shared/math";
 import { Player } from "../shared/player";
-import { clampPos } from "./canvasUtil";
 import * as state from "./state";
 
 export function renderGame(): void {
@@ -9,7 +8,8 @@ export function renderGame(): void {
 
 	const playerRadius = Config.playerRadius;
 
-	state.ctx.fillStyle = "#f0f0f0";
+	// state.ctx.fillStyle = "#f0f0f0";
+	state.ctx.fillStyle = "gray";
 	state.ctx.fillRect(0, 0, state.canvas.width, state.canvas.height);
 
 	state.players.forEach((player) => { drawPlayer(player); });
@@ -92,7 +92,7 @@ function drawArrow(fromX: number, fromY: number, toX: number, toY: number): void
 	state.ctx.lineWidth = 10;
 
 	let length = Math.sqrt(dx * dx + dy * dy);
-	let lengthMissing = length * Math.max(0, state.dashCooldown) / Config.dashCooldown;
+	let lengthMissing = length * Math.max(0, state.currentPlayer!.dashCooldown) / Config.dashCooldown;
 
 	state.ctx.beginPath();
 	state.ctx.moveTo(fromX, fromY);
@@ -109,7 +109,7 @@ function drawArrow(fromX: number, fromY: number, toX: number, toY: number): void
 	state.ctx.stroke();
 
 	// draw the arrowhead
-	if (state.dashCooldown < 0.1) {
+	if (state.currentPlayer!.dashCooldown <= 0) {
 		state.ctx.beginPath();
 		state.ctx.moveTo(toX, toY);
 		state.ctx.lineTo(toX - headLength * Math.cos(angle - Math.PI / 6), toY - headLength * Math.sin(angle - Math.PI / 6));
