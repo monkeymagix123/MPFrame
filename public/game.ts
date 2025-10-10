@@ -1,5 +1,5 @@
 import * as state from "./state";
-import { clamp } from "./mathUtil";
+import { clamp } from "../shared/math";
 
 // Global variable to store the timestamp of the last frame
 let lastTime = 0;
@@ -11,7 +11,6 @@ export function initGame(): void {
 
   state.setCanvas(canvas);
   setupGameControls();
-  state.socket.emit("get-lobbies");
 
   resizeCanvas();
   // Resize canvas when window is resized

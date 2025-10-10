@@ -10,9 +10,7 @@
 ## Game/Server
 
 -  [ ] Interpolate by broadcasting velocity/acceleration
--  [ ] Fix graphics
--  [x] Adding arrow
--  [ ] Fix join game
+-  [ ] Improve graphics
 -  [ ] Fix leave game
 
 ## Code Practices

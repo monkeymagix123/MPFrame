@@ -1,6 +1,7 @@
 import * as state from "./state";
 import { leaveRoom, sendChatMessage, escapeHtml } from "./utils";
 import { Lobby } from "../shared/types";
+import { initGame } from "./game";
 
 export function initUI(): void {
   setupUIListeners();
@@ -150,6 +151,7 @@ export function showGame(): void {
     gameRoomCode.textContent = state.currentRoom;
   }
   updateChatDisplay();
+  initGame();
 }
 
 export function showError(elementId: string, message: string): void {

@@ -7,7 +7,6 @@ document.addEventListener("DOMContentLoaded", () => {
   (function () {
     initSocket();
     initUI();
-    initGame();
     checkURLForRoom();
   })();
 });
