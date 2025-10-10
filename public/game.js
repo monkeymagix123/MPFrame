@@ -63,8 +63,7 @@ function setupGameControls() {
    document.addEventListener("mousemove", (e) => {
       if (Date.now() - lastDrawTime < 20) return;
       lastDrawTime = Date.now();
-      if (!state.currentPlayer) return;
-      redrawArrow(e.clientX, e.clientY);
+      state.setMousePosition(e.clientX, e.clientY);
    });
 }
 
@@ -192,6 +191,8 @@ function renderGame() {
       const name = player.id === state.socket.id ? "You" : player.name || player.id.substring(0, 4);
       state.ctx.fillText(name, player.x, player.y - 25);
    });
+
+   redrawArrow(state.mouseX, state.mouseY);
 }
 
 // dash cooldown thing
@@ -227,18 +228,21 @@ function redrawArrow(x, y) {
 function drawArrow(fromX, fromY, toX, toY) {
    console.log(fromX, fromY, toX, toY); // THIS THING
 
-   const headLength = 10; // length of head in pixels
-   const dx = toX - fromX;
-   const dy = toY - fromY;
+   // const ctx = state.canvas.getContext("2d");
+
+   const headLength = 30; // length of head in pixels
+
+   let dx = toX - fromX;
+   let dy = toY - fromY;
+
    const angle = Math.atan2(dy, dx);
 
    // draw the line
-   state.ctx.lineWidth = 50;
+   state.ctx.lineWidth = 10;
    
    state.ctx.beginPath();
    state.ctx.moveTo(fromX, fromY);
    state.ctx.lineTo(toX, toY);
-
    state.ctx.strokeStyle = "rgba(250, 227, 17, 1)";
    state.ctx.stroke();
 
@@ -248,14 +252,8 @@ function drawArrow(fromX, fromY, toX, toY) {
    state.ctx.lineTo(toX - headLength * Math.cos(angle - Math.PI / 6), toY - headLength * Math.sin(angle - Math.PI / 6));
    state.ctx.lineTo(toX - headLength * Math.cos(angle + Math.PI / 6), toY - headLength * Math.sin(angle + Math.PI / 6));
    state.ctx.lineTo(toX, toY);
-   
    state.ctx.fillStyle = "rgba(250, 227, 17, 1)";
    state.ctx.fill();
-
-         state.ctx.beginPath();
-      state.ctx.arc(toX, toY, 15, 0, Math.PI * 2);
-      // state.ctx.fillStyle = player.team === "red" ? "#f44336" : "#2196F3";
-      state.ctx.fill();
    
-      console.log("hi");
+   console.log("hi");
 }
