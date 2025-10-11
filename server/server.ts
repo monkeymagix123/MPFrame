@@ -164,8 +164,6 @@ io.on("connection", (socket: GameSocket) => {
 			false
 		);
 		room.players.set(socket.id, p);
-		console.log(p);
-		console.log(typeof p.decrementCooldown);
 
 		socket.emit("room-joined", {
 			roomCode,
@@ -202,8 +200,6 @@ io.on("connection", (socket: GameSocket) => {
 		// Add player to room, use stored name if available
 		const p: Player = new Player(socket.id, getTeamCount(room, "red") > getTeamCount(room, "blue") ? "blue" : "red", Math.random() * 760 + 20, Math.random() * 560 + 20, playerNames.get(socket.id), false);
 		room.players.set(socket.id, p);
-
-		console.log(p);
 
 		socket.emit("room-joined", {
 			roomCode,
