@@ -91,16 +91,17 @@ function drawArrow(fromX: number, fromY: number, toX: number, toY: number): void
 
 	state.ctx.beginPath();
 	state.ctx.moveTo(fromX, fromY);
-	state.ctx.lineTo(toX - length * 0.1 * Math.cos(angle), toY - length * 0.1 * Math.sin(angle));
+	state.ctx.lineTo(toX - headLength * 0.75 * Math.cos(angle), toY - headLength * 0.75 * Math.sin(angle));
 	state.ctx.strokeStyle = "rgba(250, 227, 17, 1)";
 	state.ctx.stroke();
 
 	// draw anti-line for not done part
 	state.ctx.lineWidth = 6;
 	state.ctx.beginPath();
-	state.ctx.moveTo(toX - (length * 0.1 + 2) * Math.cos(angle), toY - (length * 0.1 + 2) * Math.sin(angle));
-	state.ctx.lineTo(toX - lengthMissing * Math.cos(angle), toY - lengthMissing * Math.sin(angle));
-	state.ctx.strokeStyle = "rgba(240, 240, 240, 1)";
+	state.ctx.moveTo(toX - (headLength * 0.75 + 2) * Math.cos(angle), toY - (headLength * 0.75 + 2) * Math.sin(angle));
+	const d = Math.min(length - headLength * 0.75, lengthMissing);
+	state.ctx.lineTo(toX - d * Math.cos(angle), toY - d * Math.sin(angle));
+	state.ctx.strokeStyle = "rgba(240, 240, 240, 1)"; // SYNC CHANIGES
 	state.ctx.stroke();
 
 	// draw the arrowhead
