@@ -53,12 +53,12 @@ label {
 
 .form-group input:focus {
    outline: none;
-   border-color: #667eea;
+   border-color: #5075f9;
 }
 
 /* Shared button styles */
 button {
-   background: #667eea;
+   background: #5075f9;
    color: white;
    border: none;
    padding: 15px 30px;
@@ -70,14 +70,10 @@ button {
    width: 100%;
 }
 
-button:hover {
-   transform: translateY(-2px);
-}
-
 /* Error messages */
 #menu-error,
 #lobby-error {
-   color: #f44336;
+   color: #ea4179;
    font-weight: bold;
    margin-top: 15px;
    text-align: center;

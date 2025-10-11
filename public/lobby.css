@@ -45,7 +45,7 @@
 }
 
 #red-team {
-   border-color: #f44336;
+   border-color: #ea4179;
 }
 
 #blue-team {
@@ -59,7 +59,7 @@
 }
 
 #red-team h3 {
-   color: #f44336;
+   color: #ea4179;
 }
 
 #blue-team h3 {
@@ -111,21 +111,11 @@
 }
 
 #join-red-btn {
-   background: #f44336;
-}
-
-#join-red-btn:hover {
-   background: #d32f2f;
-   transform: translateY(-2px);
+   background: #ea4179;
 }
 
 #join-blue-btn {
    background: #2196f3;
-}
-
-#join-blue-btn:hover {
-   background: #1976d2;
-   transform: translateY(-2px);
 }
 
 #join-red-btn:disabled,
@@ -154,16 +144,12 @@
    transition: all 0.3s;
 }
 
-#ready-btn:hover {
-   transform: translateY(-2px);
-}
-
 #ready-btn.ready {
    background: #ff9800;
 }
 
 #leave-room-btn {
-   background: #f44336;
+   background: #ea4179;
    color: white;
    border: none;
    padding: 15px 30px;
@@ -172,8 +158,4 @@
    font-weight: 600;
    cursor: pointer;
    transition: all 0.3s;
-}
-
-#leave-room-btn:hover {
-   transform: translateY(-2px);
 }

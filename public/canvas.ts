@@ -8,14 +8,13 @@ export function renderGame(): void {
 
 	const playerRadius = Config.playerRadius;
 
-	// state.ctx.fillStyle = "#f0f0f0";
-	state.ctx.fillStyle = "gray";
+	state.ctx.fillStyle = '#11111b';
 	state.ctx.fillRect(0, 0, state.canvas.width, state.canvas.height);
-
-	state.players.forEach((player) => { drawPlayer(player); });
-
+   
 	if (state.currentPlayer)
 		drawDashArrow(state.mouseX, state.mouseY);
+
+	state.players.forEach((player) => { drawPlayer(player); });
 }
 
 function drawPlayer(player: Player): void {
@@ -23,7 +22,7 @@ function drawPlayer(player: Player): void {
 		
 	state.ctx.beginPath();
 	state.ctx.arc(player.x, player.y, Config.playerRadius, 0, Math.PI * 2);
-	state.ctx.fillStyle = player.team === "red" ? "#f44336" : "#2196F3";
+	state.ctx.fillStyle = player.team === "red" ? "#ea4179" : "#5075f9";
 	state.ctx.fill();
 
 	if (player.id === state.socket.id) {

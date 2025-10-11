@@ -12,7 +12,7 @@
    margin-bottom: 40px;
    font-size: 3em;
    color: #2c3e50;
-   background: #667eea;
+   background: #5075f9;
    -webkit-background-clip: text;
    -webkit-text-fill-color: transparent;
    background-clip: text;
@@ -93,10 +93,6 @@
    border-bottom: none;
 }
 
-.lobby-item:hover {
-   background: #f8f9fa;
-}
-
 .lobby-info {
    display: flex;
    flex-direction: column;
@@ -125,10 +121,6 @@
    font-size: 14px;
    cursor: pointer;
    transition: background 0.2s;
-}
-
-.lobby-join-btn:hover {
-   background: #218838;
 }
 
 .no-lobbies {

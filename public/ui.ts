@@ -238,7 +238,7 @@ export function updateLobbiesList(lobbies: Lobby[]): void {
       <div class="lobby-info">
         <div class="lobby-code">${lobby.code}</div>
         <div class="lobby-players">
-          (<span style="color: #f44336;">${lobby.redCount}</span>/<span style="color: #2196f3;">${lobby.blueCount}</span>)
+          (<span style="color: #ea4179;">${lobby.redCount}</span>/<span style="color: #2196f3;">${lobby.blueCount}</span>)
         </div>
       </div>
       <button class="lobby-join-btn">Join </button>
