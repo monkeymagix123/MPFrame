@@ -25,6 +25,12 @@ function drawPlayer(player: Player): void {
 	state.ctx.fillStyle = player.team === "red" ? "#ea4179" : "#5075f9";
 	state.ctx.fill();
 
+	// less color for less health
+	state.ctx.beginPath();
+	state.ctx.arc(player.x, player.y, Config.playerRadius * (1 - player.health / player.maxHealth), 0, Math.PI * 2);
+	state.ctx.fillStyle = "white";
+	state.ctx.fill();
+
 	state.ctx.font = "bold 12px Arial";
 	state.ctx.textAlign = "center";
 	const name = player.id === state.socket.id ? "You" : player.name || player.id.substring(0, 4);

@@ -8,4 +8,8 @@ export const Config = {
 
 	dashDistance: 300,
 	dashCooldown: 0.5, // in seconds
+
+	dashDamage: 25,
+
+	maxHealth: 100,
 }
