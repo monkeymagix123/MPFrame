@@ -98,7 +98,7 @@ function drawArrow(fromX: number, fromY: number, toX: number, toY: number): void
 	state.ctx.moveTo(toX - (headLength * 0.75 + 2) * Math.cos(angle), toY - (headLength * 0.75 + 2) * Math.sin(angle));
 	const d = Math.min(length - headLength * 0.75, lengthMissing);
 	state.ctx.lineTo(toX - d * Math.cos(angle), toY - d * Math.sin(angle));
-	state.ctx.strokeStyle = "rgba(240, 240, 240, 1)"; // SYNC CHANIGES
+	state.ctx.strokeStyle = "rgba(240, 240, 240, 1)";
 	state.ctx.stroke();
 
 	// draw the arrowhead
