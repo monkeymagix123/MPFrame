@@ -25,21 +25,19 @@ function drawPlayer(player: Player): void {
 	state.ctx.fillStyle = player.team === "red" ? "#ea4179" : "#5075f9";
 	state.ctx.fill();
 
-	if (player.id === state.socket.id) {
-		state.ctx.strokeStyle = "#333";
-		state.ctx.lineWidth = 3;
-		state.ctx.stroke();
-	}
-
-	state.ctx.fillStyle = "#333";
-	state.ctx.font = "12px Arial";
+	state.ctx.font = "bold 12px Arial";
 	state.ctx.textAlign = "center";
 	const name = player.id === state.socket.id ? "You" : player.name || player.id.substring(0, 4);
 	state.ctx.fillText(name, player.x, player.y - 25);
+	
+	if (player.id === state.socket.id) {
+		state.ctx.strokeStyle = "#FFFFFF";
+		state.ctx.lineWidth = 3;
+		state.ctx.stroke();
+	}
 }
 
 
-// dash cooldown thing
 function drawDashArrow(x: number, y: number): void {
 	const playerRadius = Config.playerRadius;
 
