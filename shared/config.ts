@@ -7,6 +7,6 @@ export const Config = {
 
 	dashCooldown: 0.5, // in seconds
 
-	canvasWidth: 800,
+	canvasWidth: 900,
 	canvasHeight: 600,
 }

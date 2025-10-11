@@ -123,19 +123,19 @@ function updateGame(dt: number): void {
   const distance = speedPerSecond * dt; // The distance to move this frame
 
   if (state.keys["w"] || state.keys["arrowup"]) {
-    state.currentPlayer.y = Math.max(playerRadius, state.currentPlayer.y - distance);
+    state.currentPlayer.moveUp(distance);
     moved = true;
   }
   if (state.keys["s"] || state.keys["arrowdown"]) {
-    state.currentPlayer.y = Math.min(canvasHeight - playerRadius, state.currentPlayer.y + distance);
+    state.currentPlayer.moveDown(distance);
     moved = true;
   }
   if (state.keys["a"] || state.keys["arrowleft"]) {
-    state.currentPlayer.x = Math.max(playerRadius, state.currentPlayer.x - distance);
+    state.currentPlayer.moveLeft(distance);
     moved = true;
   }
   if (state.keys["d"] || state.keys["arrowright"]) {
-    state.currentPlayer.x = Math.min(canvasWidth - playerRadius, state.currentPlayer.x + distance);
+    state.currentPlayer.moveRight(distance);
     moved = true;
   }
 

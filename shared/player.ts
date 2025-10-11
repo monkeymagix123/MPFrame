@@ -22,6 +22,26 @@ export class Player {
         this.y = y;
     }
 
+    moveLeft(distance: number): void {
+        const { x: clampedX } = clampPos(this.x - distance, this.y);
+        this.x = clampedX;
+    }
+
+    moveRight(distance: number): void {
+        const { x: clampedX } = clampPos(this.x + distance, this.y);
+        this.x = clampedX;
+    }
+
+    moveUp(distance: number): void {
+        const { y: clampedY } = clampPos(this.x, this.y - distance);
+        this.y = clampedY;
+    }
+
+    moveDown(distance: number): void {
+        const { y: clampedY } = clampPos(this.x, this.y + distance);
+        this.y = clampedY;
+    }
+
     doDash(x: number, y: number): void {
         this.startDash = true;
 

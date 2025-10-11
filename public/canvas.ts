@@ -63,9 +63,6 @@ function drawDashArrow(x: number, y: number): void {
 
 	let { x: toX, y: toY } = clampPos(state.currentPlayer.x + arrowVecX, state.currentPlayer.y + arrowVecY);
 
-	console.log(Object.keys(state.currentPlayer));
-	console.log("Drawing arrow to:", toX, toY);
-
 	drawArrow(state.currentPlayer.x, state.currentPlayer.y, toX, toY);
 }
 
@@ -78,8 +75,6 @@ function drawHealthBar(): void {
 
 function drawArrow(fromX: number, fromY: number, toX: number, toY: number): void {
 	if (!state.ctx) return;
-
-	console.log(fromX, fromY, toX, toY); // THIS THING
 
 	const headLength = Config.headLength; // length of head in pixels
 
@@ -118,6 +113,4 @@ function drawArrow(fromX: number, fromY: number, toX: number, toY: number): void
 		state.ctx.fillStyle = "rgba(250, 227, 17, 1)";
 		state.ctx.fill();
 	}
-
-	console.log("hi");
 }
