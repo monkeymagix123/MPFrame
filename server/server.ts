@@ -5,6 +5,8 @@ import path from "path";
 import { ChatMessage, RoomData, PlayerMoveData } from "../shared/types";
 import { Room, GameSocket } from "types";
 
+import { Player } from "../shared/player";
+
 import { Config } from "../shared/config"
 
 const app = express();
@@ -93,7 +95,6 @@ io.on("connection", (socket: GameSocket) => {
 				const room = rooms.get(socket.roomCode)!;
 				const player = room.players.get(socket.id);
 				if (player) {
-					player.name = undefined;
 					io.to(socket.roomCode).emit("player-updated", Array.from(room.players.values()));
 				}
 			}
@@ -154,14 +155,17 @@ io.on("connection", (socket: GameSocket) => {
 		socket.roomCode = roomCode;
 
 		// Add player to room, use stored name if available
-		room.players.set(socket.id, {
-			id: socket.id,
-			name: playerNames.get(socket.id),
-			x: Math.random() * 760 + 20,
-			y: Math.random() * 560 + 20,
-			team: "red",
-			ready: false,
-		});
+		const p: Player = new Player(
+			socket.id,
+			"red",
+			Math.random() * 760 + 20,
+			Math.random() * 560 + 20,
+			playerNames.get(socket.id),
+			false
+		);
+		room.players.set(socket.id, p);
+		console.log(p);
+		console.log(typeof p.decrementCooldown);
 
 		socket.emit("room-joined", {
 			roomCode,
@@ -196,14 +200,10 @@ io.on("connection", (socket: GameSocket) => {
 		socket.roomCode = roomCode;
 
 		// Add player to room, use stored name if available
-		room.players.set(socket.id, {
-			id: socket.id,
-			name: playerNames.get(socket.id),
-			x: Math.random() * 760 + 20,
-			y: Math.random() * 560 + 20,
-			team: getTeamCount(room, "red") > getTeamCount(room, "blue") ? "blue" : "red",
-			ready: false,
-		});
+		const p: Player = new Player(socket.id, getTeamCount(room, "red") > getTeamCount(room, "blue") ? "blue" : "red", Math.random() * 760 + 20, Math.random() * 560 + 20, playerNames.get(socket.id), false);
+		room.players.set(socket.id, p);
+
+		console.log(p);
 
 		socket.emit("room-joined", {
 			roomCode,
