@@ -31,6 +31,9 @@ export function updatePlayerPosition(data: PlayerMoveData): void {
 		player.y = data.y;
 		player.dashX = data.dashX;
 		player.dashY = data.dashY;
+
+		player.health = data.health;
+		player.maxHealth = data.maxHealth;
 	}
 }
 

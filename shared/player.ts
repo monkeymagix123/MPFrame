@@ -1,17 +1,24 @@
 import { Config } from "./config";
-import { clampPos } from "./math";
+import { clampPos, intersectCircleLine } from "./math";
+
+import { state } from "./state";
 
 export class Player {
 	id: string;
 	name: string;
 	team: string; // red or blue
 	ready: boolean;
+
 	x: number;
 	y: number;
+
     startDash: boolean = false;
 	dashX?: number;
 	dashY?: number;
     dashCooldown: number = 0;
+
+    maxHealth: number;
+    health: number;
 
     constructor(id: string, team: string, x: number, y: number, name: string = "Player", ready: boolean = false) {
         this.id = id;
@@ -20,6 +27,9 @@ export class Player {
         this.ready = ready;
         this.x = x;
         this.y = y;
+
+        this.maxHealth = Config.maxHealth;
+        this.health = this.maxHealth;
     }
 
     moveLeft(distance: number): void {
@@ -63,11 +73,28 @@ export class Player {
 
         // do a dash
         const { x: clampedX, y: clampedY } = clampPos(this.x + dashVecX, this.y + dashVecY);
-        this.x = clampedX;
-        this.y = clampedY;
+        this.dashX = clampedX;
+        this.dashY = clampedY;
+
+        // DOES NOT WORK YET
+        // // do damage to stuff
+        // console.log(state.players);
+        // console.log(state);
+        // for (const p of state.players.values()) {
+        //     console.log("check");
+        //     let player: Player = p as Player;
+        //     if (intersectCircleLine(this.x, this.y, this.dashX, this.dashY, player.x, player.y, Config.playerRadius)) {
+        //         this.doDamage(Config.dashDamage, p);
+        //         console.log("Did 25 dmg");
+        //     }
+        // }
+
+        // move to target point
+        this.x = this.dashX;
+        this.y = this.dashY;
 
         // 1 sec dash cooldown
-        this.dashCooldown = Config.dashCooldown;
+        this.startDashCooldown();
 
         // will change later
         this.startDash = false;
@@ -85,21 +112,31 @@ export class Player {
         return true;
     }
 
+    doDamage(amount: number, target: Player): void {
+        target.takeDamage(amount);
+    }
+
+    takeDamage(amount: number): void {
+        if (this.startDash) return; // Invulnerable during dash
+        
+        this.health -= amount;
+        if (this.health < 0) this.health = 0;
+    }
+
+    heal(amount: number): void {
+        this.health += amount;
+        if (this.health > 100) this.health = 100;
+    }
+
+    isAlive(): boolean {
+        return this.health > 0;
+    }
+
+    startDashCooldown(): void {
+        this.dashCooldown = Config.dashCooldown;
+    }
+
     decrementCooldown(dt: number): void {
         this.dashCooldown -= dt;
     }
 }
-
-// export class CurrentPlayer extends Player {
-//     startDash: boolean = false;
-//     dashX: number = 0;
-//     dashY: number = 0;
-//     dashCooldown: number = 0;
-
-//     mouseX: number = 0;
-//     mouseY: number = 0;
-
-//     constructor(p: Player) {
-//         //
-//     }
-// }
