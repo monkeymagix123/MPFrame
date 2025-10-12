@@ -2,12 +2,13 @@ import express from "express";
 import http from "http";
 import { Server } from "socket.io";
 import path from "path";
-import { ChatMessage, RoomData, PlayerMoveData } from "../shared/types";
+import { ChatMessage } from "../shared/chat";
 import { Room, GameSocket } from "types";
 
 import { Player } from "../shared/player";
 
 import { Config } from "../shared/config"
+import { PlayerMoveData } from "../shared/types";
 
 const app = express();
 const server = http.createServer(app);

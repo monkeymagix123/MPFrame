@@ -1,7 +1,8 @@
-import * as state from "./state";
-import { leaveRoom, sendChatMessage, escapeHtml } from "./utils";
+import { state } from "../shared/state";
+import { session } from "./session";
 import { Lobby } from "../shared/types";
-import { initGame } from "./game";
+import { initGame, stopGameLoop } from "./game";
+import { chat } from "../shared/chat";
 
 export function initUI(): void {
   setupUIListeners();
@@ -16,7 +17,7 @@ function setupUIListeners(): void {
   // Menu buttons
   const createRoomBtn = document.getElementById("create-room-btn");
   createRoomBtn?.addEventListener("click", () => {
-    state.socket.emit("create-room");
+    session.socket.emit("create-room");
   });
 
   const joinRoomBtn = document.getElementById("join-room-btn");
@@ -24,7 +25,7 @@ function setupUIListeners(): void {
     const roomCodeInput = document.getElementById("room-code-input") as HTMLInputElement;
     const roomCode = roomCodeInput?.value.trim() || "";
     if (roomCode.length === 4) {
-      state.socket.emit("join-room", roomCode);
+      session.socket.emit("join-room", roomCode);
     } else {
       showError("menu-error", "Room code must be 4 characters");
     }
@@ -46,7 +47,7 @@ function setupUIListeners(): void {
       const target = e.target as HTMLInputElement;
       const name = target.value.trim();
       if (name) {
-        state.socket.emit("set-name", name);
+        session.socket.emit("set-name", name);
       }
     }
   });
@@ -55,7 +56,7 @@ function setupUIListeners(): void {
     const target = e.target as HTMLInputElement;
     const name = target.value.trim();
     if (name) {
-      state.socket.emit("set-name", name);
+      session.socket.emit("set-name", name);
     }
   });
 
@@ -67,7 +68,7 @@ function setupUIListeners(): void {
       const target = e.target as HTMLInputElement;
       const name = target.value.trim();
       if (name) {
-        state.socket.emit("set-name", name);
+        session.socket.emit("set-name", name);
       }
     }
   });
@@ -76,24 +77,24 @@ function setupUIListeners(): void {
     const target = e.target as HTMLInputElement;
     const name = target.value.trim();
     if (name) {
-      state.socket.emit("set-name", name);
+      session.socket.emit("set-name", name);
     }
   });
 
   // Lobby buttons
   const joinRedBtn = document.getElementById("join-red-btn");
   joinRedBtn?.addEventListener("click", () => {
-    state.socket.emit("change-team", "red");
+    session.socket.emit("change-team", "red");
   });
 
   const joinBlueBtn = document.getElementById("join-blue-btn");
   joinBlueBtn?.addEventListener("click", () => {
-    state.socket.emit("change-team", "blue");
+    session.socket.emit("change-team", "blue");
   });
 
   const readyBtn = document.getElementById("ready-btn");
   readyBtn?.addEventListener("click", () => {
-    state.socket.emit("ready-toggle");
+    session.socket.emit("ready-toggle");
   });
 
   const leaveRoomBtn = document.getElementById("leave-room-btn");
@@ -121,6 +122,17 @@ function setupUIListeners(): void {
   });
 }
 
+export function leaveRoom(): void {
+  stopGameLoop();
+
+  window.history.replaceState({}, "", window.location.pathname);
+
+  session.socket.disconnect();
+  session.socket.connect();
+
+  showMenu();
+}
+
 export function showScreen(screenId: string): void {
   document.querySelectorAll(".screen").forEach((screen) => {
     screen.classList.add("hidden");
@@ -132,14 +144,14 @@ export function showScreen(screenId: string): void {
 export function showMenu(): void {
   showScreen("menu");
   clearErrors();
-  state.socket.emit("get-lobbies");
+  session.socket.emit("get-lobbies");
 }
 
 export function showLobby(): void {
   showScreen("lobby");
   const roomCodeDisplay = document.getElementById("room-code-display");
   if (roomCodeDisplay) {
-    roomCodeDisplay.textContent = state.currentRoom;
+    roomCodeDisplay.textContent = session.currentRoom;
   }
   clearErrors();
 }
@@ -148,7 +160,7 @@ export function showGame(): void {
   showScreen("game");
   const gameRoomCode = document.getElementById("game-room-code");
   if (gameRoomCode) {
-    gameRoomCode.textContent = state.currentRoom;
+    gameRoomCode.textContent = session.currentRoom;
   }
   updateChatDisplay();
   initGame();
@@ -181,7 +193,7 @@ export function updateLobbyDisplay(): void {
     const playerDiv = document.createElement("div");
     playerDiv.className = `player ${player.ready ? "ready" : ""}`;
     const username = player.name || `Player ${player.id.substring(0, 6)}`;
-    const playerName = player.id === state.socket.id ? `${username} (You)` : username;
+    const playerName = player.id === session.socket.id ? `${username} (You)` : username;
     playerDiv.innerHTML = `
       <span>${playerName}</span>
       ${player.ready ? '<span class="ready-indicator">READY</span>' : ""}
@@ -208,12 +220,23 @@ export function updateReadyButton(): void {
   const readyBtn = document.getElementById("ready-btn");
   if (!readyBtn) return;
 
-  if (state.currentPlayer && state.currentPlayer.ready) {
+  if (session.currentPlayer && session.currentPlayer.ready) {
     readyBtn.textContent = "Not Ready";
     readyBtn.classList.add("ready");
   } else {
     readyBtn.textContent = "Ready";
     readyBtn.classList.remove("ready");
+  }
+}
+
+export function sendChatMessage(): void {
+  const chatInput = document.getElementById("chat-input") as HTMLInputElement;
+  if (!chatInput) return;
+
+  const message = chatInput.value.trim();
+  if (message.length > 0) {
+    session.socket.emit("send-chat", message);
+    chatInput.value = "";
   }
 }
 
@@ -249,10 +272,21 @@ export function updateLobbiesList(lobbies: Lobby[]): void {
       if (roomCodeInput) {
         roomCodeInput.value = lobby.code;
       }
-      state.socket.emit("join-room", lobby.code);
+      session.socket.emit("join-room", lobby.code);
     });
     lobbiesContainer.appendChild(lobbyDiv);
   });
+}
+
+function escapeHtml(text: string): string {
+  const map: Record<string, string> = {
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;",
+  };
+  return text.replace(/[&<>"']/g, (m) => map[m]);
 }
 
 export function updateChatDisplay(): void {
@@ -260,10 +294,10 @@ export function updateChatDisplay(): void {
   if (!chatMessagesDiv) return;
 
   chatMessagesDiv.innerHTML = "";
-  state.chatMessages.forEach((message) => {
+  chat.chatMessages.forEach((message) => {
     const messageDiv = document.createElement("div");
-    messageDiv.className = `chat-message ${message.playerId === state.socket.id ? "own" : ""}`;
-    const senderName = message.playerId === state.socket.id ? "You" : message.playerName;
+    messageDiv.className = `chat-message ${message.playerId === session.socket.id ? "own" : ""}`;
+    const senderName = message.playerId === session.socket.id ? "You" : message.playerName;
     messageDiv.innerHTML = `
       <div class="chat-sender">${senderName}</div>
       <div class="chat-text">${escapeHtml(message.message)}</div>

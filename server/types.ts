@@ -1,5 +1,5 @@
 import { Socket } from "socket.io";
-import { ChatMessage } from "../shared/types";
+import { ChatMessage } from "../shared/chat";
 import { Player } from "../shared/player";
 
 

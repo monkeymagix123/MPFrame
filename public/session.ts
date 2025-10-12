@@ -1,26 +1,40 @@
 import { io, Socket } from "socket.io-client";
 import { Keys } from "../shared/types";
+import { Player } from "../shared/player";
 
-export const session = {
-	socket: io() as Socket,
-	keys: {} as Keys,
-	canvas: null as HTMLCanvasElement | null,
-	ctx: null as CanvasRenderingContext2D | null,
-	gameLoop: null as number | null,
-	mouseX: 0,
-	mouseY: 0,
-};
+export class Session {
+	socket: Socket;
+	currentRoom: string | null;
+	keys: Keys;
+	canvas: HTMLCanvasElement | null;
+	ctx: CanvasRenderingContext2D | null;
+	gameLoop: number | null;
+	mouseX: number;
+	mouseY: number;
+	currentPlayer: Player | null;
 
-export function setCanvas(canvasElement: HTMLCanvasElement): void {
-	session.canvas = canvasElement;
-	session.ctx = canvasElement.getContext("2d");
+	constructor() {
+		this.socket = io() as Socket;
+		this.currentRoom = null;
+		this.keys = {} as Keys;
+		this.canvas = null as HTMLCanvasElement | null;
+		this.ctx = null as CanvasRenderingContext2D | null;
+		this.gameLoop = null as number | null;
+		this.mouseX = 0;
+		this.mouseY = 0;
+		this.currentPlayer = null;
+	}
+
+	resetSession(): void {
+		this.currentRoom = null;
+		this.keys = {} as Keys;
+		this.canvas = null;
+		this.ctx = null;
+		this.gameLoop = null;
+		this.mouseX = 0;
+		this.mouseY = 0;
+		this.currentPlayer = null;
+	}
 }
 
-export function setGameLoop(loop: number | null): void {
-	session.gameLoop = loop;
-}
-
-export function setMousePosition(x: number, y: number): void {
-	session.mouseX = x;
-	session.mouseY = y;
-}
+export let session = new Session();

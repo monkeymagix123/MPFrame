@@ -1,63 +1,67 @@
-import * as state from "./state";
+import { State, state } from "../shared/state";
+import { session } from "./session";
+import { chat, ChatMessage } from "../shared/chat";
 import * as ui from "./ui";
 import { startGameLoop } from "./game";
-import { updateURL } from "./utils";
-import { ChatMessage, RoomData, PlayerMoveData, Lobby } from "../shared/types";
+import { updateURL } from "./url";
+import { RoomData, Lobby, PlayerMoveData } from "../shared/types";
 import { Player } from "../shared/player";
 
 export function initSocket(): void {
-	state.socket.on("room-joined", (data: RoomData) => {
-		state.setCurrentRoom(data.roomCode);
+	session.socket.on("room-joined", (data: RoomData) => {
+		session.currentRoom = data.roomCode;
 		updatePlayers(data.players);
-		data.chatMessages.forEach(state.addChatMessage);
+		data.chatMessages.forEach(chat.addChatMessage);
 		ui.showLobby();
 		updateURL(data.roomCode);
 		ui.updateChatDisplay();
-	});
+		ui.showLobby();
+	});  
 
-	state.socket.on("room-error", (error: string) => {
+	session.socket.on("room-error", (error: string) => {
 		ui.showError("menu-error", error);
 	});
 
-	state.socket.on("team-error", (error: string) => {
+	session.socket.on("team-error", (error: string) => {
 		ui.showError("lobby-error", error);
 	});
 
-	state.socket.on("player-joined", (players: Player[]) => {
+	session.socket.on("player-joined", (players: Player[]) => {
 		updatePlayers(players);
 	});
 
-	state.socket.on("player-left", (players: Player[]) => {
+	session.socket.on("player-left", (players: Player[]) => {
 		updatePlayers(players);
 	});
 
-	state.socket.on("player-updated", (players: Player[]) => {
+	session.socket.on("player-updated", (players: Player[]) => {
 		updatePlayers(players);
 	});
 
-	state.socket.on("game-started", (players: Player[]) => {
+	session.socket.on("game-started", (players: Player[]) => {
 		updatePlayers(players);
 		startGameLoop();
 		ui.showGame();
 	});
 
-	state.socket.on("player-moved", (data: PlayerMoveData) => {
+	session.socket.on("player-moved", (data: PlayerMoveData) => {
 		state.updatePlayerPosition(data);
 	});
 
-	state.socket.on("chat-message", (message: ChatMessage) => {
-		state.addChatMessage(message);
+	session.socket.on("chat-message", (message: ChatMessage) => {
+		chat.addChatMessage(message);
 		ui.updateChatDisplay();
 	});
 
-	state.socket.on("lobbies-list", (lobbies: Lobby[]) => {
+	session.socket.on("lobbies-list", (lobbies: Lobby[]) => {
 		ui.updateLobbiesList(lobbies);
 	});
 }
 
 function updatePlayers(updatedPlayers: Player[]): void {
-	state.clearPlayers();
-	updatedPlayers.forEach(state.addPlayer);
+	state.players = updatedPlayers;
+	session.currentPlayer = updatedPlayers.find(p => p.id === session.socket.id) || null;
+	
 	ui.updateLobbyDisplay();
 	ui.updateReadyButton();
 }

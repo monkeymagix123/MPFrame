@@ -1,11 +1,5 @@
-import { Socket } from "socket.io-client";
+import { ChatMessage } from "./chat";
 import { Player } from "./player";
-
-export interface ChatMessage {
-	playerId: string;
-	playerName: string;
-	message: string;
-}
 
 export interface RoomData {
 	roomCode: string;
