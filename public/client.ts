@@ -1,7 +1,6 @@
 import { initSocket } from "./socket";
 import { initUI } from "./ui";
-import { initGame } from "./game";
-import { checkURLForRoom } from "./utils";
+import { checkURLForRoom } from "./url";
 
 document.addEventListener("DOMContentLoaded", () => {
   (function () {
