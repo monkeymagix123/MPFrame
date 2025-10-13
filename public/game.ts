@@ -1,5 +1,5 @@
 import { session } from "./session";
-import { renderGame, resizeCanvas } from "./canvas"; 
+import { renderGame, resizeCanvas } from "./canvas";   
 
 // Global variable to store the timestamp of the last frame
 let lastTime = 0;
@@ -49,7 +49,7 @@ function gameLoop(currentTime: number): void {
 
   updateGame(safeDt);
   renderGame();
-
+ 
   // Request the next frame
   session.gameLoop = requestAnimationFrame(gameLoop);
 }

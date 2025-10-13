@@ -15,7 +15,7 @@
 -  [ ] Improve graphics
 -  [ ] Fix leave game
    -  [ ] have win condiiton/ui
--  [ ] redo how players and rooms interact/think through design
+-  [ ] implement design
 
 ## Code Practices
 

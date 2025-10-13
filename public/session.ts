@@ -2,7 +2,7 @@ import { io, Socket } from "socket.io-client";
 import { Keys } from "../shared/types";
 import { Player } from "../shared/player";
 
-export class Session {
+class Session {
 	socket: Socket;
 	currentRoom: string | null;
 	keys: Keys;
@@ -37,4 +37,4 @@ export class Session {
 	}
 }
 
-export let session = new Session();
+export const session = new Session();

@@ -1,4 +1,4 @@
-import { State, state } from "../shared/state";
+import { state } from "../shared/state";
 import { session } from "./session";
 import { chat, ChatMessage } from "../shared/chat";
 import * as ui from "./ui";
@@ -59,9 +59,11 @@ export function initSocket(): void {
 }
 
 function updatePlayers(updatedPlayers: Player[]): void {
-	state.players = updatedPlayers;
-	session.currentPlayer = updatedPlayers.find(p => p.id === session.socket.id) || null;
+	state.players = updatedPlayers.map(p => Player.fromData(p));
 	
+	const currentPlayerData = updatedPlayers.find(p => p.id === session.socket.id);
+	session.currentPlayer = currentPlayerData ? Player.fromData(currentPlayerData) : null;
+
 	ui.updateLobbyDisplay();
 	ui.updateReadyButton();
 }

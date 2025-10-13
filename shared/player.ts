@@ -88,18 +88,13 @@ export class Player {
     decrementCooldown(dt: number): void {
         this.dashCooldown -= dt;
     }
+
+    static fromData(data: any): Player {
+        const player = new Player(data.id, data.team, data.x, data.y, data.name, data.ready);
+        player.dashCooldown = data.dashCooldown || 0;
+        player.startDash = data.startDash || false;
+        player.dashX = data.dashX;
+        player.dashY = data.dashY;
+        return player;
+    }
 }
-
-// export class CurrentPlayer extends Player {
-//     startDash: boolean = false;
-//     dashX: number = 0;
-//     dashY: number = 0;
-//     dashCooldown: number = 0;
-
-//     mouseX: number = 0;
-//     mouseY: number = 0;
-
-//     constructor(p: Player) {
-//         //
-//     }
-// }
