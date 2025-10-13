@@ -76,18 +76,13 @@ export class Player {
         this.dashX = clampedX;
         this.dashY = clampedY;
 
-        // DOES NOT WORK YET
-        // // do damage to stuff
-        // console.log(state.players);
-        // console.log(state);
-        // for (const p of state.players.values()) {
-        //     console.log("check");
-        //     let player: Player = p as Player;
-        //     if (intersectCircleLine(this.x, this.y, this.dashX, this.dashY, player.x, player.y, Config.playerRadius)) {
-        //         this.doDamage(Config.dashDamage, p);
-        //         console.log("Did 25 dmg");
-        //     }
-        // }
+        // do damage to stuff
+        for (const p of state.players.values()) {
+            let player: Player = p as Player;
+            if (intersectCircleLine(this.x, this.y, this.dashX, this.dashY, player.x, player.y, Config.playerRadius)) {
+                this.doDamage(Config.dashDamage, p);
+            }
+        }
 
         // move to target point
         this.x = this.dashX;
@@ -101,8 +96,6 @@ export class Player {
     }
 
     attemptDash(x: number, y: number): boolean {
-        console.log("Attempting to dash. Cooldown:", this.dashCooldown);
-
         if (this.dashCooldown > 0) {
             return false; // Dash is on cooldown
         }

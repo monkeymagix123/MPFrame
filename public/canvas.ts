@@ -152,10 +152,6 @@ function drawDashArrow(x: number, y: number): void {
 	drawArrow(session.currentPlayer.x, session.currentPlayer.y, toX, toY);
 }
 
-function drawHealthBar(): void {
-	// Placeholder for health bar drawing logic
-}
-
 function drawArrow(fromX: number, fromY: number, toX: number, toY: number): void {
   if (!session.ctx) return;
   

@@ -28,6 +28,11 @@ function setupGameControls(): void {
     if (!session.canvas) return;
     const rect = session.canvas.getBoundingClientRect();
     session.currentPlayer?.attemptDash(e.clientX - rect.left, e.clientY - rect.top);
+
+    session.socket.emit("player-move", {
+      x: session.currentPlayer?.x,
+      y: session.currentPlayer?.y,
+    });
   });
 
   document.addEventListener("mousemove", (e: MouseEvent) => {
