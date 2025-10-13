@@ -105,44 +105,53 @@ function drawHealthBar(): void {
 }
 
 function drawArrow(fromX: number, fromY: number, toX: number, toY: number): void {
-	if (!session.ctx) return;
-
-	const headLength = Config.headLength; // length of head in pixels
-
-	let dx = toX - fromX;
-	let dy = toY - fromY;
-
-	const angle = Math.atan2(dy, dx);
-
-	// draw the line
-	session.ctx.lineWidth = 10;
-
-	let length = Math.sqrt(dx * dx + dy * dy);
-	let lengthMissing = length * Math.max(0, session.currentPlayer!.dashCooldown) / Config.dashCooldown;
-
-	session.ctx.beginPath();
-	session.ctx.moveTo(fromX, fromY);
-	session.ctx.lineTo(toX - headLength * 0.75 * Math.cos(angle), toY - headLength * 0.75 * Math.sin(angle));
-	session.ctx.strokeStyle = "rgba(250, 227, 17, 1)";
-	session.ctx.stroke();
-
-	// draw anti-line for not done part
-	session.ctx.lineWidth = 6;
-	session.ctx.beginPath();
-	session.ctx.moveTo(toX - (headLength * 0.75 + 2) * Math.cos(angle), toY - (headLength * 0.75 + 2) * Math.sin(angle));
-	const d = Math.min(length - headLength * 0.75, lengthMissing);
-	session.ctx.lineTo(toX - d * Math.cos(angle), toY - d * Math.sin(angle));
-	session.ctx.strokeStyle = "rgba(240, 240, 240, 1)";
-	session.ctx.stroke();
-
-	// draw the arrowhead
-	if (session.currentPlayer!.dashCooldown <= 0) {
-		session.ctx.beginPath();
-		session.ctx.moveTo(toX, toY);
-		session.ctx.lineTo(toX - headLength * Math.cos(angle - Math.PI / 6), toY - headLength * Math.sin(angle - Math.PI / 6));
-		session.ctx.lineTo(toX - headLength * Math.cos(angle + Math.PI / 6), toY - headLength * Math.sin(angle + Math.PI / 6));
-		session.ctx.lineTo(toX, toY);
-		session.ctx.fillStyle = "rgba(250, 227, 17, 1)";
-		session.ctx.fill();
-	}
+  if (!session.ctx) return;
+  
+  const headLength = Config.headLength; // length of head in pixels
+  let dx = toX - fromX;
+  let dy = toY - fromY;
+  const angle = Math.atan2(dy, dx);
+  const length = Math.sqrt(dx * dx + dy * dy);
+  
+  // Calculate how much of the arrow should be "charged" (inverse of cooldown)
+  const chargedRatio = 1 - Math.max(0, Math.min(1, session.currentPlayer!.dashCooldown / Config.dashCooldown));
+  const chargedLength = length * chargedRatio;
+  
+  const arrowBaseDistance = headLength * Math.cos(Math.PI / 6);
+  
+  // Draw the charged (yellow/orange) part of the line FROM the start
+  if (chargedLength > 0) {
+    session.ctx.lineWidth = 10;
+    session.ctx.beginPath();
+    session.ctx.moveTo(fromX, fromY);
+    
+    // If fully charged, extend to just before the arrowhead base
+    if (session.currentPlayer!.dashCooldown <= 0) {
+      session.ctx.lineTo(toX - arrowBaseDistance * Math.cos(angle), toY - arrowBaseDistance * Math.sin(angle));
+    } else {
+      session.ctx.lineTo(fromX + chargedLength * Math.cos(angle), fromY + chargedLength * Math.sin(angle));
+    }
+    
+    session.ctx.strokeStyle = "rgba(250, 200, 60, 1)"; // Yellow/orange color
+    session.ctx.stroke();
+  }
+  
+  // Draw the uncharged (blue/cyan) part of the line
+  session.ctx.lineWidth = 10;
+  session.ctx.beginPath();
+  session.ctx.moveTo(fromX + chargedLength * Math.cos(angle), fromY + chargedLength * Math.sin(angle));
+  session.ctx.lineTo(toX, toY);
+  session.ctx.strokeStyle = "rgba(100, 180, 230, 1)"; // Blue/cyan color
+  session.ctx.stroke();
+  
+  // Draw the arrowhead when fully charged
+  if (session.currentPlayer!.dashCooldown <= 0) {
+    session.ctx.beginPath();
+    session.ctx.moveTo(toX, toY);
+    session.ctx.lineTo(toX - headLength * Math.cos(angle - Math.PI / 6), toY - headLength * Math.sin(angle - Math.PI / 6));
+    session.ctx.lineTo(toX - headLength * Math.cos(angle + Math.PI / 6), toY - headLength * Math.sin(angle + Math.PI / 6));
+    session.ctx.closePath();
+    session.ctx.fillStyle = "rgba(250, 200, 60, 1)"; // Yellow/orange color
+    session.ctx.fill();
+  }
 }

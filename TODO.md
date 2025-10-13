@@ -16,7 +16,3 @@
 -  [ ] Fix leave game
    -  [ ] have win condiiton/ui
 -  [ ] implement design
-
-## Code Practices
-
--  [ ] Set up gamestate and userstate
