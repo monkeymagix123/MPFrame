@@ -19,6 +19,9 @@ export interface PlayerMoveData {
 	y: number;
 	dashX?: number;
 	dashY?: number;
+
+	health: number;
+	maxHealth: number;
 }
 
 export interface Keys {

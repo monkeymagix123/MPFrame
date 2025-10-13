@@ -57,6 +57,12 @@ function drawPlayer(player: Player): void {
 	session.ctx.fillStyle = player.team === "red" ? "#ea4179" : "#5075f9";
 	session.ctx.fill();
 
+	// less color for less health
+	session.ctx.beginPath();
+	session.ctx.arc(player.x, player.y, Config.playerRadius * (1 - player.health / player.maxHealth), 0, Math.PI * 2);
+	session.ctx.fillStyle = "white";
+	session.ctx.fill();
+
 	session.ctx.font = "bold 12px Arial";
 	session.ctx.textAlign = "center";
 	const name = player.id === session.socket.id ? "You" : player.name || player.id.substring(0, 4);
@@ -126,7 +132,7 @@ function drawArrow(fromX: number, fromY: number, toX: number, toY: number): void
 	session.ctx.moveTo(toX - (headLength * 0.75 + 2) * Math.cos(angle), toY - (headLength * 0.75 + 2) * Math.sin(angle));
 	const d = Math.min(length - headLength * 0.75, lengthMissing);
 	session.ctx.lineTo(toX - d * Math.cos(angle), toY - d * Math.sin(angle));
-	session.ctx.strokeStyle = "rgba(240, 240, 240, 1)"; // SYNC CHANIGES
+	session.ctx.strokeStyle = "rgba(240, 240, 240, 1)";
 	session.ctx.stroke();
 
 	// draw the arrowhead
