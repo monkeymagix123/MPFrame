@@ -3,7 +3,7 @@ export const Config = {
 	canvasHeight: 600,
 	scale: 2,
 
-	playerRadius: 15,
+	playerRadius: 30,
 	headLength: 30,
 
 	dashDistance: 300,

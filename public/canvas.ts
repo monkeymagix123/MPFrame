@@ -1,8 +1,9 @@
 import { Config } from "../shared/config";
-import { clamp, clampPos } from "../shared/math";
+import { clampPos } from "../shared/math";
 import { Player } from "../shared/player";
 import { state } from "../shared/state";
 import { session } from "./session";
+import { settings } from "./settings";
 
 export function resizeCanvas(): void {
   const canvas = document.getElementById("game-canvas") as HTMLCanvasElement;
@@ -43,35 +44,83 @@ export function renderGame(): void {
 	session.ctx.fillStyle = '#11111b';
 	session.ctx.fillRect(0, 0, session.canvas.width, session.canvas.height);
    
+	// Enable high quality effects if setting is on
+	if (settings.highQuality) {
+		session.ctx.shadowBlur = 0; // Reset for background
+	}
+
 	if (session.currentPlayer)
 		drawDashArrow(session.mouseX, session.mouseY);
 
 	state.players.forEach((player) => { drawPlayer(player); });
+	
+	// Reset quality settings after rendering
+	if (settings.highQuality) {
+		session.ctx.shadowBlur = 0;
+		session.ctx.globalAlpha = 1;
+	}
 }
 
 function drawPlayer(player: Player): void {
 	if (!session.ctx) return;
-		
-	session.ctx.beginPath();
-	session.ctx.arc(player.x, player.y, Config.playerRadius, 0, Math.PI * 2);
-	session.ctx.fillStyle = player.team === "red" ? "#ea4179" : "#5075f9";
-	session.ctx.fill();
+	
+	const isCurrentPlayer = player.id === session.socket.id;
+	const healthRatio = player.health / player.maxHealth;
+	
+	// High quality effects
+	if (settings.highQuality) {
+		session.ctx.shadowBlur = isCurrentPlayer ? 20 : 15;
+		session.ctx.shadowColor = player.team === "red" ? "#ea4179" : "#5075f9";
+	}
 
-	// less color for less health
-	session.ctx.beginPath();
-	session.ctx.arc(player.x, player.y, Config.playerRadius * (1 - player.health / player.maxHealth), 0, Math.PI * 2);
-	session.ctx.fillStyle = "white";
-	session.ctx.fill();
+	// Reset shadow for outline
+	if (settings.highQuality) {
+		session.ctx.shadowBlur = 0;
+	}
+	
+	session.ctx.strokeStyle = player.team === "red" ? "#ff6b9d" : "#7d9bff";
+	
+	if (settings.highQuality && isCurrentPlayer) {
+		session.ctx.shadowBlur = 8;
+		session.ctx.shadowColor = player.team === "red" ? "#ff6b9d" : "#7d9bff";
+	}
+	
+	session.ctx.lineWidth = Config.playerRadius * healthRatio / 2;
+	session.ctx.strokeRect(
+		player.x - Config.playerRadius/2 + session.ctx.lineWidth / 2, player.y - Config.playerRadius/2 + session.ctx.lineWidth / 2,
+		Config.playerRadius - session.ctx.lineWidth, Config.playerRadius - session.ctx.lineWidth
+	);
+	
+	// Draw outline for current player
+	if (isCurrentPlayer) {
+		session.ctx.strokeStyle = "#FFFFFF";
+		session.ctx.lineWidth = 2;
+		session.ctx.strokeRect(
+			player.x - Config.playerRadius/2, player.y - Config.playerRadius/2,
+			Config.playerRadius, Config.playerRadius
+		);
+	}
 
+	if (settings.highQuality) {
+		session.ctx.shadowBlur = 0;
+	}
+
+	// Draw player name
 	session.ctx.font = "bold 12px Arial";
 	session.ctx.textAlign = "center";
+	session.ctx.fillStyle = "white";
+	
+	if (settings.highQuality) {
+		// Add text shadow for better readability
+		session.ctx.shadowBlur = 4;
+		session.ctx.shadowColor = "rgba(0, 0, 0, 0.8)";
+	}
+	
 	const name = player.id === session.socket.id ? "You" : player.name || player.id.substring(0, 4);
 	session.ctx.fillText(name, player.x, player.y - 25);
 	
-	if (player.id === session.socket.id) {
-		session.ctx.strokeStyle = "#FFFFFF";
-		session.ctx.lineWidth = 3;
-		session.ctx.stroke();
+	if (settings.highQuality) {
+		session.ctx.shadowBlur = 0;
 	}
 }
 
@@ -121,7 +170,7 @@ function drawArrow(fromX: number, fromY: number, toX: number, toY: number): void
   
   // Draw the charged (yellow/orange) part of the line FROM the start
   if (chargedLength > 0) {
-    session.ctx.lineWidth = 10;
+    session.ctx.lineWidth = Config.playerRadius / 2;
     session.ctx.beginPath();
     session.ctx.moveTo(fromX, fromY);
     
@@ -132,8 +181,19 @@ function drawArrow(fromX: number, fromY: number, toX: number, toY: number): void
       session.ctx.lineTo(fromX + chargedLength * Math.cos(angle), fromY + chargedLength * Math.sin(angle));
     }
     
-    session.ctx.strokeStyle = "rgba(250, 200, 60, 1)"; // Yellow/orange color
+    if (settings.highQuality) {
+      session.ctx.strokeStyle = "rgba(250, 200, 60, 0.9)";
+      session.ctx.shadowBlur = 15;
+      session.ctx.shadowColor = "rgba(250, 200, 60, 0.8)";
+    } else {
+      session.ctx.strokeStyle = "rgba(250, 200, 60, 1)";
+    }
     session.ctx.stroke();
+  }
+  
+  // Reset shadow for uncharged part
+  if (settings.highQuality) {
+    session.ctx.shadowBlur = 0;
   }
   
   // Draw the uncharged (blue/cyan) part of the line
@@ -141,17 +201,38 @@ function drawArrow(fromX: number, fromY: number, toX: number, toY: number): void
   session.ctx.beginPath();
   session.ctx.moveTo(fromX + chargedLength * Math.cos(angle), fromY + chargedLength * Math.sin(angle));
   session.ctx.lineTo(toX, toY);
-  session.ctx.strokeStyle = "rgba(100, 180, 230, 1)"; // Blue/cyan color
+  
+  if (settings.highQuality) {
+    session.ctx.strokeStyle = "rgba(100, 180, 230, 0.6)";
+    session.ctx.shadowBlur = 10;
+    session.ctx.shadowColor = "rgba(100, 180, 230, 0.5)";
+  } else {
+    session.ctx.strokeStyle = "rgba(100, 180, 230, 1)";
+  }
   session.ctx.stroke();
   
   // Draw the arrowhead when fully charged
   if (session.currentPlayer!.dashCooldown <= 0) {
+    if (settings.highQuality) {
+      session.ctx.shadowBlur = 20;
+      session.ctx.shadowColor = "rgba(250, 200, 60, 0.9)";
+    }
+    
     session.ctx.beginPath();
     session.ctx.moveTo(toX, toY);
     session.ctx.lineTo(toX - headLength * Math.cos(angle - Math.PI / 6), toY - headLength * Math.sin(angle - Math.PI / 6));
     session.ctx.lineTo(toX - headLength * Math.cos(angle + Math.PI / 6), toY - headLength * Math.sin(angle + Math.PI / 6));
     session.ctx.closePath();
-    session.ctx.fillStyle = "rgba(250, 200, 60, 1)"; // Yellow/orange color
+    
+    if (settings.highQuality) {
+      session.ctx.fillStyle = "rgba(250, 200, 60, 0.95)";
+    } else {
+      session.ctx.fillStyle = "rgba(250, 200, 60, 1)";
+    }
     session.ctx.fill();
+    
+    if (settings.highQuality) {
+      session.ctx.shadowBlur = 0;
+    }
   }
 }
