@@ -61,8 +61,8 @@ export function initSocket(): void {
 function updatePlayers(updatedPlayers: Player[]): void {
 	state.players = updatedPlayers.map(p => Player.fromData(p));
 	
-	const currentPlayerData = updatedPlayers.find(p => p.id === session.socket.id);
-	session.currentPlayer = currentPlayerData ? Player.fromData(currentPlayerData) : null;
+	const currentPlayer = state.players.find(p => p.id === session.socket.id) || null;
+	session.currentPlayer = currentPlayer;
 
 	ui.updateLobbyDisplay();
 	ui.updateReadyButton();
