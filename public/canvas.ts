@@ -49,9 +49,6 @@ export function renderGame(): void {
 		session.ctx.shadowBlur = 0; // Reset for background
 	}
 
-	if (session.currentPlayer)
-		drawDashArrow(session.mouseX, session.mouseY);
-
 	state.players.forEach((player) => { drawPlayer(player); });
 	
 	// Reset quality settings after rendering
@@ -65,6 +62,12 @@ function drawPlayer(player: Player): void {
 	if (!session.ctx) return;
 	
 	const isCurrentPlayer = player.id === session.socket.id;
+
+	// Draw dash arrow for current player
+	if (isCurrentPlayer) {
+		drawDashArrow(session.mouseX, session.mouseY);		
+	}
+
 	const healthRatio = player.health / player.maxHealth;
 	
 	// High quality effects
@@ -170,7 +173,7 @@ function drawArrow(fromX: number, fromY: number, toX: number, toY: number): void
   
   // Draw the charged (yellow/orange) part of the line FROM the start
   if (chargedLength > 0) {
-    session.ctx.lineWidth = Config.playerRadius / 2;
+    session.ctx.lineWidth = Config.playerRadius / 3;
     session.ctx.beginPath();
     session.ctx.moveTo(fromX, fromY);
     
@@ -182,7 +185,7 @@ function drawArrow(fromX: number, fromY: number, toX: number, toY: number): void
     }
     
     if (settings.highQuality) {
-      session.ctx.strokeStyle = "rgba(250, 200, 60, 0.9)";
+      session.ctx.strokeStyle = "rgba(250, 200, 60, 0.7)";
       session.ctx.shadowBlur = 15;
       session.ctx.shadowColor = "rgba(250, 200, 60, 0.8)";
     } else {
@@ -225,7 +228,7 @@ function drawArrow(fromX: number, fromY: number, toX: number, toY: number): void
     session.ctx.closePath();
     
     if (settings.highQuality) {
-      session.ctx.fillStyle = "rgba(250, 200, 60, 0.95)";
+      session.ctx.fillStyle = "rgba(250, 200, 60, 0.7)";
     } else {
       session.ctx.fillStyle = "rgba(250, 200, 60, 1)";
     }
