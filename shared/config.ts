@@ -1,9 +1,8 @@
-export const Config = {
-	canvasWidth: 900,
-	canvasHeight: 600,
-	scale: 2,
+export const config = {
+	width: 900,
+	height: 600,
 
-	playerRadius: 30,
+	playerLength: 30,
 	headLength: 30,
 
 	dashDistance: 300,

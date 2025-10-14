@@ -1,4 +1,4 @@
-import { Config } from "./config";
+import { config } from "./config";
 import { clampPos, intersectCircleLine } from "./math";
 
 import { state } from "./state";
@@ -28,7 +28,7 @@ export class Player {
         this.x = x;
         this.y = y;
 
-        this.maxHealth = Config.maxHealth;
+        this.maxHealth = config.maxHealth;
         this.health = this.maxHealth;
     }
 
@@ -66,7 +66,7 @@ export class Player {
         let length = Math.sqrt(dx * dx + dy * dy);
 
         // Assuming a fixed dash distance of 100 units (original code logic)
-        const dashDistance = Config.dashDistance;
+        const dashDistance = config.dashDistance;
         // Normalize and scale the dash vector
         let dashVecX = (dx / length) * dashDistance;
         let dashVecY = (dy / length) * dashDistance;
@@ -79,8 +79,8 @@ export class Player {
         // do damage to stuff
         for (const p of state.players.values()) {
             let player: Player = p as Player;
-            if (intersectCircleLine(this.x, this.y, this.dashX, this.dashY, player.x, player.y, Config.playerRadius)) {
-                this.doDamage(Config.dashDamage, p);
+            if (intersectCircleLine(this.x, this.y, this.dashX, this.dashY, player.x, player.y, config.playerLength)) {
+                this.doDamage(config.dashDamage, p);
             }
         }
 
@@ -126,7 +126,7 @@ export class Player {
     }
 
     startDashCooldown(): void {
-        this.dashCooldown = Config.dashCooldown;
+        this.dashCooldown = config.dashCooldown;
     }
 
     decrementCooldown(dt: number): void {

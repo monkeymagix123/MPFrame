@@ -1,4 +1,4 @@
-import { Config } from "../shared/config";
+import { config } from "../shared/config";
 
 export function clamp(n: number, min: number, max: number): number {
 	if (n < min) {
@@ -13,9 +13,9 @@ export function clamp(n: number, min: number, max: number): number {
 }
 
 export function clampPos(x: number, y: number): { x: number; y: number } {
-	const playerRadius = Config.playerRadius;
-	const clampedX = clamp(x, playerRadius, Config.canvasWidth - playerRadius);
-	const clampedY = clamp(y, playerRadius, Config.canvasHeight - playerRadius);
+	const playerRadius = config.playerLength / 2;
+	const clampedX = clamp(x, playerRadius, config.width - playerRadius);
+	const clampedY = clamp(y, playerRadius, config.height - playerRadius);
 
 	return { x: clampedX, y: clampedY };
 }

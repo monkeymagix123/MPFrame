@@ -7,7 +7,7 @@ import { Room, GameSocket } from "types";
 
 import { Player } from "../shared/player";
 
-import { Config } from "../shared/config"
+import { config } from "../shared/config"
 import { PlayerMoveData } from "../shared/types";
 
 const app = express();
@@ -277,8 +277,8 @@ io.on("connection", (socket: GameSocket) => {
 		if (!player || room.gameState !== "playing") return;
 
 		// Update player position with bounds checking
-		player.x = Math.max(Config.playerRadius, Math.min(800 - Config.playerRadius, data.x));
-		player.y = Math.max(Config.playerRadius, Math.min(600 - Config.playerRadius, data.y));
+		player.x = Math.max(config.playerLength, Math.min(800 - config.playerLength, data.x));
+		player.y = Math.max(config.playerLength, Math.min(600 - config.playerLength, data.y));
 
 		player.dashX = data.dashX;
 		player.dashY = data.dashY;

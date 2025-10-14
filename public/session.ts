@@ -6,19 +6,19 @@ class Session {
 	socket: Socket;
 	currentRoom: string | null;
 	keys: Keys;
-	canvas: HTMLCanvasElement | null;
-	ctx: CanvasRenderingContext2D | null;
+	canvas: HTMLCanvasElement;
+	ctx: CanvasRenderingContext2D;
 	gameLoop: number | null;
 	mouseX: number;
 	mouseY: number;
 	currentPlayer: Player | null;
 
-	constructor() {
+	constructor(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
 		this.socket = io() as Socket;
 		this.currentRoom = null;
 		this.keys = {} as Keys;
-		this.canvas = null as HTMLCanvasElement | null;
-		this.ctx = null as CanvasRenderingContext2D | null;
+		this.canvas = canvas as HTMLCanvasElement;
+		this.ctx = ctx as CanvasRenderingContext2D;
 		this.gameLoop = null as number | null;
 		this.mouseX = 0;
 		this.mouseY = 0;
@@ -28,8 +28,6 @@ class Session {
 	resetSession(): void {
 		this.currentRoom = null;
 		this.keys = {} as Keys;
-		this.canvas = null;
-		this.ctx = null;
 		this.gameLoop = null;
 		this.mouseX = 0;
 		this.mouseY = 0;
@@ -37,4 +35,7 @@ class Session {
 	}
 }
 
-export const session = new Session();
+export const session = new Session(
+	document.getElementById("game-canvas") as HTMLCanvasElement,
+	(document.getElementById("game-canvas") as HTMLCanvasElement)?.getContext("2d") as CanvasRenderingContext2D
+);

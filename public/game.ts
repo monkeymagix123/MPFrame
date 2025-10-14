@@ -1,5 +1,7 @@
 import { session } from "./session";
 import { renderGame, resizeCanvas } from "./canvas";   
+import { config } from "../shared/config";
+import { settings } from "./settings";
 
 // Global variable to store the timestamp of the last frame
 let lastTime = 0;
@@ -26,8 +28,16 @@ function setupGameControls(): void {
 
   document.addEventListener("click", (e: MouseEvent) => {
     if (!session.canvas) return;
-    const rect = session.canvas.getBoundingClientRect();
-    session.currentPlayer?.attemptDash(e.clientX - rect.left, e.clientY - rect.top);
+    
+    // Converts raw mouse coordinates to game coordinates
+    const { x, y } = mouseToGameCoords(e.clientX, e.clientY);
+    session.mouseX = x;
+    session.mouseY = y;
+
+    // Attempt to dash
+    if (session.currentPlayer) {
+      session.currentPlayer.doDash(x, y);
+    }
 
     session.socket.emit("player-move", {
       x: session.currentPlayer?.x,
@@ -39,8 +49,10 @@ function setupGameControls(): void {
     if (Date.now() - lastDrawTime < 20) return;
     lastDrawTime = Date.now();
 
-    session.mouseX = e.clientX;
-    session.mouseY = e.clientY;
+    // Converts raw mouse coordinates to game coordinates
+    const { x, y } = mouseToGameCoords(e.clientX, e.clientY);
+    session.mouseX = x;
+    session.mouseY = y;
   });
 }
 
@@ -108,4 +120,11 @@ function updateGame(dt: number): void {
       y: session.currentPlayer.y,
     });
   }
+}
+
+function mouseToGameCoords(mouseX: number, mouseY: number): { x: number; y: number } {
+  const rect = session.canvas.getBoundingClientRect();
+  const gameX = (mouseX - rect.left) * config.width / session.canvas.width * settings.resolutionScale;
+  const gameY = (mouseY - rect.top) * config.height / session.canvas.height * settings.resolutionScale;
+  return { x: gameX, y: gameY };
 }
