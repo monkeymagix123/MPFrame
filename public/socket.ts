@@ -10,7 +10,7 @@ import { Player } from "../shared/player";
 export function initSocket(): void {
 	session.socket.on("room-joined", (data: RoomData) => {
 		session.currentRoom = data.roomCode;
-		updatePlayers(data.players);
+		updatePlayersInLobby(data.players);
 		data.chatMessages.forEach(chat.addChatMessage);
 		ui.showLobby();
 		updateURL(data.roomCode);
@@ -27,19 +27,19 @@ export function initSocket(): void {
 	});
 
 	session.socket.on("player-joined", (players: Player[]) => {
-		updatePlayers(players);
+		updatePlayersInLobby(players);
 	});
 
 	session.socket.on("player-left", (players: Player[]) => {
-		updatePlayers(players);
+		updatePlayersInLobby(players);
 	});
 
 	session.socket.on("player-updated", (players: Player[]) => {
-		updatePlayers(players);
+		updatePlayersInLobby(players);
 	});
 
 	session.socket.on("game-started", (players: Player[]) => {
-		updatePlayers(players);
+		updatePlayersInLobby(players);
 		startGameLoop();
 		ui.showGame();
 	});
@@ -58,7 +58,8 @@ export function initSocket(): void {
 	});
 }
 
-function updatePlayers(updatedPlayers: Player[]): void {
+// Method to update which players are in lobby/playerList
+function updatePlayersInLobby(updatedPlayers: Player[]): void {
 	state.players = updatedPlayers.map(p => Player.fromData(p));
 	
 	const currentPlayer = state.players.find(p => p.id === session.socket.id) || null;

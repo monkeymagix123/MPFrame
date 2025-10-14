@@ -15,4 +15,4 @@
 -  [ ] Improve graphics
 -  [ ] Fix leave game
    -  [ ] have win condiiton/ui
--  [ ] implement design
+-  [ ] Separate out movement and render

@@ -46,7 +46,7 @@ function setupGameControls(): void {
   });
 
   document.addEventListener("mousemove", (e: MouseEvent) => {
-    if (Date.now() - lastDrawTime < 20) return;
+    if (Date.now() - lastDrawTime < 20) return; 
     lastDrawTime = Date.now();
 
     // Converts raw mouse coordinates to game coordinates
@@ -61,10 +61,7 @@ function gameLoop(currentTime: number): void {
   const dt = (currentTime - lastTime) / 1000;
   lastTime = currentTime;
 
-  // Prevent large jumps in time (e.g., if the user switches tabs)
-  const safeDt = Math.min(dt, 0.2);
-
-  updateGame(safeDt);
+  updateGame(dt);
   renderGame();
  
   // Request the next frame
@@ -73,7 +70,7 @@ function gameLoop(currentTime: number): void {
 
 export function startGameLoop(): void {
   // Start the requestAnimationFrame loop
-  if (session.gameLoop === null) {
+  if (session.gameLoop === null) { 
     lastTime = performance.now(); 
     session.gameLoop = requestAnimationFrame(gameLoop);
   }
