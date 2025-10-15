@@ -14,5 +14,5 @@
 -  [ ] Interpolate by broadcasting velocity/acceleration
 -  [ ] Improve graphics
 -  [ ] Fix leave game
-   -  [ ] have win condiiton/ui
+   -  [ ] have win condititon/ui
 -  [ ] Separate out movement and render

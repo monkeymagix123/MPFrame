@@ -10,7 +10,7 @@ export function checkURLForRoom(): void {
     if (input) {
       input.value = roomCode;
     }
-    session.socket.emit("join-room", roomCode);
+    session.socket.emit("menu/join-room", roomCode);
   }
 }
 

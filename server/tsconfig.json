@@ -17,6 +17,6 @@
       "files": true
    },
    "references": [{ "path": "../shared" }],
-   "include": ["./**/*.ts"],
+   "include": ["./**/*.ts", "../shared/room.ts"],
    "exclude": ["dist", "node_modules"]
 }

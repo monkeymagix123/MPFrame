@@ -17,7 +17,7 @@ function setupUIListeners(): void {
   // Menu buttons
   const createRoomBtn = document.getElementById("create-room-btn");
   createRoomBtn?.addEventListener("click", () => {
-    session.socket.emit("create-room");
+    session.socket.emit("menu/create-room");
   });
 
   const joinRoomBtn = document.getElementById("join-room-btn");
@@ -25,7 +25,7 @@ function setupUIListeners(): void {
     const roomCodeInput = document.getElementById("room-code-input") as HTMLInputElement;
     const roomCode = roomCodeInput?.value.trim() || "";
     if (roomCode.length === 4) {
-      session.socket.emit("join-room", roomCode);
+      session.socket.emit("menu/join-room", roomCode);
     } else {
       showError("menu-error", "Room code must be 4 characters");
     }
@@ -84,12 +84,12 @@ function setupUIListeners(): void {
   // Lobby buttons
   const joinRedBtn = document.getElementById("join-red-btn");
   joinRedBtn?.addEventListener("click", () => {
-    session.socket.emit("change-team", "red");
+    session.socket.emit("lobby/change-team", "red");
   });
 
   const joinBlueBtn = document.getElementById("join-blue-btn");
   joinBlueBtn?.addEventListener("click", () => {
-    session.socket.emit("change-team", "blue");
+    session.socket.emit("lobby/change-team", "blue");
   });
 
   const readyBtn = document.getElementById("ready-btn");
@@ -108,7 +108,7 @@ function setupUIListeners(): void {
   });
 
   // Chat functionality
-  const sendChatBtn = document.getElementById("send-chat-btn");
+  const sendChatBtn = document.getElementById("misc/send-chat-btn");
   sendChatBtn?.addEventListener("click", () => {
     sendChatMessage();
   });
@@ -144,7 +144,7 @@ export function showScreen(screenId: string): void {
 export function showMenu(): void {
   showScreen("menu");
   clearErrors();
-  session.socket.emit("get-lobbies");
+  session.socket.emit("menu/list-lobbies");
 }
 
 export function showLobby(): void {
@@ -235,7 +235,7 @@ export function sendChatMessage(): void {
 
   const message = chatInput.value.trim();
   if (message.length > 0) {
-    session.socket.emit("send-chat", message);
+    session.socket.emit("misc/send-chat", message);
     chatInput.value = "";
   }
 }
@@ -272,7 +272,7 @@ export function updateLobbiesList(lobbies: Lobby[]): void {
       if (roomCodeInput) {
         roomCodeInput.value = lobby.code;
       }
-      session.socket.emit("join-room", lobby.code);
+      session.socket.emit("menu/join-room", lobby.code);
     });
     lobbiesContainer.appendChild(lobbyDiv);
   });

@@ -8,7 +8,11 @@ import { RoomData, Lobby, PlayerMoveData } from "../shared/types";
 import { Player } from "../shared/player";
 
 export function initSocket(): void {
-	session.socket.on("room-joined", (data: RoomData) => {
+	session.socket.on("menu/lobbies-list", (lobbies: Lobby[]) => {
+		ui.updateLobbiesList(lobbies);
+	});
+	
+	session.socket.on("room/joined", (data: RoomData) => {
 		session.currentRoom = data.roomCode;
 		updatePlayersInLobby(data.players);
 		data.chatMessages.forEach(chat.addChatMessage);
@@ -18,43 +22,27 @@ export function initSocket(): void {
 		ui.showLobby();
 	});  
 
-	session.socket.on("room-error", (error: string) => {
+	session.socket.on("room/error", (error: string) => {
 		ui.showError("menu-error", error);
 	});
 
-	session.socket.on("team-error", (error: string) => {
-		ui.showError("lobby-error", error);
-	});
-
-	session.socket.on("player-joined", (players: Player[]) => {
+	session.socket.on("room/player-list", (players: Player[]) => {
 		updatePlayersInLobby(players);
 	});
 
-	session.socket.on("player-left", (players: Player[]) => {
-		updatePlayersInLobby(players);
-	});
-
-	session.socket.on("player-updated", (players: Player[]) => {
-		updatePlayersInLobby(players);
-	});
-
-	session.socket.on("game-started", (players: Player[]) => {
+	session.socket.on("game/start", (players: Player[]) => {
 		updatePlayersInLobby(players);
 		startGameLoop();
 		ui.showGame();
 	});
 
-	session.socket.on("player-moved", (data: PlayerMoveData) => {
+	session.socket.on("game/player-moved", (data: PlayerMoveData) => {
 		state.updatePlayerPosition(data);
 	});
 
-	session.socket.on("chat-message", (message: ChatMessage) => {
+	session.socket.on("game/chat-message", (message: ChatMessage) => {
 		chat.addChatMessage(message);
 		ui.updateChatDisplay();
-	});
-
-	session.socket.on("lobbies-list", (lobbies: Lobby[]) => {
-		ui.updateLobbiesList(lobbies);
 	});
 }
 

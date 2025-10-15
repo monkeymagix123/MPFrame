@@ -39,7 +39,7 @@ function setupGameControls(): void {
       session.currentPlayer.doDash(x, y);
     }
 
-    session.socket.emit("player-move", {
+    session.socket.emit("game/player-move", {
       x: session.currentPlayer?.x,
       y: session.currentPlayer?.y,
     });
@@ -112,7 +112,7 @@ function updateGame(dt: number): void {
 
   if (moved) {
     // emit current player
-    session.socket.emit("player-move", {
+    session.socket.emit("game/player-move", {
       x: session.currentPlayer.x,
       y: session.currentPlayer.y,
     });
