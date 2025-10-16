@@ -94,7 +94,7 @@ function setupUIListeners(): void {
 
   const readyBtn = document.getElementById("ready-btn");
   readyBtn?.addEventListener("click", () => {
-    session.socket.emit("ready-toggle");
+    session.socket.emit("lobby/ready-toggle");
   });
 
   const leaveRoomBtn = document.getElementById("leave-room-btn");

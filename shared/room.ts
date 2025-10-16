@@ -7,7 +7,6 @@ export class Room {
    roomState: "lobby" | "playing";
    startVotes: Set<string>; // socket.id of players who voted to start
    chatMessages: ChatMessage[];
-   lastUpdate: number;
 
    constructor(code: string) {
       this.code = code; 
@@ -15,7 +14,6 @@ export class Room {
       this.roomState = "lobby";
       this.startVotes = new Set();
       this.chatMessages = [];
-      this.lastUpdate = Date.now();
    }
 
    getTeamCount(team: "red" | "blue"): number {
