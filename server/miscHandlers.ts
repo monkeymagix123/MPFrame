@@ -4,7 +4,7 @@ import { GameSocket } from "./types";
 import { rooms, playerNames } from "./server";
 
 export function setupMiscHandlers(socket: GameSocket, io: Server): void {
-	socket.on("set-name", (name: string) => {
+	socket.on("misc/set-name", (name: string) => {
 		const sanitizedName = name.trim().substring(0, 20);
 
 		// Store name globally

@@ -47,7 +47,7 @@ function setupUIListeners(): void {
       const target = e.target as HTMLInputElement;
       const name = target.value.trim();
       if (name) {
-        session.socket.emit("set-name", name);
+        session.socket.emit("misc/set-name", name);
       }
     }
   });
@@ -56,7 +56,7 @@ function setupUIListeners(): void {
     const target = e.target as HTMLInputElement;
     const name = target.value.trim();
     if (name) {
-      session.socket.emit("set-name", name);
+      session.socket.emit("misc/set-name", name);
     }
   });
 
@@ -68,7 +68,7 @@ function setupUIListeners(): void {
       const target = e.target as HTMLInputElement;
       const name = target.value.trim();
       if (name) {
-        session.socket.emit("set-name", name);
+        session.socket.emit("misc/set-name", name);
       }
     }
   });
@@ -77,7 +77,7 @@ function setupUIListeners(): void {
     const target = e.target as HTMLInputElement;
     const name = target.value.trim();
     if (name) {
-      session.socket.emit("set-name", name);
+      session.socket.emit("misc/set-name", name);
     }
   });
 
