@@ -5,6 +5,12 @@ import { state } from "../shared/state";
 import { session } from "./session";
 import { settings } from "./settings";
 
+// FPS tracking
+let lastFrameTime = performance.now();
+let fps = 0;
+const fpsHistory: number[] = [];
+const fpsHistorySize = 30;
+
 export function resizeCanvas(): void {
    const canvas = document.getElementById("game-canvas") as HTMLCanvasElement;
    const gameArea = document.getElementById("game-area");
@@ -32,6 +38,20 @@ export function resizeCanvas(): void {
 export function renderGame(): void {
    if (!session.ctx || !session.canvas) return;
 
+   // Update FPS
+   const currentTime = performance.now();
+   const deltaTime = currentTime - lastFrameTime;
+   lastFrameTime = currentTime;
+   
+   if (deltaTime > 0) {
+      const currentFps = 1000 / deltaTime;
+      fpsHistory.push(currentFps);
+      if (fpsHistory.length > fpsHistorySize) {
+         fpsHistory.shift();
+      }
+      fps = fpsHistory.reduce((a, b) => a + b, 0) / fpsHistory.length;
+   }
+
 	session.ctx.clearRect(0, 0, config.width, config.height)
    session.ctx.fillStyle = "#11111b";
    session.ctx.fillRect(0, 0, config.width, config.height)
@@ -49,6 +69,11 @@ export function renderGame(): void {
    if (settings.highQuality) {
       session.ctx.shadowBlur = 0;
       session.ctx.globalAlpha = 1;
+   }
+
+   // Draw FPS counter if debug mode is on
+   if (settings.debugMode) {
+      drawFPS();
    }
 }
 
@@ -226,4 +251,29 @@ function drawArrow(fromX: number, fromY: number, toX: number, toY: number): void
          session.ctx.shadowBlur = 0;
       }
    }
+}
+
+function drawFPS(): void {
+   if (!session.ctx) return;
+
+   // Save context state
+   session.ctx.save();
+
+   // Draw FPS in top right corner
+   session.ctx.font = "bold 16px monospace";
+   session.ctx.textAlign = "right";
+   session.ctx.fillStyle = "#00ff00";
+
+   // Add background for better readability
+   const text = `FPS: ${Math.round(fps)}`;
+   const textWidth = session.ctx.measureText(text).width;
+   session.ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+   session.ctx.fillRect(config.width - textWidth - 20, 10, textWidth + 15, 25);
+
+   // Draw FPS text
+   session.ctx.fillStyle = "#00ff00";
+   session.ctx.fillText(text, config.width - 10, 28);
+
+   // Restore context state
+   session.ctx.restore();
 }
