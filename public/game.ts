@@ -46,8 +46,8 @@ function setupGameControls(): void {
   });
 
   document.addEventListener("mousemove", (e: MouseEvent) => {
-    if (Date.now() - lastDrawTime < 20) return; 
-    lastDrawTime = Date.now();
+    if (performance.now() - lastDrawTime < 20) return; 
+    lastDrawTime = performance.now();
 
     // Converts raw mouse coordinates to game coordinates
     const { x, y } = mouseToGameCoords(e.clientX, e.clientY);
