@@ -16,3 +16,4 @@
 -  [ ] Fix leave game
    -  [ ] have win condititon/ui
 -  [ ] Separate out movement and render
+-  [ ] Fix server system and how it handles/stores player information
