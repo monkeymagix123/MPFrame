@@ -13,9 +13,9 @@ function startGame(room: Room, io: Server): void {
 	room.players.forEach((player) => {
 		player.ready = false;
 		// Randomize starting positions
-		player.x = Math.random() * 760 + 20;
-		player.y = Math.random() * 560 + 20;
-	});
+		player.pos.x = 300;
+		player.pos.y = 300;
+	}); 
 
 	io.to(room.code).emit("game/start", Array.from(room.players.values()));
 

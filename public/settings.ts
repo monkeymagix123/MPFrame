@@ -4,9 +4,9 @@ class Settings {
    debugMode?: boolean;
 
    constructor() {
-      this.highQuality = true;
+      this.highQuality = false;
       this.resolutionScale = 2.0;
-      this.debugMode = true;
+      this.debugMode = false;
    }
 }
 
