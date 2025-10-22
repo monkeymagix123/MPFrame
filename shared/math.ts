@@ -1,4 +1,5 @@
 import { config } from "../shared/config";
+import { v2, Vec2 } from "./v2";
 
 export function clamp(n: number, min: number, max: number): number {
 	if (n < min) {
@@ -12,21 +13,35 @@ export function clamp(n: number, min: number, max: number): number {
 	return n;
 }
 
-export function clampPos(x: number, y: number): { x: number; y: number } {
+export function clampPos(x: number, y: number): Vec2 {
 	const playerRadius = config.playerLength / 2;
 	const clampedX = clamp(x, playerRadius, config.width - playerRadius);
 	const clampedY = clamp(y, playerRadius, config.height - playerRadius);
 
-	return { x: clampedX, y: clampedY };
+	return new Vec2(clampedX, clampedY);
+}
+
+export function clampPosV(v: Vec2): Vec2 {
+    return clampPos(v.x, v.y);
 }
 
 // this is from chatgpt idk if it works
-export function intersectCircleLine(x1: number, y1: number, x2: number, y2: number, x: number, y: number, radius: number): boolean {
-    const dx = x2 - x1;
-    const dy = y2 - y1;
+export function intersectCircleLine(start: Vec2, end: Vec2, center: Vec2, radius: number): boolean {
+    let x1 = start.x;
+    let y1 = start.y;
+    let x2 = end.x;
+    let y2 = end.y;
 
-    const fx = x1 - x;
-    const fy = y1 - y;
+    let x = center.x;
+    let y = center.y;
+
+    const dPos = v2.sub(end, start);
+    const dx = dPos.x;
+    const dy = dPos.y;
+
+    const f = v2.sub(start, center);
+    const fx = f.x;
+    const fy = f.y;
 
     const a = dx * dx + dy * dy;
     const b = 2 * (fx * dx + fy * dy);

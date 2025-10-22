@@ -1,6 +1,7 @@
 import { io, Socket } from "socket.io-client";
 import { Keys } from "../shared/types";
 import { Player } from "../shared/player";
+import { Vec2 } from "../shared/v2";
 
 class Session {
 	socket: Socket;
@@ -9,8 +10,7 @@ class Session {
 	canvas: HTMLCanvasElement;
 	ctx: CanvasRenderingContext2D;
 	gameLoop: number | null;
-	mouseX: number;
-	mouseY: number;
+	mousePos: Vec2;
 	currentPlayer: Player | null;
 
 	constructor(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
@@ -20,8 +20,7 @@ class Session {
 		this.canvas = canvas as HTMLCanvasElement;
 		this.ctx = ctx as CanvasRenderingContext2D;
 		this.gameLoop = null as number | null;
-		this.mouseX = 0;
-		this.mouseY = 0;
+		this.mousePos = new Vec2();
 		this.currentPlayer = null;
 	}
 
@@ -29,8 +28,7 @@ class Session {
 		this.currentRoom = null;
 		this.keys = {} as Keys;
 		this.gameLoop = null;
-		this.mouseX = 0;
-		this.mouseY = 0;
+		this.mousePos = new Vec2();
 		this.currentPlayer = null;
 	}
 }

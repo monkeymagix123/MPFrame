@@ -2,6 +2,7 @@ import { config } from "../shared/config";
 import { clampPos } from "../shared/math";
 import { Player } from "../shared/player";
 import { state } from "../shared/state";
+import { Vec2 } from "../shared/v2";
 import { session } from "./session";
 import { settings } from "./settings";
 
@@ -84,7 +85,7 @@ function drawPlayer(player: Player): void {
 
    // Draw dash arrow for current player
    if (isCurrentPlayer) {
-      drawDashArrow(session.mouseX, session.mouseY);
+      drawDashArrow(session.mousePos);
    }
 
    const healthRatio = player.health / player.maxHealth;
@@ -109,8 +110,8 @@ function drawPlayer(player: Player): void {
 
    session.ctx.lineWidth = (config.playerLength * healthRatio) / 2;
    session.ctx.strokeRect(
-      player.x - config.playerLength / 2 + session.ctx.lineWidth / 2,
-      player.y - config.playerLength / 2 + session.ctx.lineWidth / 2,
+      player.pos.x - config.playerLength / 2 + session.ctx.lineWidth / 2,
+      player.pos.y - config.playerLength / 2 + session.ctx.lineWidth / 2,
       config.playerLength - session.ctx.lineWidth,
       config.playerLength - session.ctx.lineWidth
    );
@@ -120,8 +121,8 @@ function drawPlayer(player: Player): void {
       session.ctx.strokeStyle = "#FFFFFF";
       session.ctx.lineWidth = 2;
       session.ctx.strokeRect(
-         player.x - config.playerLength / 2,
-         player.y - config.playerLength / 2,
+         player.pos.x - config.playerLength / 2,
+         player.pos.y - config.playerLength / 2,
          config.playerLength,
          config.playerLength
       );
@@ -143,18 +144,21 @@ function drawPlayer(player: Player): void {
    }
 
    const name = player.id === session.socket.id ? "You" : player.name || player.id.substring(0, 4);
-   session.ctx.fillText(name, player.x, player.y - 25);
+   session.ctx.fillText(name, player.pos.x, player.pos.y - 25);
 
    if (settings.highQuality) {
       session.ctx.shadowBlur = 0;
    }
 }
 
-function drawDashArrow(x: number, y: number): void {
+function drawDashArrow(v: Vec2): void {
    if (!session.currentPlayer || !session.canvas) return;
 
-   let dx = x - session.currentPlayer.x;
-   let dy = y - session.currentPlayer.y;
+   let x = v.x;
+   let y = v.y;
+
+   let dx = x - session.currentPlayer.pos.x;
+   let dy = y - session.currentPlayer.pos.y;
 
    let length = Math.sqrt(dx * dx + dy * dy);
 
@@ -164,9 +168,9 @@ function drawDashArrow(x: number, y: number): void {
    let arrowVecX = (dx / length) * arrowDistance;
    let arrowVecY = (dy / length) * arrowDistance;
 
-   let { x: toX, y: toY } = clampPos(session.currentPlayer.x + arrowVecX, session.currentPlayer.y + arrowVecY);
+   let { x: toX, y: toY } = clampPos(session.currentPlayer.pos.x + arrowVecX, session.currentPlayer.pos.y + arrowVecY);
 
-   drawArrow(session.currentPlayer.x, session.currentPlayer.y, toX, toY);
+   drawArrow(session.currentPlayer.pos.x, session.currentPlayer.pos.y, toX, toY);
 }
 
 function drawArrow(fromX: number, fromY: number, toX: number, toY: number): void {

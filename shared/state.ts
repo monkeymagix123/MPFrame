@@ -1,4 +1,5 @@
 import { Player } from "./player";
+import { PlayerMoveData } from "./types";
 
 export class State {
 	players: Player[];
@@ -15,13 +16,14 @@ export class State {
 		this.players = [];
 	}
 
-	updatePlayerPosition(data: { id: string; x: number; y: number; dashX?: number; dashY?: number }): void {
+	updatePlayerPosition(data: PlayerMoveData): void {
 		const player = this.players.find((p) => p.id === data.id);
 		if (player) {
-			player.x = data.x;
-			player.y = data.y;
-			if (data.dashX !== undefined) player.dashX = data.dashX;
-			if (data.dashY !== undefined) player.dashY = data.dashY;
+			player.pos = data.pos;
+
+			if (data.dashPos) {
+				player.dashPos = data.dashPos;
+			}
 		}
 	}	
 }

@@ -1,5 +1,6 @@
 import { ChatMessage } from "./chat";
 import { Player } from "./player";
+import { Vec2 } from "./v2";
 
 export interface RoomData {
 	roomCode: string;
@@ -15,13 +16,8 @@ export interface Lobby {
 
 export interface PlayerMoveData {
 	id: string;
-	x: number;
-	y: number;
-	dashX?: number;
-	dashY?: number;
-
-	health: number;
-	maxHealth: number;
+	pos: Vec2;
+	dashPos?: Vec2;
 }
 
 export interface Keys {

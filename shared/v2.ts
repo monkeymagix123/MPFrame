@@ -6,14 +6,19 @@ function max(a: number, b: number) {
     return a > b ? a : b;
 }
 
-export interface Vec2 {
+export class Vec2 {
     x: number;
     y: number;
+
+    constructor(x: number = 0, y: number = 0) {
+        this.x = x;
+        this.y = y;
+    }
 }
 
 export const v2 = {
     create(x: number, y?: number): Vec2 {
-        return { x, y: y ?? x };
+        return new Vec2(x, y ?? x);
     },
 
     copy(vec: Vec2): Vec2 {
@@ -29,6 +34,9 @@ export const v2 = {
         return { x: a.x + b.x, y: a.y + b.y };
     },
 
+    /**
+     * Returns the vector a - b
+     */
     sub(a: Vec2, b: Vec2): Vec2 {
         return { x: a.x - b.x, y: a.y - b.y };
     },

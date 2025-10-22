@@ -2,6 +2,7 @@ import { session } from "./session";
 import { renderGame, resizeCanvas } from "./canvas";   
 import { config } from "../shared/config";
 import { settings } from "./settings";
+import { Vec2 } from "../shared/v2";
 
 // Global variable to store the timestamp of the last frame
 let lastTime = 0;
@@ -30,18 +31,15 @@ function setupGameControls(): void {
     if (!session.canvas) return;
     
     // Converts raw mouse coordinates to game coordinates
-    const { x, y } = mouseToGameCoords(e.clientX, e.clientY);
-    session.mouseX = x;
-    session.mouseY = y;
+    session.mousePos = mouseToGameCoords(e.clientX, e.clientY);
 
     // Attempt to dash
     if (session.currentPlayer) {
-      session.currentPlayer.doDash(x, y);
+      session.currentPlayer.doDash(session.mousePos);
     }
 
     session.socket.emit("game/player-move", {
-      x: session.currentPlayer?.x,
-      y: session.currentPlayer?.y,
+      pos: session.currentPlayer?.pos,
     });
   });
 
@@ -50,9 +48,7 @@ function setupGameControls(): void {
     lastDrawTime = performance.now();
 
     // Converts raw mouse coordinates to game coordinates
-    const { x, y } = mouseToGameCoords(e.clientX, e.clientY);
-    session.mouseX = x;
-    session.mouseY = y;
+    session.mousePos = mouseToGameCoords(e.clientX, e.clientY);
   });
 }
 
@@ -113,15 +109,14 @@ function updateGame(dt: number): void {
   if (moved) {
     // emit current player
     session.socket.emit("game/player-move", {
-      x: session.currentPlayer.x,
-      y: session.currentPlayer.y,
+      pos: session.currentPlayer.pos,
     });
   }
 }
 
-function mouseToGameCoords(mouseX: number, mouseY: number): { x: number; y: number } {
+function mouseToGameCoords(mouseX: number, mouseY: number): Vec2 {
   const rect = session.canvas.getBoundingClientRect();
   const gameX = (mouseX - rect.left) * config.width / session.canvas.width * settings.resolutionScale;
   const gameY = (mouseY - rect.top) * config.height / session.canvas.height * settings.resolutionScale;
-  return { x: gameX, y: gameY };
+  return new Vec2(gameX, gameY);
 }

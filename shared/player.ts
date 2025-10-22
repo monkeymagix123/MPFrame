@@ -1,7 +1,8 @@
 import { config } from "./config";
-import { clampPos, intersectCircleLine } from "./math";
+import { clampPos, clampPosV, intersectCircleLine } from "./math";
 
 import { state } from "./state";
+import { v2, Vec2 } from "./v2";
 
 export class Player {
 	id: string;
@@ -9,12 +10,10 @@ export class Player {
 	team: string; // red or blue
 	ready: boolean;
 
-	x: number;
-	y: number;
+    pos: Vec2;
 
     startDash: boolean = false;
-	dashX?: number;
-	dashY?: number;
+    dashPos?: Vec2;
     dashCooldown: number = 0;
 
     maxHealth: number;
@@ -25,68 +24,59 @@ export class Player {
         this.name = name;
         this.team = team;
         this.ready = ready;
-        this.x = x;
-        this.y = y;
+
+        this.pos = new Vec2(x, y);
 
         this.maxHealth = config.maxHealth;
         this.health = this.maxHealth;
     }
 
     moveLeft(distance: number): void {
-        const { x: clampedX } = clampPos(this.x - distance, this.y);
-        this.x = clampedX;
+        this.pos.x = clampPos(this.pos.x - distance, this.pos.y).x;
     }
 
     moveRight(distance: number): void {
-        const { x: clampedX } = clampPos(this.x + distance, this.y);
-        this.x = clampedX;
+        this.pos.x = clampPos(this.pos.x + distance, this.pos.y).x;
     }
 
     moveUp(distance: number): void {
-        const { y: clampedY } = clampPos(this.x, this.y - distance);
-        this.y = clampedY;
+        this.pos.y = clampPos(this.pos.x, this.pos.y - distance).y;
     }
 
     moveDown(distance: number): void {
-        const { y: clampedY } = clampPos(this.x, this.y + distance);
-        this.y = clampedY;
+        this.pos.y = clampPos(this.pos.x, this.pos.y + distance).y;
     }
 
-    doDash(x: number, y: number): void {
+    doDash(v: Vec2): void {
         this.startDash = true;
 
         // will dash towards (x, y)
-        this.dashX = x;
-        this.dashY = y;
+        this.dashPos = v;
 
         // dash & arrow calculation
-        let dx = x - this.x;
-        let dy = y - this.y;
+        let diffPos = v2.sub(v, this.pos);
 
-        let length = Math.sqrt(dx * dx + dy * dy);
+        // let length = Math.sqrt(dx * dx + dy * dy);
+        let length = v2.length(diffPos);
 
         // Assuming a fixed dash distance of 100 units (original code logic)
         const dashDistance = config.dashDistance;
         // Normalize and scale the dash vector
-        let dashVecX = (dx / length) * dashDistance;
-        let dashVecY = (dy / length) * dashDistance;
+        let dashVec = v2.mul(diffPos, dashDistance / length);
 
         // do a dash
-        const { x: clampedX, y: clampedY } = clampPos(this.x + dashVecX, this.y + dashVecY);
-        this.dashX = clampedX;
-        this.dashY = clampedY;
+        this.dashPos = clampPosV(v2.add(this.pos, dashVec));
 
         // do damage to stuff
         for (const p of state.players.values()) {
             let player: Player = p as Player;
-            if (intersectCircleLine(this.x, this.y, this.dashX, this.dashY, player.x, player.y, config.playerLength)) {
+            if (intersectCircleLine(this.pos, this.dashPos, player.pos, config.playerLength)) {
                 this.doDamage(config.dashDamage, p);
             }
         }
 
         // move to target point
-        this.x = this.dashX;
-        this.y = this.dashY;
+        this.pos = this.dashPos;
 
         // 1 sec dash cooldown
         this.startDashCooldown();
@@ -95,12 +85,12 @@ export class Player {
         this.startDash = false;
     }
 
-    attemptDash(x: number, y: number): boolean {
+    attemptDash(v: Vec2): boolean {
         if (this.dashCooldown > 0) {
             return false; // Dash is on cooldown
         }
 
-        this.doDash(x, y);
+        this.doDash(v);
 
         return true;
     }
@@ -137,8 +127,7 @@ export class Player {
         const player = new Player(data.id, data.team, data.x, data.y, data.name, data.ready);
         player.dashCooldown = data.dashCooldown || 0;
         player.startDash = data.startDash || false;
-        player.dashX = data.dashX;
-        player.dashY = data.dashY;
+        player.dashPos = data.dashPos;
         return player;
     }
 }

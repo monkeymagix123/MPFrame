@@ -3,6 +3,7 @@ import { GameSocket } from "./types";
 import { config } from "../shared/config";
 import { PlayerMoveData } from "../shared/types";
 import { rooms } from "./server";
+import { clampPosV } from "../shared/math";
 
 export function setupGameHandlers(socket: GameSocket, io: Server): void {
 	socket.on("game/player-move", (data: PlayerMoveData) => {
@@ -14,18 +15,17 @@ export function setupGameHandlers(socket: GameSocket, io: Server): void {
 		if (!player || room.roomState !== "playing") return;
 
 		// Update player position with bounds checking
-		player.x = Math.max(config.playerLength, Math.min(800 - config.playerLength, data.x));
-		player.y = Math.max(config.playerLength, Math.min(600 - config.playerLength, data.y));
+		player.pos.x = Math.max(config.playerLength, Math.min(800 - config.playerLength, data.pos.x));
+		player.pos.y = Math.max(config.playerLength, Math.min(600 - config.playerLength, data.pos.y));
 
-		player.dashX = data.dashX;
-		player.dashY = data.dashY;
+		if (data.dashPos) {
+			player.dashPos = data.dashPos;
+		}
 
 		socket.to(socket.roomCode).emit("game/player-moved", {
 			id: socket.id,
-			x: player.x,
-			y: player.y,
-			dashX: player.dashX,
-			dashY: player.dashY,
+			pos: player.pos,
+			dashPos: player.dashPos,
 		});
 	});
 }
