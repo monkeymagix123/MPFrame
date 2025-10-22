@@ -25,6 +25,9 @@ export function updateURL(roomCode: string): void {
   const fullURL = `${window.location.origin}${newPath}`;
   const lobbyUrlElement = document.getElementById("lobby-url");
   if (lobbyUrlElement) {
-    lobbyUrlElement.textContent = `Share this link: ${fullURL}`;
+    lobbyUrlElement.innerHTML = `
+    Share this link: 
+    <a href="${fullURL}" target="_blank" style="color: #3b82f6; text-decoration: underline;">${fullURL}</a>
+  `;
   }
 }
