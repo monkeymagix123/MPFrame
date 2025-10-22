@@ -42,7 +42,7 @@ export function setupMenuHandlers(socket: GameSocket, io: Server): void {
 			chatMessages: room.chatMessages,
 		});
 
-		console.log(`Room ${roomCode} created by ${socket.id}`);
+		console.log(`Room ${roomCode} created by ${playerNames.get(socket.id) || "[unnamed]"}`);
 
 		broadcastLobbiesList(io);
 	});
@@ -81,7 +81,7 @@ export function setupMenuHandlers(socket: GameSocket, io: Server): void {
 		// Notify other players
 		socket.to(roomCode).emit("room/player-list", Array.from(room.players.values()));
 
-		console.log(`${socket.id} joined room ${roomCode}`);
+		console.log(`${playerNames.get(socket.id) || "[unnamed]"} joined room ${roomCode}`);
 
 		if (room.players.size === 1 || room.roomState !== "lobby") {
 			broadcastLobbiesList(io);

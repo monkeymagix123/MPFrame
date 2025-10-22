@@ -5,7 +5,7 @@ import { broadcastLobbiesList } from "./misc";
 
 export function setupDisconnectHandler(socket: GameSocket, io: Server): void {
 	socket.on("disconnect", () => {
-		console.log("User disconnected:", socket.id);
+		console.log("User disconnected:", playerNames.get(socket.id) || "[unnamed]");
 
 		// Clean up player name
 		playerNames.delete(socket.id);
