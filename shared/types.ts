@@ -23,3 +23,23 @@ export interface PlayerMoveData {
 export interface Keys {
 	[key: string]: boolean;
 }
+
+export class ClientInput {
+	interval: number = 0;
+
+	keys: Keys;
+
+	mouseClick: boolean = false;
+	mousePos: Vec2;
+
+	constructor() {
+		this.mousePos = new Vec2();
+
+		this.keys = {
+			"up": false,
+			"down": false,
+			"left": false,
+			"right": false,
+		}
+	}
+}

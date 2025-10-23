@@ -21,10 +21,12 @@ export function initGame(): void {
 function setupGameControls(): void {
   document.addEventListener("keydown", (e: KeyboardEvent) => {
     session.keys[e.key.toLowerCase()] = true;
+    session.clientInput.keys[e.key.toLowerCase()] = true;
   });
 
   document.addEventListener("keyup", (e: KeyboardEvent) => {
     session.keys[e.key.toLowerCase()] = false;
+    session.clientInput.keys[e.key.toUpperCase()] = false;
   });
 
   document.addEventListener("click", (e: MouseEvent) => {
@@ -37,6 +39,9 @@ function setupGameControls(): void {
     if (session.currentPlayer) {
       session.currentPlayer.attemptDash(session.mousePos);
     }
+
+    session.clientInput.mouseClick = true;
+    session.clientInput.mousePos = session.mousePos;
 
     session.socket.emit("game/player-move", {
       pos: session.currentPlayer?.pos,
@@ -84,7 +89,7 @@ function updateGame(dt: number): void {
   if (!session.currentPlayer || !session.canvas) return;
 
   let moved = false;
-  const speedPerSecond = 180;
+  const speedPerSecond = config.speedPerSecond;
 
   if (session.keys["w"] || session.keys["arrowup"]) {
     session.currentPlayer.moveUp(speedPerSecond * dt);
@@ -111,5 +116,9 @@ function updateGame(dt: number): void {
     session.socket.emit("game/player-move", {
       pos: session.currentPlayer.pos,
     });
+
+    session.clientInput.interval = dt;
+    session.socket.emit("game/client-input", session.clientInput);
+    session.resetInput();
   }
 }
