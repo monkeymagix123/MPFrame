@@ -31,11 +31,11 @@ function setupGameControls(): void {
     if (!session.canvas) return;
     
     // Converts raw mouse coordinates to game coordinates
-    session.mousePos = mouseToGameCoords(e.clientX, e.clientY);
+    session.saveMouseCoords(e.clientX, e.clientY);
 
     // Attempt to dash
     if (session.currentPlayer) {
-      session.currentPlayer.doDash(session.mousePos);
+      session.currentPlayer.attemptDash(session.mousePos);
     }
 
     session.socket.emit("game/player-move", {
@@ -48,7 +48,7 @@ function setupGameControls(): void {
     lastDrawTime = performance.now();
 
     // Converts raw mouse coordinates to game coordinates
-    session.mousePos = mouseToGameCoords(e.clientX, e.clientY);
+    session.saveMouseCoords(e.clientX, e.clientY);
   });
 }
 
@@ -112,11 +112,4 @@ function updateGame(dt: number): void {
       pos: session.currentPlayer.pos,
     });
   }
-}
-
-function mouseToGameCoords(mouseX: number, mouseY: number): Vec2 {
-  const rect = session.canvas.getBoundingClientRect();
-  const gameX = (mouseX - rect.left) * config.width / session.canvas.width * settings.resolutionScale;
-  const gameY = (mouseY - rect.top) * config.height / session.canvas.height * settings.resolutionScale;
-  return new Vec2(gameX, gameY);
 }

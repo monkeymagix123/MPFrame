@@ -2,6 +2,8 @@ import { io, Socket } from "socket.io-client";
 import { Keys } from "../shared/types";
 import { Player } from "../shared/player";
 import { Vec2 } from "../shared/v2";
+import { config } from "../shared/config";
+import { settings } from "./settings";
 
 class Session {
 	socket: Socket;
@@ -30,6 +32,13 @@ class Session {
 		this.gameLoop = null;
 		this.mousePos = new Vec2();
 		this.currentPlayer = null;
+	}
+
+	saveMouseCoords(mouseX: number, mouseY: number): void {
+	  const rect = session.canvas.getBoundingClientRect();
+
+	  this.mousePos.x = (mouseX - rect.left) * config.width / session.canvas.width * settings.resolutionScale;
+	  this.mousePos.y = (mouseY - rect.top) * config.height / session.canvas.height * settings.resolutionScale;
 	}
 }
 

@@ -6,7 +6,7 @@ export const config = {
 	headLength: 30,
 
 	dashDistance: 300,
-	dashCooldown: 0.5, // in seconds
+	dashCooldown: 2, // in seconds
 
 	dashDamage: 25,
 
