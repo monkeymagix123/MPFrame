@@ -119,7 +119,7 @@ export class Player {
     static fromData(data: any): Player {
         const player = new Player(data.id, data.team, data.pos.x, data.pos.y, data.name, data.ready);
         player.dashCooldown = data.dashCooldown ?? 0;
-        player.startDash = data.startDash ?? false;
+        player.dashing = data.dashing ?? false;
         player.dashPos = data.dashPos;
         return player;
     }
