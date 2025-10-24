@@ -1,6 +1,6 @@
 export const config = {
-	width: 900,
-	height: 600,
+	mapWidth: 900,
+	mapHeight: 600,
 
 	playerLength: 30,
 	headLength: 30,
@@ -11,4 +11,5 @@ export const config = {
 	dashDamage: 25,
 
 	maxHealth: 100,
+	playerSpeed: 180, // units per second	
 }

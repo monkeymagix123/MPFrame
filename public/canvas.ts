@@ -2,7 +2,7 @@ import { config } from "../shared/config";
 import { clampPos } from "../shared/math";
 import { Player } from "../shared/player";
 import { state } from "../shared/state";
-import { Vec2 } from "../shared/v2";
+import { v2, Vec2 } from "../shared/v2";
 import { session } from "./session";
 import { settings } from "./settings";
 
@@ -32,7 +32,7 @@ export function resizeCanvas(): void {
    canvas.style.height = `${displayHeight}px`;
 
    // Scale the rendering context to match
-   const scale = canvas.width / config.width;
+   const scale = canvas.width / config.mapWidth;
    session.ctx.setTransform(scale, 0, 0, scale, 0, 0);
 }
 
@@ -53,9 +53,9 @@ export function renderGame(): void {
       fps = fpsHistory.reduce((a, b) => a + b, 0) / fpsHistory.length;
    }
 
-	session.ctx.clearRect(0, 0, config.width, config.height)
+	session.ctx.clearRect(0, 0, config.mapWidth, config.mapHeight)
    session.ctx.fillStyle = "#11111b";
-   session.ctx.fillRect(0, 0, config.width, config.height)
+   session.ctx.fillRect(0, 0, config.mapWidth, config.mapHeight)
 
    // Enable high quality effects if setting is on
    if (settings.highQuality) {
@@ -165,10 +165,9 @@ function drawDashArrow(v: Vec2): void {
    // Using the same 100 unit distance for the arrow display
    const arrowDistance = config.dashDistance;
 
-   let arrowVecX = (dx / length) * arrowDistance;
-   let arrowVecY = (dy / length) * arrowDistance;
+   let arrowVec = new Vec2((dx / length) * arrowDistance, (dy / length) * arrowDistance);
 
-   let { x: toX, y: toY } = clampPos(session.currentPlayer.pos.x + arrowVecX, session.currentPlayer.pos.y + arrowVecY);
+   let { x: toX, y: toY } = clampPos(v2.add(session.currentPlayer.pos, arrowVec));
 
    drawArrow(session.currentPlayer.pos.x, session.currentPlayer.pos.y, toX, toY);
 }
@@ -272,11 +271,11 @@ function drawFPS(): void {
    const text = `FPS: ${Math.round(fps)}`;
    const textWidth = session.ctx.measureText(text).width;
    session.ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
-   session.ctx.fillRect(config.width - textWidth - 20, 10, textWidth + 15, 25);
+   session.ctx.fillRect(config.mapWidth - textWidth - 20, 10, textWidth + 15, 25);
 
    // Draw FPS text
    session.ctx.fillStyle = "#00ff00";
-   session.ctx.fillText(text, config.width - 10, 28);
+   session.ctx.fillText(text, config.mapWidth - 10, 28);
 
    // Restore context state
    session.ctx.restore();

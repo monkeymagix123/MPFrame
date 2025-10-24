@@ -2,7 +2,8 @@ import { session } from "./session";
 import { renderGame, resizeCanvas } from "./canvas";   
 import { config } from "../shared/config";
 import { settings } from "./settings";
-import { Vec2 } from "../shared/v2";
+import { v2, Vec2 } from "../shared/v2";
+import { clampPos } from "../shared/math";
 
 // Global variable to store the timestamp of the last frame
 let lastTime = 0;
@@ -21,10 +22,12 @@ export function initGame(): void {
 function setupGameControls(): void {
   document.addEventListener("keydown", (e: KeyboardEvent) => {
     session.keys[e.key.toLowerCase()] = true;
+    inputUpdate();
   });
 
   document.addEventListener("keyup", (e: KeyboardEvent) => {
     session.keys[e.key.toLowerCase()] = false;
+    inputUpdate();
   });
 
   document.addEventListener("click", (e: MouseEvent) => {
@@ -79,32 +82,29 @@ export function stopGameLoop(): void {
   }
 }
 
+function inputUpdate(): void {
+  if (!session.currentPlayer) return;
+  
+  session.currentPlayer.vel.x =
+    ((session.keys["w"] || session.keys["arrowup"] ? 1 : 0) - 
+    (session.keys["s"] || session.keys["arrowdown"] ? 1 : 0)) 
+    * config.playerSpeed;
+
+  session.currentPlayer.vel.y = 
+    ((session.keys["d"] || session.keys["arrowright"] ? 1 : 0) - 
+    (session.keys["a"] || session.keys["arrowleft"] ? 1 : 0)) 
+    * config.playerSpeed;
+}
+
 // Changed to accept dt (delta time)
 function updateGame(dt: number): void {
   if (!session.currentPlayer || !session.canvas) return;
 
   let moved = false;
-  const speedPerSecond = 180;
-
-  if (session.keys["w"] || session.keys["arrowup"]) {
-    session.currentPlayer.moveUp(speedPerSecond * dt);
-    moved = true;
-  }
-  if (session.keys["s"] || session.keys["arrowdown"]) {
-    session.currentPlayer.moveDown(speedPerSecond * dt);
-    moved = true;
-  }
-  if (session.keys["a"] || session.keys["arrowleft"]) {
-    session.currentPlayer.moveLeft(speedPerSecond * dt);
-    moved = true;
-  }
-  if (session.keys["d"] || session.keys["arrowright"]) {
-    session.currentPlayer.moveRight(speedPerSecond * dt);
-    moved = true;
-  }
 
   // Decrement cooldown based on delta time in seconds
   session.currentPlayer.decrementCooldown(dt);
+  session.currentPlayer.pos = clampPos(v2.add(session.currentPlayer.pos, v2.mul(session.currentPlayer.vel, dt)));
 
   if (moved) {
     // emit current player

@@ -13,16 +13,11 @@ export function clamp(n: number, min: number, max: number): number {
 	return n;
 }
 
-export function clampPos(x: number, y: number): Vec2 {
-	const playerRadius = config.playerLength / 2;
-	const clampedX = clamp(x, playerRadius, config.width - playerRadius);
-	const clampedY = clamp(y, playerRadius, config.height - playerRadius);
-
-	return new Vec2(clampedX, clampedY);
-}
-
-export function clampPosV(v: Vec2): Vec2 {
-    return clampPos(v.x, v.y);
+export function clampPos(v: Vec2): Vec2 {
+    return new Vec2(
+        clamp(v.x, 0, config.mapWidth),
+        clamp(v.y, 0, config.mapHeight)
+    );
 }
 
 // this is from chatgpt idk if it works

@@ -1,5 +1,5 @@
 import { config } from "./config";
-import { clampPos, clampPosV, intersectCircleLine } from "./math";
+import { clampPos, intersectCircleLine } from "./math";
 
 import { state } from "./state";
 import { v2, Vec2 } from "./v2";
@@ -11,9 +11,10 @@ export class Player {
 	ready: boolean;
 
     pos: Vec2;
+    vel: Vec2;
 
-    startDash: boolean = false;
-    dashPos?: Vec2;
+    dashing: boolean = false;
+    dashPos?: Vec2 | undefined ;
     dashCooldown: number = 0;
 
     maxHealth: number;
@@ -26,31 +27,14 @@ export class Player {
         this.ready = ready;
 
         this.pos = new Vec2(x, y);
+        this.vel = new Vec2(0, 0);
 
         this.maxHealth = config.maxHealth;
         this.health = this.maxHealth;
     }
 
-    moveLeft(distance: number): void {
-        this.pos.x = clampPos(this.pos.x - distance, this.pos.y).x;
-    }
-
-    moveRight(distance: number): void {
-        this.pos.x = clampPos(this.pos.x + distance, this.pos.y).x;
-    }
-
-    moveUp(distance: number): void {
-        this.pos.y = clampPos(this.pos.x, this.pos.y - distance).y;
-    }
-
-    moveDown(distance: number): void {
-        this.pos.y = clampPos(this.pos.x, this.pos.y + distance).y;
-    }
-
     doDash(v: Vec2): void {
-        this.startDash = true;
-
-        // will dash towards (x, y)
+        this.dashing = true;
         this.dashPos = v;
 
         // dash & arrow calculation
@@ -65,7 +49,7 @@ export class Player {
         let dashVec = v2.mul(diffPos, dashDistance / length);
 
         // do a dash
-        this.dashPos = clampPosV(v2.add(this.pos, dashVec));
+        this.dashPos = clampPos(v2.add(this.pos, dashVec));
 
         // do damage to stuff
         for (const p of state.players.values()) {
@@ -82,7 +66,7 @@ export class Player {
         this.startDashCooldown();
 
         // will change later
-        this.startDash = false;
+        this.dashing = false;
     }
 
     attemptDash(v: Vec2): boolean {
@@ -100,7 +84,7 @@ export class Player {
     }
 
     takeDamage(amount: number): void {
-        if (this.startDash) return; // Invulnerable during dash
+        if (this.dashing) return; // Invulnerable during dash
         
         this.health -= amount;
         if (this.health < 0) this.health = 0;
@@ -126,7 +110,7 @@ export class Player {
     static fromData(data: any): Player {
         const player = new Player(data.id, data.team, data.pos.x, data.pos.y, data.name, data.ready);
         player.dashCooldown = data.dashCooldown || 0;
-        player.startDash = data.startDash || false;
+        player.dashing = data.startDash || false;
         player.dashPos = data.dashPos;
         return player;
     }

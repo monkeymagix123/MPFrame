@@ -37,8 +37,8 @@ class Session {
 	saveMouseCoords(mouseX: number, mouseY: number): void {
 	  const rect = session.canvas.getBoundingClientRect();
 
-	  this.mousePos.x = (mouseX - rect.left) * config.width / session.canvas.width * settings.resolutionScale;
-	  this.mousePos.y = (mouseY - rect.top) * config.height / session.canvas.height * settings.resolutionScale;
+	  this.mousePos.x = (mouseX - rect.left) * config.mapWidth / session.canvas.width * settings.resolutionScale;
+	  this.mousePos.y = (mouseY - rect.top) * config.mapHeight / session.canvas.height * settings.resolutionScale;
 	}
 }
 
