@@ -2,6 +2,7 @@ import { config } from "./config";
 import { clampPos, clampPosV, intersectCircleLine } from "./math";
 
 import { state } from "./state";
+import { PlayerMoveData } from "./types";
 import { v2, Vec2 } from "./v2";
 
 export class Player {
@@ -121,6 +122,14 @@ export class Player {
 
     decrementCooldown(dt: number): void {
         this.dashCooldown -= dt;
+    }
+
+    getData(): PlayerMoveData {
+        return {
+            id: this.id,
+            pos: this.pos,
+            dashPos: this.dashPos,
+        };
     }
 
     static fromData(data: any): Player {
