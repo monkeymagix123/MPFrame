@@ -153,6 +153,8 @@ export class Player {
 
         this.health = data.health;
         this.maxHealth = data.maxHealth;
+
+        console.log(this.health);
     }
 
 

@@ -22,16 +22,5 @@ export function setupGameHandlers(socket: GameSocket, io: Server): void {
 		if (input.mouseClick) {
 			player.attemptDash(input.mousePos);
 		}
-
-		// socket.to(socket.roomCode).emit("game/player-moved", {
-		// 	id: socket.id,
-		// 	pos: player.pos,
-		// 	dashPos: player.dashPos,
-		// });
-
-		// console.log(input);
-
-		// console.log("updated player position " + Date.now());
-		// console.log(player);
 	});
 }
