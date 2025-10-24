@@ -1,7 +1,7 @@
 import { Server } from "socket.io";
 import { GameSocket } from "./types";
 import { config } from "../shared/config";
-import { ClientInput, PlayerMoveData } from "../shared/types";
+import { ClientInput } from "../shared/types";
 import { rooms } from "./server";
 
 export function setupGameHandlers(socket: GameSocket, io: Server): void {

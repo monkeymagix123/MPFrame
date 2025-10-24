@@ -1,5 +1,5 @@
 import { Player } from "./player";
-import { PlayerMoveData } from "./types";
+import { PlayerData } from "./types";
 
 export class State {
 	players: Player[];
@@ -16,7 +16,7 @@ export class State {
 		this.players = [];
 	}
 
-	updatePlayerPosition(data: PlayerMoveData): void {
+	updatePlayerPosition(data: PlayerData): void {
 		const player = this.players.find((p) => p.id === data.id);
 		if (player) {
 			player.loadData(data);

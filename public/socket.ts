@@ -4,7 +4,7 @@ import { chat, ChatMessage } from "../shared/chat";
 import * as ui from "./ui";
 import { startGameLoop } from "./game";
 import { updateURL } from "./url";
-import { RoomData, Lobby, PlayerMoveData } from "../shared/types";
+import { RoomData, Lobby, PlayerData } from "../shared/types";
 import { Player } from "../shared/player";
 
 export function initSocket(): void {
@@ -36,7 +36,7 @@ export function initSocket(): void {
 		ui.showGame();
 	});
 
-	session.socket.on("game/player-moved", (data: PlayerMoveData) => {
+	session.socket.on("game/player-moved", (data: PlayerData) => {
 		state.updatePlayerPosition(data);
 
 		// update for current player

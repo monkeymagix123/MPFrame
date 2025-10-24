@@ -14,7 +14,7 @@ export interface Lobby {
 	blueCount: number;
 }
 
-export interface PlayerMoveData {
+export interface PlayerData {
 	id: string;
 	pos: Vec2;
 	dashPos?: Vec2;

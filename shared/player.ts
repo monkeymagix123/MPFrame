@@ -2,7 +2,7 @@ import { config } from "./config";
 import { clampPos, clampPosV, intersectCircleLine } from "./math";
 
 import { state } from "./state";
-import { PlayerMoveData } from "./types";
+import { PlayerData } from "./types";
 import { v2, Vec2 } from "./v2";
 
 export class Player {
@@ -128,9 +128,9 @@ export class Player {
     // data-related stuff
 
     /**
-     * Returns PlayerMoveData object with necessary data for this player
+     * Returns PlayerData object with necessary data for this player
      */
-    getData(): PlayerMoveData {
+    getData(): PlayerData {
         return {
             id: this.id,
             pos: this.pos,
@@ -139,9 +139,9 @@ export class Player {
     }
 
     /**
-     * Loads PlayerMoveData data into this player
+     * Loads PlayerData data into this player
      */
-    loadData(data: PlayerMoveData) {
+    loadData(data: PlayerData) {
         this.pos = data.pos;
 
         if (data.dashPos) {
