@@ -17,3 +17,8 @@
    -  [ ] have win condititon/ui
 -  [ ] Separate out movement and render
 -  [ ] Fix server system and how it handles/stores player information
+
+## Bugs
+- [ ] Chat not clearing
+- [ ] Typing in chat move player
+- [ ] Fix arrow pointing error/jerky cooldown anim

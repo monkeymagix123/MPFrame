@@ -26,7 +26,7 @@ function setupGameControls(): void {
 
 	document.addEventListener("keyup", (e: KeyboardEvent) => {
 		session.keys[e.key.toLowerCase()] = false;
-		session.clientInput.keys[e.key.toUpperCase()] = false;
+		session.clientInput.keys[e.key.toLowerCase()] = false;
 	});
 
 	document.addEventListener("click", (e: MouseEvent) => {
@@ -43,9 +43,9 @@ function setupGameControls(): void {
 		session.clientInput.mouseClick = true;
 		session.clientInput.mousePos = session.mousePos;
 
-		session.socket.emit("game/player-move", {
-			pos: session.currentPlayer?.pos,
-		});
+		// session.socket.emit("game/player-move", {
+		// 	pos: session.currentPlayer?.pos,
+		// });
 	});
 
 	document.addEventListener("mousemove", (e: MouseEvent) => {
@@ -113,11 +113,12 @@ function updateGame(dt: number): void {
 
 	if (moved) {
 		// emit current player
-		session.socket.emit("game/player-move", {
-			pos: session.currentPlayer.pos,
-		});
+		// session.socket.emit("game/player-move", {
+		// 	pos: session.currentPlayer.pos,
+		// });
 
 		session.clientInput.interval = dt;
+		// session.clientInput.id = session.currentPlayer.id;
 		session.socket.emit("game/client-input", session.clientInput);
 		session.resetInput();
 	}

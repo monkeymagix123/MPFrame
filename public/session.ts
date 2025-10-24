@@ -14,7 +14,7 @@ class Session {
 	gameLoop: number | null;
 
 	mousePos: Vec2;
-	currentPlayer: Player | null;
+	currentPlayer: Player | undefined;
 	clientInput: ClientInput;
 
 	constructor(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
@@ -25,7 +25,7 @@ class Session {
 		this.ctx = ctx as CanvasRenderingContext2D;
 		this.gameLoop = null as number | null;
 		this.mousePos = new Vec2();
-		this.currentPlayer = null;
+		this.currentPlayer = undefined;
 		this.clientInput = new ClientInput();
 	}
 
@@ -34,12 +34,14 @@ class Session {
 		this.keys = {} as Keys;
 		this.gameLoop = null;
 		this.mousePos = new Vec2();
-		this.currentPlayer = null;
+		this.currentPlayer = undefined;
 		this.clientInput = new ClientInput();
 	}
 
 	resetInput(): void {
-		this.clientInput = new ClientInput();
+		// this.clientInput = new ClientInput();
+		this.clientInput.interval = 0;
+		this.clientInput.mouseClick = false;
 	}
 
 	saveMouseCoords(mouseX: number, mouseY: number): void {
