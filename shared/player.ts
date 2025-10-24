@@ -2,6 +2,7 @@ import { config } from "./config";
 import { clampPos, intersectCircleLine } from "./math";
 
 import { state } from "./state";
+import { PlayerMoveData } from "./types";
 import { v2, Vec2 } from "./v2";
 
 export class Player {
@@ -107,10 +108,18 @@ export class Player {
         this.dashCooldown -= dt;
     }
 
+    getData(): PlayerMoveData {
+        return {
+            id: this.id,
+            pos: this.pos,
+            dashPos: this.dashPos,
+        };
+    }
+
     static fromData(data: any): Player {
         const player = new Player(data.id, data.team, data.pos.x, data.pos.y, data.name, data.ready);
-        player.dashCooldown = data.dashCooldown || 0;
-        player.dashing = data.startDash || false;
+        player.dashCooldown = data.dashCooldown ?? 0;
+        player.startDash = data.startDash ?? false;
         player.dashPos = data.dashPos;
         return player;
     }

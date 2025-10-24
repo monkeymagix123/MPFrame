@@ -25,6 +25,8 @@ export class State {
 				player.dashPos = data.dashPos;
 			}
 		}
+
+		// console.log(player);
 	}	
 }
 

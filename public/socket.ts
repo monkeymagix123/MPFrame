@@ -38,6 +38,11 @@ export function initSocket(): void {
 
 	session.socket.on("game/player-moved", (data: PlayerMoveData) => {
 		state.updatePlayerPosition(data);
+
+		// update for current player
+		if (data.id === session.socket.id) {
+			session.currentPlayer = state.players.find(p => p.id === session.socket.id);
+		}
 	});
 
 	session.socket.on("game/chat-message", (message: ChatMessage) => {
@@ -50,7 +55,7 @@ export function initSocket(): void {
 function updatePlayersInLobby(updatedPlayers: Player[]): void {
 	state.players = updatedPlayers.map(p => Player.fromData(p));
 	
-	const currentPlayer = state.players.find(p => p.id === session.socket.id) || null;
+	const currentPlayer = state.players.find(p => p.id === session.socket.id);
 	session.currentPlayer = currentPlayer;
 
 	ui.updateLobbyDisplay();
