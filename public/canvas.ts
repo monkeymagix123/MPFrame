@@ -1,8 +1,8 @@
 import { config } from "../shared/config";
-import { clampPos } from "../shared/math";
+import { clamp, clampPos, clampPosV } from "../shared/math";
 import { Player } from "../shared/player";
 import { state } from "../shared/state";
-import { Vec2 } from "../shared/v2";
+import { v2, Vec2 } from "../shared/v2";
 import { session } from "./session";
 import { settings } from "./settings";
 
@@ -151,56 +151,64 @@ function drawPlayer(player: Player): void {
    }
 }
 
-function drawDashArrow(v: Vec2): void {
+function drawDashArrow(toV: Vec2): void {
    if (!session.currentPlayer || !session.canvas) return;
-
-   let x = v.x;
-   let y = v.y;
-
-   let dx = x - session.currentPlayer.pos.x;
-   let dy = y - session.currentPlayer.pos.y;
-
-   let length = Math.sqrt(dx * dx + dy * dy);
 
    // Using the same 100 unit distance for the arrow display
    const arrowDistance = config.dashDistance;
 
-   let arrowVecX = (dx / length) * arrowDistance;
-   let arrowVecY = (dy / length) * arrowDistance;
+   let arrowVec = v2.mul(v2.directionNormalized(session.currentPlayer.pos, toV), arrowDistance);
 
-   let { x: toX, y: toY } = clampPos(session.currentPlayer.pos.x + arrowVecX, session.currentPlayer.pos.y + arrowVecY);
+   let toPos = clampPosV(v2.add(session.currentPlayer.pos, arrowVec));
 
-   drawArrow(session.currentPlayer.pos.x, session.currentPlayer.pos.y, toX, toY);
+   let ratio = clamp(session.currentPlayer.dashCooldown / config.dashCooldown, 0, 1);
+   drawArrow(session.currentPlayer.pos, toPos, ratio);
 }
 
-function drawArrow(fromX: number, fromY: number, toX: number, toY: number): void {
+/**
+ * Draws arrow from start to end, with a ratio of how charged it is.
+ * White for uncharged part (near end), yellow for charged part.
+ * @param k The ratio of how charged it is, should be between 0 and 1
+ */
+function drawArrow(fromPos: Vec2, toPos: Vec2, k: number): void {
    if (!session.ctx) return;
 
    const headLength = config.headLength; // length of head in pixels
-   let dx = toX - fromX;
-   let dy = toY - fromY;
-   const angle = Math.atan2(dy, dx);
-   const length = Math.sqrt(dx * dx + dy * dy);
+
+   // Get difference in position
+   let dpos = v2.sub(toPos, fromPos);
+
+   // Calculate angle and length of the arrow
+   const angle = Math.atan2(dpos.y, dpos.x);
+   const vAngle = v2.normalize(dpos);
+   // const angle = v2.normalize(dpos);
+   // const length = Math.sqrt(dx * dx + dy * dy);
+   const length = v2.length(dpos);
 
    // Calculate how much of the arrow should be "charged" (inverse of cooldown)
-   const chargedRatio = 1 - Math.max(0, Math.min(1, session.currentPlayer!.dashCooldown / config.dashCooldown));
-   const chargedLength = length * chargedRatio;
+   const chargedLength = length * (1 - k);
+
+   // Calculates the position of the charged part
+   const chargedPos = v2.add(fromPos, v2.mul(vAngle, chargedLength));
 
    const arrowBaseDistance = headLength * Math.cos(Math.PI / 6);
 
-   // Draw the charged (yellow/orange) part of the line FROM the start
-   if (chargedLength > 0) {
+   // Draw the charged (yellow/orange) part of the line from the start to the charged position
+   if (k >= 0) {
       session.ctx.lineWidth = config.playerLength / 3;
       session.ctx.beginPath();
-      session.ctx.moveTo(fromX, fromY);
+      session.ctx.moveTo(fromPos.x, fromPos.y);
 
-      // If fully charged, extend to just before the arrowhead base
-      if (session.currentPlayer!.dashCooldown <= 0) {
-         session.ctx.lineTo(toX - arrowBaseDistance * Math.cos(angle), toY - arrowBaseDistance * Math.sin(angle));
+      // Check if fully charged
+      if (k === 0) {
+         // If fully charged, extend to just before the arrowhead base
+         const slightBeforeEnd = v2.sub(toPos, v2.mul(vAngle, arrowBaseDistance));
+         session.ctx.lineTo(slightBeforeEnd.x, slightBeforeEnd.y);
       } else {
-         session.ctx.lineTo(fromX + chargedLength * Math.cos(angle), fromY + chargedLength * Math.sin(angle));
+         session.ctx.lineTo(chargedPos.x, chargedPos.y);
       }
 
+      // high-quality effects
       if (settings.highQuality) {
          session.ctx.strokeStyle = "rgba(250, 200, 60, 0.7)";
          session.ctx.shadowBlur = 15;
@@ -216,32 +224,37 @@ function drawArrow(fromX: number, fromY: number, toX: number, toY: number): void
       session.ctx.shadowBlur = 0;
    }
 
-   // Draw the uncharged (blue/cyan) part of the line
-   session.ctx.lineWidth = 10;
-   session.ctx.beginPath();
-   session.ctx.moveTo(fromX + chargedLength * Math.cos(angle), fromY + chargedLength * Math.sin(angle));
-   session.ctx.lineTo(toX, toY);
 
-   if (settings.highQuality) {
-      session.ctx.strokeStyle = "rgba(100, 180, 230, 0.6)";
-      session.ctx.shadowBlur = 10;
-      session.ctx.shadowColor = "rgba(100, 180, 230, 0.5)";
-   } else {
-      session.ctx.strokeStyle = "rgba(100, 180, 230, 1)";
+   // Draws the remaining uncharged (blue/cyan) part of the line
+   // Goes from the charged part to the end
+   session.ctx.lineWidth = 10;
+   if (k > 0) {
+      session.ctx.beginPath();
+      session.ctx.moveTo(chargedPos.x, chargedPos.y);
+      session.ctx.lineTo(toPos.x, toPos.y);
+
+      if (settings.highQuality) {
+         session.ctx.strokeStyle = "rgba(100, 180, 230, 0.6)";
+         session.ctx.shadowBlur = 10;
+         session.ctx.shadowColor = "rgba(100, 180, 230, 0.5)";
+      } else {
+         session.ctx.strokeStyle = "rgba(100, 180, 230, 1)";
+      }
+      session.ctx.stroke();
    }
-   session.ctx.stroke();
+
 
    // Draw the arrowhead when fully charged
-   if (session.currentPlayer!.dashCooldown <= 0) {
+   if (k === 0) {
       if (settings.highQuality) {
          session.ctx.shadowBlur = 20;
          session.ctx.shadowColor = "rgba(250, 200, 60, 0.9)";
       }
 
       session.ctx.beginPath();
-      session.ctx.moveTo(toX, toY);
-      session.ctx.lineTo(toX - headLength * Math.cos(angle - Math.PI / 6), toY - headLength * Math.sin(angle - Math.PI / 6));
-      session.ctx.lineTo(toX - headLength * Math.cos(angle + Math.PI / 6), toY - headLength * Math.sin(angle + Math.PI / 6));
+      session.ctx.moveTo(toPos.x, toPos.y);
+      session.ctx.lineTo(toPos.x - headLength * Math.cos(angle - Math.PI / 6), toPos.y - headLength * Math.sin(angle - Math.PI / 6));
+      session.ctx.lineTo(toPos.x - headLength * Math.cos(angle + Math.PI / 6), toPos.y - headLength * Math.sin(angle + Math.PI / 6));
       session.ctx.closePath();
 
       if (settings.highQuality) {
