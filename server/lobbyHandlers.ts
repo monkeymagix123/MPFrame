@@ -27,7 +27,7 @@ function startGame(room: Room, io: Server): void {
 	}
 
 	const delay = 1000 / config.fps;
-	setInterval(() => room.players.forEach((player: Player) => { player.decrementCooldown(delay); io.to(room.code).emit("game/player-moved", player.getData()) }, delay));
+	setInterval(() => room.updateGame(delay, io), delay);
 }
 
 export function setupLobbyHandlers(socket: GameSocket, io: Server): void {

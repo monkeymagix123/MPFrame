@@ -111,7 +111,8 @@ function updateGame(dt: number): void {
 	// Decrement cooldown based on delta time in seconds
 	session.currentPlayer.decrementCooldown(dt);
 
-	if (moved) {
+	// moving position or trying to dash
+	if (moved || session.clientInput.mouseClick) {
 		// emit current player
 		// session.socket.emit("game/player-move", {
 		// 	pos: session.currentPlayer.pos,

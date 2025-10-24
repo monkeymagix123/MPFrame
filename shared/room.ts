@@ -1,3 +1,4 @@
+import { Server } from "socket.io";
 import { ChatMessage } from "./chat";
 import { Player } from "./player";
 
@@ -18,5 +19,12 @@ export class Room {
 
    getTeamCount(team: "red" | "blue"): number {
       return Array.from(this.players.values()).filter((p) => p.team === team).length;
+   }
+
+   updateGame(dt: number, socket: Server): void {
+      for (const player of this.players.values()) {
+         player.decrementCooldown(dt);
+         socket.to(this.code).emit("game/player-moved", player.getData())
+      }
    }
 }
