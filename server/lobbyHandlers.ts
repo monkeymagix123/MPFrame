@@ -26,8 +26,9 @@ function startGame(room: Room, io: Server): void {
 	}
 
 	// Update the game every frame
-	const delay = 1000 / config.fps;
-	setInterval(() => room.updateGame(delay, io), delay);
+	const delay = 1000 / config.fps; // in milliseconds
+	const dt = 1 / config.fps; // in seconds
+	setInterval(() => room.updateGame(dt, io), delay);
 }
 
 export function setupLobbyHandlers(socket: GameSocket, io: Server): void {
