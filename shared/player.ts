@@ -124,6 +124,12 @@ export class Player {
         this.dashCooldown -= dt;
     }
 
+
+    // data-related stuff
+
+    /**
+     * Returns PlayerMoveData object with necessary data for this player
+     */
     getData(): PlayerMoveData {
         return {
             id: this.id,
@@ -131,6 +137,18 @@ export class Player {
             dashPos: this.dashPos,
         };
     }
+
+    /**
+     * Loads PlayerMoveData data into this player
+     */
+    loadData(data: PlayerMoveData) {
+        this.pos = data.pos;
+
+        if (data.dashPos) {
+            this.dashPos = data.dashPos;
+        }
+    }
+
 
     static fromData(data: any): Player {
         const player = new Player(data.id, data.team, data.pos.x, data.pos.y, data.name, data.ready);

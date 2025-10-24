@@ -19,11 +19,7 @@ export class State {
 	updatePlayerPosition(data: PlayerMoveData): void {
 		const player = this.players.find((p) => p.id === data.id);
 		if (player) {
-			player.pos = data.pos;
-
-			if (data.dashPos) {
-				player.dashPos = data.dashPos;
-			}
+			player.loadData(data);
 		}
 
 		// console.log(player);
