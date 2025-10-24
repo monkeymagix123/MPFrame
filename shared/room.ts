@@ -21,6 +21,11 @@ export class Room {
       return Array.from(this.players.values()).filter((p) => p.team === team).length;
    }
 
+   /**
+    * Updates the game by a given delta time and broadcasts the new data
+    * @param dt time to update (in seconds)
+    * @param socket the socket to broadcast from
+    */
    updateGame(dt: number, socket: Server): void {
       for (const player of this.players.values()) {
          player.decrementCooldown(dt);
