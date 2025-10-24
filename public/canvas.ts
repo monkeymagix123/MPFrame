@@ -151,35 +151,28 @@ function drawPlayer(player: Player): void {
    }
 }
 
-function drawDashArrow(v: Vec2): void {
+function drawDashArrow(mousePos: Vec2): void {
    if (!session.currentPlayer || !session.canvas) return;
 
-   let x = v.x;
-   let y = v.y;
-
-   let dx = x - session.currentPlayer.pos.x;
-   let dy = y - session.currentPlayer.pos.y;
-
-   let length = Math.sqrt(dx * dx + dy * dy);
+   const direction = v2.sub(mousePos, session.currentPlayer.pos);
+   const length = v2.length(direction);
 
    // Using the same 100 unit distance for the arrow display
    const arrowDistance = config.dashDistance;
 
-   let arrowVec = new Vec2((dx / length) * arrowDistance, (dy / length) * arrowDistance);
+   const arrowVec = v2.mul(v2.div(direction, length), arrowDistance);
+   const targetPos = clampPos(v2.add(session.currentPlayer.pos, arrowVec));
 
-   let { x: toX, y: toY } = clampPos(v2.add(session.currentPlayer.pos, arrowVec));
-
-   drawArrow(session.currentPlayer.pos.x, session.currentPlayer.pos.y, toX, toY);
+   drawArrow(session.currentPlayer.pos, targetPos);
 }
 
-function drawArrow(fromX: number, fromY: number, toX: number, toY: number): void {
+function drawArrow(from: Vec2, to: Vec2): void {
    if (!session.ctx) return;
 
    const headLength = config.headLength; // length of head in pixels
-   let dx = toX - fromX;
-   let dy = toY - fromY;
-   const angle = Math.atan2(dy, dx);
-   const length = Math.sqrt(dx * dx + dy * dy);
+   const direction = v2.sub(to, from);
+   const angle = Math.atan2(direction.y, direction.x);
+   const length = v2.length(direction);
 
    // Calculate how much of the arrow should be "charged" (inverse of cooldown)
    const chargedRatio = 1 - Math.max(0, Math.min(1, session.currentPlayer!.dashCooldown / config.dashCooldown));
@@ -191,13 +184,17 @@ function drawArrow(fromX: number, fromY: number, toX: number, toY: number): void
    if (chargedLength > 0) {
       session.ctx.lineWidth = config.playerLength / 3;
       session.ctx.beginPath();
-      session.ctx.moveTo(fromX, fromY);
+      session.ctx.moveTo(from.x, from.y);
 
       // If fully charged, extend to just before the arrowhead base
       if (session.currentPlayer!.dashCooldown <= 0) {
-         session.ctx.lineTo(toX - arrowBaseDistance * Math.cos(angle), toY - arrowBaseDistance * Math.sin(angle));
+         const endOffset = v2.create(arrowBaseDistance * Math.cos(angle), arrowBaseDistance * Math.sin(angle));
+         const endPos = v2.sub(to, endOffset);
+         session.ctx.lineTo(endPos.x, endPos.y);
       } else {
-         session.ctx.lineTo(fromX + chargedLength * Math.cos(angle), fromY + chargedLength * Math.sin(angle));
+         const chargedOffset = v2.create(chargedLength * Math.cos(angle), chargedLength * Math.sin(angle));
+         const chargedEnd = v2.add(from, chargedOffset);
+         session.ctx.lineTo(chargedEnd.x, chargedEnd.y);
       }
 
       if (settings.highQuality) {
@@ -218,8 +215,10 @@ function drawArrow(fromX: number, fromY: number, toX: number, toY: number): void
    // Draw the uncharged (blue/cyan) part of the line
    session.ctx.lineWidth = 10;
    session.ctx.beginPath();
-   session.ctx.moveTo(fromX + chargedLength * Math.cos(angle), fromY + chargedLength * Math.sin(angle));
-   session.ctx.lineTo(toX, toY);
+   const chargedOffset = v2.create(chargedLength * Math.cos(angle), chargedLength * Math.sin(angle));
+   const chargedEnd = v2.add(from, chargedOffset);
+   session.ctx.moveTo(chargedEnd.x, chargedEnd.y);
+   session.ctx.lineTo(to.x, to.y);
 
    if (settings.highQuality) {
       session.ctx.strokeStyle = "rgba(100, 180, 230, 0.6)";
@@ -238,16 +237,25 @@ function drawArrow(fromX: number, fromY: number, toX: number, toY: number): void
       }
 
       session.ctx.beginPath();
-      session.ctx.moveTo(toX, toY);
-      session.ctx.lineTo(toX - headLength * Math.cos(angle - Math.PI / 6), toY - headLength * Math.sin(angle - Math.PI / 6));
-      session.ctx.lineTo(toX - headLength * Math.cos(angle + Math.PI / 6), toY - headLength * Math.sin(angle + Math.PI / 6));
+      session.ctx.moveTo(to.x, to.y);
+      
+      const leftAngle = angle - Math.PI / 6;
+      const leftPoint = v2.create(
+         to.x - headLength * Math.cos(leftAngle),
+         to.y - headLength * Math.sin(leftAngle)
+      );
+      session.ctx.lineTo(leftPoint.x, leftPoint.y);
+      
+      const rightAngle = angle + Math.PI / 6;
+      const rightPoint = v2.create(
+         to.x - headLength * Math.cos(rightAngle),
+         to.y - headLength * Math.sin(rightAngle)
+      );
+      session.ctx.lineTo(rightPoint.x, rightPoint.y);
+      
       session.ctx.closePath();
 
-      if (settings.highQuality) {
-         session.ctx.fillStyle = "rgba(250, 200, 60, 0.7)";
-      } else {
-         session.ctx.fillStyle = "rgba(250, 200, 60, 1)";
-      }
+      session.ctx.fillStyle = settings.highQuality ? "rgba(250, 200, 60, 0.7)" : "rgba(250, 200, 60, 1)";
       session.ctx.fill();
 
       if (settings.highQuality) {
