@@ -4,7 +4,6 @@ import { Room } from "../shared/room";
 import { rooms } from "./server";
 import { broadcastLobbiesList } from "./misc";
 import { config } from "../shared/config";
-import { Player } from "../shared/player";
 
 function startGame(room: Room, io: Server): void {
 	const wasLobby = room.roomState === "lobby";
@@ -26,6 +25,7 @@ function startGame(room: Room, io: Server): void {
 		broadcastLobbiesList(io);
 	}
 
+	// Update the game every frame
 	const delay = 1000 / config.fps;
 	setInterval(() => room.updateGame(delay, io), delay);
 }
