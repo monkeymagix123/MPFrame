@@ -68,7 +68,7 @@ export class Player {
         // do a dash
         this.dashPos = clampPosV(v2.add(this.pos, dashVec));
 
-        // do damage to stuff
+        // do damage to other players & objects
         for (const p of state.players.values()) {
             let player: Player = p as Player;
             if (intersectCircleLine(this.pos, this.dashPos, player.pos, config.playerLength)) {
@@ -135,6 +135,9 @@ export class Player {
             id: this.id,
             pos: this.pos,
             dashPos: this.dashPos,
+
+            health: this.health,
+            maxHealth: this.maxHealth,
         };
     }
 
@@ -147,6 +150,9 @@ export class Player {
         if (data.dashPos) {
             this.dashPos = data.dashPos;
         }
+
+        this.health = data.health;
+        this.maxHealth = data.maxHealth;
     }
 
 

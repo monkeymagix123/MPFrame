@@ -18,6 +18,9 @@ export interface PlayerData {
 	id: string;
 	pos: Vec2;
 	dashPos?: Vec2;
+
+	health: number;
+	maxHealth: number;
 }
 
 export interface Keys {
