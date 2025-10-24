@@ -3,6 +3,8 @@ import { GameSocket } from "./types";
 import { Room } from "../shared/room";
 import { rooms } from "./server";
 import { broadcastLobbiesList } from "./misc";
+import { config } from "../shared/config";
+import { Player } from "../shared/player";
 
 function startGame(room: Room, io: Server): void {
 	const wasLobby = room.roomState === "lobby";
@@ -23,6 +25,8 @@ function startGame(room: Room, io: Server): void {
 	if (wasLobby) {
 		broadcastLobbiesList(io);
 	}
+
+	setInterval(() => room.players.forEach((player: Player) => { io.to(room.code).emit("game/player-moved", { id: player.id, pos: player.pos, dashPos: player.dashPos }) }, 1000 / config.fps));
 }
 
 export function setupLobbyHandlers(socket: GameSocket, io: Server): void {

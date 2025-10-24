@@ -13,4 +13,6 @@ export const config = {
 	dashDamage: 25,
 
 	maxHealth: 100,
+	
+	fps: 80,
 }

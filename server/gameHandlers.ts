@@ -23,11 +23,11 @@ export function setupGameHandlers(socket: GameSocket, io: Server): void {
 			player.attemptDash(input.mousePos);
 		}
 
-		socket.to(socket.roomCode).emit("game/player-moved", {
-			id: socket.id,
-			pos: player.pos,
-			dashPos: player.dashPos,
-		});
+		// socket.to(socket.roomCode).emit("game/player-moved", {
+		// 	id: socket.id,
+		// 	pos: player.pos,
+		// 	dashPos: player.dashPos,
+		// });
 
 		// console.log(input);
 
