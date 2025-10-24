@@ -85,15 +85,15 @@ export function stopGameLoop(): void {
 function inputUpdate(): void {
   if (!session.currentPlayer) return;
   
-  session.currentPlayer.vel.x =
-    ((session.keys["w"] || session.keys["arrowup"] ? 1 : 0) - 
-    (session.keys["s"] || session.keys["arrowdown"] ? 1 : 0)) 
-    * config.playerSpeed;
+   session.currentPlayer.vel.x = 
+      ((session.keys["d"] || session.keys["arrowright"] ? 1 : 0) - 
+      (session.keys["a"] || session.keys["arrowleft"] ? 1 : 0)) 
+      * config.playerSpeed;
 
-  session.currentPlayer.vel.y = 
-    ((session.keys["d"] || session.keys["arrowright"] ? 1 : 0) - 
-    (session.keys["a"] || session.keys["arrowleft"] ? 1 : 0)) 
-    * config.playerSpeed;
+   session.currentPlayer.vel.y = 
+      ((session.keys["s"] || session.keys["arrowdown"] ? 1 : 0) - 
+      (session.keys["w"] || session.keys["arrowup"] ? 1 : 0))
+      * config.playerSpeed;
 }
 
 // Changed to accept dt (delta time)
