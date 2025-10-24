@@ -2,7 +2,8 @@ import { session } from "./session";
 import { renderGame, resizeCanvas } from "./canvas";   
 import { config } from "../shared/config";
 import { settings } from "./settings";
-import { Vec2 } from "../shared/v2";
+import { v2, Vec2 } from "../shared/v2";
+import { clampPos } from "../shared/math";
 
 // Global variable to store the timestamp of the last frame
 let lastTime = 0;
@@ -19,14 +20,18 @@ export function initGame(): void {
 }
 
 function setupGameControls(): void {
-	document.addEventListener("keydown", (e: KeyboardEvent) => {
-		session.keys[e.key.toLowerCase()] = true;
-		session.clientInput.keys[e.key.toLowerCase()] = true;
+		document.addEventListener("keydown", (e: KeyboardEvent) => {
+		const key = e.key.toLowerCase();
+		session.keys[key] = true;
+		session.clientInput.keys[key] = true;
+		inputUpdate();
 	});
 
 	document.addEventListener("keyup", (e: KeyboardEvent) => {
-		session.keys[e.key.toLowerCase()] = false;
-		session.clientInput.keys[e.key.toLowerCase()] = false;
+		const key = e.key.toLowerCase();
+		session.keys[key] = false;
+		session.clientInput.keys[key] = false;
+		inputUpdate();
 	});
 
 	document.addEventListener("click", (e: MouseEvent) => {
@@ -43,9 +48,9 @@ function setupGameControls(): void {
 		session.clientInput.mouseClick = true;
 		session.clientInput.mousePos = session.mousePos;
 
-		// session.socket.emit("game/player-move", {
-		// 	pos: session.currentPlayer?.pos,
-		// });
+		session.socket.emit("game/player-move", {
+			pos: session.currentPlayer?.pos,
+		});
 	});
 
 	document.addEventListener("mousemove", (e: MouseEvent) => {
@@ -55,7 +60,7 @@ function setupGameControls(): void {
 		// Converts raw mouse coordinates to game coordinates
 		session.saveMouseCoords(e.clientX, e.clientY);
 	});
-}
+
 
 // The main game loop function using requestAnimationFrame
 function gameLoop(currentTime: number): void {
@@ -82,6 +87,20 @@ export function stopGameLoop(): void {
 		cancelAnimationFrame(session.gameLoop);
 		session.gameLoop = null;
 	}
+}
+
+function inputUpdate(): void {
+  if (!session.currentPlayer) return;
+  
+   session.currentPlayer.vel.x = 
+      ((session.keys["d"] || session.keys["arrowright"] ? 1 : 0) - 
+      (session.keys["a"] || session.keys["arrowleft"] ? 1 : 0)) 
+      * config.playerSpeed;
+
+   session.currentPlayer.vel.y = 
+      ((session.keys["s"] || session.keys["arrowdown"] ? 1 : 0) - 
+      (session.keys["w"] || session.keys["arrowup"] ? 1 : 0))
+      * config.playerSpeed;
 }
 
 // Changed to accept dt (delta time)
