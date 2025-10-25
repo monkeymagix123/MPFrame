@@ -18,6 +18,12 @@ export class PlayerC extends Player {
      * Apply server diff slowly
      */
     interpolate(): void {
+        // ignore if small difference
+        const epsilon = 0.01;
+        if (v2.lengthSqr(this.serverDiff) < epsilon) {
+            return;
+        }
+
         const a = settings.interpolatingFactor;
         this.pos = v2.add(this.pos, v2.mul(this.serverDiff, a));
         this.serverDiff = v2.mul(this.serverDiff, 1.0 - a);
