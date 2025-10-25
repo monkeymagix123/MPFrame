@@ -4,6 +4,7 @@ import { Player } from "../shared/player";
 import { state } from "./state";
 import { v2, Vec2 } from "../shared/v2";
 import { PlayerData } from "../shared/types";
+import { settings } from "./settings";
 
 export class PlayerC extends Player {
     serverDiff: Vec2; // used for interpolation
@@ -17,7 +18,7 @@ export class PlayerC extends Player {
      * Apply server diff slowly
      */
     interpolate(): void {
-        const a = 0.5;
+        const a = settings.interpolatingFactor;
         this.pos = v2.add(this.pos, v2.mul(this.serverDiff, a));
         this.serverDiff = v2.mul(this.serverDiff, 1.0 - a);
     }

@@ -5,6 +5,7 @@ export const config = {
 
 	// Network
 	fps: 80,
+	defaultInterpolatingFactor: 0.5,
 
 	// Canvas settings
 	playerLength: 30,

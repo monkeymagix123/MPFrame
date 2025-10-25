@@ -1,6 +1,7 @@
 import { PlayerData } from "../shared/types";
 import { v2 } from "../shared/v2";
 import { PlayerC } from "./player";
+import { settings } from "./settings";
 
 export class State {
 	players: PlayerC[];
@@ -32,7 +33,7 @@ export class State {
 		const behind = data.pos;
 		player.loadData(data);
 		const diff = v2.sub(ahead, behind);
-		player.pos = v2.add(player.pos, v2.mul(diff, 0.1)); // interpolate slightly forward
+		player.pos = v2.add(player.pos, v2.mul(diff, settings.interpolatingFactor)); // interpolate slightly forward
 	}
 }
 
