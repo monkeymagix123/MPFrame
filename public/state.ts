@@ -31,7 +31,7 @@ export class State {
 		const behind = data.pos;
 		player.loadData(data);
 		const diff = v2.sub(ahead, behind);
-		player.pos = v2.add(player.pos, v2.mul(diff, 0.5)); // interpolate slightly forward
+		player.pos = v2.add(player.pos, v2.mul(diff, 0.1)); // interpolate slightly forward
 	}
 }
 
