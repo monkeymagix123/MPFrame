@@ -152,7 +152,7 @@ export abstract class Player {
     loadData(data: PlayerData) {
         Object.assign(this, data);
 
-        // console.log(this.health);
+        // console.log(this.team + " health: " + this.health);
     }
 
     /**
