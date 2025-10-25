@@ -28,7 +28,7 @@ export class Room {
     */
    updateGame(dt: number, socket: Server): void {
       for (const player of this.players.values()) {
-         player.decrementCooldown(dt);
+         player.update(dt);
          socket.to(this.code).emit("game/player-moved", player.getData())
       }
    }

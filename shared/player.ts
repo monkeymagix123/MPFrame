@@ -1,7 +1,7 @@
 import { config } from "./config";
 import { clampPos, clampPosV, intersectCircleLine } from "./math";
 
-import { PlayerData } from "./types";
+import { ClientInput, PlayerData } from "./types";
 import { v2, Vec2 } from "./v2";
 
 export abstract class Player {
@@ -30,6 +30,14 @@ export abstract class Player {
 
         this.maxHealth = config.maxHealth;
         this.health = this.maxHealth;
+    }
+
+    /**
+     * Updates the player by a given delta time
+     * @param dt time to update (in seconds)
+     */
+    update(dt: number): void {
+        this.decrementCooldown(dt);
     }
 
     moveLeft(distance: number): void {
@@ -152,5 +160,23 @@ export abstract class Player {
         this.maxHealth = data.maxHealth;
 
         console.log(this.health);
+    }
+
+    /**
+     * Updates player based on ClientInput
+     */
+    doInput(input: ClientInput) {
+        const dt = input.interval;
+
+        // Update position
+		if (input.keys["arrowdown"] || input.keys["s"]) this.moveDown(dt * config.speedPerSecond);
+		if (input.keys["arrowup"] || input.keys["w"]) this.moveUp(dt * config.speedPerSecond);
+		if (input.keys["arrowleft"] || input.keys["a"]) this.moveLeft(dt * config.speedPerSecond);
+		if (input.keys["arrowright"] || input.keys["d"]) this.moveRight(dt * config.speedPerSecond);
+
+        // Dash calculations
+		if (input.mouseClick) {
+			this.attemptDash(input.mousePos);
+		}
     }
 }

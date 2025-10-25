@@ -13,14 +13,6 @@ export function setupGameHandlers(socket: GameSocket, io: Server): void {
 
 		if (!player || room.roomState !== "playing") return;
 
-		const dt = input.interval;
-		if (input.keys["arrowdown"] || input.keys["s"]) player.moveDown(dt * config.speedPerSecond);
-		if (input.keys["arrowup"] || input.keys["w"]) player.moveUp(dt * config.speedPerSecond);
-		if (input.keys["arrowleft"] || input.keys["a"]) player.moveLeft(dt * config.speedPerSecond);
-		if (input.keys["arrowright"] || input.keys["d"]) player.moveRight(dt * config.speedPerSecond);
-
-		if (input.mouseClick) {
-			player.attemptDash(input.mousePos);
-		}
+		player.doInput(input);
 	});
 }
