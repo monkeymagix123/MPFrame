@@ -14,7 +14,7 @@ export class Player {
     pos: Vec2;
 
     startDash: boolean = false;
-    dashPos?: Vec2;
+    dashPos: Vec2;
     dashCooldown: number = 0;
 
     maxHealth: number;
@@ -27,6 +27,7 @@ export class Player {
         this.ready = ready;
 
         this.pos = new Vec2(x, y);
+        this.dashPos = new Vec2();
 
         this.maxHealth = config.maxHealth;
         this.health = this.maxHealth;
