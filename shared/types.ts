@@ -17,7 +17,7 @@ export interface Lobby {
 export interface PlayerData {
 	id: string;
 	pos: Vec2;
-	dashPos?: Vec2;
+	dashPos: Vec2;
 
 	health: number;
 	maxHealth: number;
