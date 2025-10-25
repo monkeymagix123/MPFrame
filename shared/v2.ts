@@ -141,6 +141,9 @@ export const v2 = {
         );
     },
 
+    /**
+     * Returns vector that is a + t * (b - a) (t fraction from a towards b)
+     */
     lerp(t: number, a: Vec2, b: Vec2): Vec2 {
         return v2.add(v2.mul(a, 1.0 - t), v2.mul(b, t));
     },

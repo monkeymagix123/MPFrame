@@ -2,10 +2,29 @@ import { config } from "../shared/config";
 import { intersectCircleLine } from "../shared/math";
 import { Player } from "../shared/player";
 import { state } from "./state";
+import { v2, Vec2 } from "../shared/v2";
+import { PlayerData } from "../shared/types";
 
 export class PlayerC extends Player {
+    serverDiff: Vec2; // used for interpolation
+
     constructor(id: string, team: string, x: number, y: number, name: string = "Player", ready: boolean = false) {
         super(id, team, x, y, name, ready);
+        this.serverDiff = new Vec2();
+    }
+
+    /**
+     * Apply server diff slowly
+     */
+    interpolate(): void {
+        const a = 0.5;
+        this.pos = v2.add(this.pos, v2.mul(this.serverDiff, a));
+        this.serverDiff = v2.mul(this.serverDiff, 1.0 - a);
+    }
+
+    loadData(data: PlayerData): void {
+        super.loadData(data);
+        this.serverDiff = v2.sub(data.pos, this.pos);
     }
 
     dmgOtherPlayers(dmg: number): void {

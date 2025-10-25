@@ -20,7 +20,8 @@ export class State {
 	updatePlayerPosition(data: PlayerData): void {
 		const player = this.players.find((p) => p.id === data.id);
 		if (player) {
-			this.interpolateDum(player, data);
+			// this.interpolateDum(player, data);
+			player.loadData(data);
 		}
 
 		// console.log(player);

@@ -1,9 +1,9 @@
 import { io, Socket } from "socket.io-client";
 import { ClientInput, Keys } from "../shared/types";
-import { Player } from "../shared/player";
 import { Vec2 } from "../shared/v2";
 import { config } from "../shared/config";
 import { settings } from "./settings";
+import { PlayerC } from "./player";
 
 class Session {
 	socket: Socket;
@@ -14,7 +14,7 @@ class Session {
 	gameLoop: number | null;
 
 	mousePos: Vec2;
-	currentPlayer: Player | undefined;
+	currentPlayer: PlayerC | undefined;
 	clientInput: ClientInput;
 
 	constructor(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {

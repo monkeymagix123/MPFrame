@@ -111,6 +111,8 @@ function updateGame(dt: number): void {
 	// Decrement cooldown based on delta time in seconds
 	session.currentPlayer.decrementCooldown(dt);
 
+	session.currentPlayer.interpolate();
+
 	// if moving position or trying to dash, send data to server
 	if (moved || session.clientInput.mouseClick) {
 		session.clientInput.interval = dt;
