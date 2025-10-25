@@ -1,11 +1,10 @@
 import { config } from "./config";
 import { clampPos, clampPosV, intersectCircleLine } from "./math";
 
-import { state } from "./state";
 import { PlayerData } from "./types";
 import { v2, Vec2 } from "./v2";
 
-export class Player {
+export abstract class Player {
 	id: string;
 	name: string;
 	team: string; // red or blue
@@ -92,15 +91,7 @@ export class Player {
         return true;
     }
 
-    dmgOtherPlayers(dmg: number): void {
-        // deal damage to other players
-        for (const p of state.players.values()) {
-            let player: Player = p as Player;
-            if (intersectCircleLine(this.pos, this.dashPos, player.pos, config.playerLength)) {
-                this.doDamage(dmg, p);
-            }
-        }
-    }
+    abstract dmgOtherPlayers(dmg: number): void;
 
     doDamage(amount: number, target: Player): void {
         target.takeDamage(amount);
@@ -161,14 +152,5 @@ export class Player {
         this.maxHealth = data.maxHealth;
 
         console.log(this.health);
-    }
-
-
-    static fromData(data: any): Player {
-        const player = new Player(data.id, data.team, data.pos.x, data.pos.y, data.name, data.ready);
-        player.dashCooldown = data.dashCooldown ?? 0;
-        player.startDash = data.startDash ?? false;
-        player.dashPos = data.dashPos;
-        return player;
     }
 }

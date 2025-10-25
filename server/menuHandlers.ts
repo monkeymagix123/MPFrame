@@ -4,6 +4,7 @@ import { Room } from "../shared/room";
 import { Player } from "../shared/player";
 import { rooms, playerNames } from "./server";
 import { broadcastLobbiesList, generateRoomCode } from "./misc";
+import { PlayerS } from "player";
 
 export function setupMenuHandlers(socket: GameSocket, io: Server): void {
 	socket.on("menu/list-lobbies", () => {
@@ -25,7 +26,8 @@ export function setupMenuHandlers(socket: GameSocket, io: Server): void {
 		socket.roomCode = roomCode;
 
 		// Add player to room, use stored name if available
-		const p: Player = new Player(
+		const p: Player = new PlayerS(
+			room,
 			socket.id,
 			"red",
 			Math.random() * 760 + 20,
@@ -61,7 +63,8 @@ export function setupMenuHandlers(socket: GameSocket, io: Server): void {
 		socket.roomCode = roomCode;
 
 		// Add player to room, use stored name if available
-		const p: Player = new Player(
+		const p: Player = new PlayerS(
+			room,
 			socket.id,
 			room.getTeamCount("red") > room.getTeamCount("blue") ? "blue" : "red",
 			Math.random() * 760 + 20,

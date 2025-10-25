@@ -1,8 +1,8 @@
-import { Player } from "./player";
-import { PlayerData } from "./types";
+import { PlayerData } from "../shared/types";
+import { PlayerC } from "./player";
 
 export class State {
-	players: Player[];
+	players: PlayerC[];
 
 	constructor() {
 		this.players = [];

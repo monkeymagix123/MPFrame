@@ -1,4 +1,4 @@
-import { state } from "../shared/state";
+import { state } from "./state";
 import { session } from "./session";
 import { Lobby } from "../shared/types";
 import { initGame, stopGameLoop } from "./game";

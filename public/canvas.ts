@@ -1,7 +1,7 @@
 import { config } from "../shared/config";
 import { clamp, clampPos, clampPosV } from "../shared/math";
 import { Player } from "../shared/player";
-import { state } from "../shared/state";
+import { state } from "./state";
 import { v2, Vec2 } from "../shared/v2";
 import { session } from "./session";
 import { settings } from "./settings";
