@@ -1,18 +1,21 @@
 export const config = {
+	// Game dimensions
 	width: 900,
 	height: 600,
 
+	// Network
+	fps: 80,
+
+	// Canvas settings
 	playerLength: 30,
 	headLength: 30,
 
-	dashDistance: 300,
-	dashCooldown: 2, // in seconds
-
+	// Player settings
 	speedPerSecond: 180,
 
+	dashDistance: 300,
+	dashCooldown: 2, // in seconds
 	dashDamage: 25,
 
 	maxHealth: 100,
-	
-	fps: 80,
 }
