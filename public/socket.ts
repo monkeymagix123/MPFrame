@@ -38,7 +38,7 @@ export function initSocket(): void {
 	});
 
 	session.socket.on("game/player-moved", (data: PlayerData) => {
-		state.updatePlayerPosition(data);
+		state.updatePlayer(data);
 
 		// update for current player
 		if (data.id === session.socket.id) {

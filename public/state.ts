@@ -18,7 +18,7 @@ export class State {
 		this.players = [];
 	}
 
-	updatePlayerPosition(data: PlayerData): void {
+	updatePlayer(data: PlayerData): void {
 		const player = this.players.find((p) => p.id === data.id);
 		if (player) {
 			// this.interpolateDum(player, data);
