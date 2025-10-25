@@ -150,16 +150,9 @@ export abstract class Player {
      * Loads PlayerData data into this player
      */
     loadData(data: PlayerData) {
-        this.pos = data.pos;
+        Object.assign(this, data);
 
-        if (data.dashPos) {
-            this.dashPos = data.dashPos;
-        }
-
-        this.health = data.health;
-        this.maxHealth = data.maxHealth;
-
-        console.log(this.health);
+        // console.log(this.health);
     }
 
     /**
