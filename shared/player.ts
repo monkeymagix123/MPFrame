@@ -69,12 +69,7 @@ export class Player {
         this.dashPos = clampPosV(v2.add(this.pos, dashVec));
 
         // do damage to other players & objects
-        for (const p of state.players.values()) {
-            let player: Player = p as Player;
-            if (intersectCircleLine(this.pos, this.dashPos, player.pos, config.playerLength)) {
-                this.doDamage(config.dashDamage, p);
-            }
-        }
+        this.dmgOtherPlayers(config.dashDamage);
 
         // move to target point
         this.pos = this.dashPos;
@@ -94,6 +89,16 @@ export class Player {
         this.doDash(v);
 
         return true;
+    }
+
+    dmgOtherPlayers(dmg: number): void {
+        // deal damage to other players
+        for (const p of state.players.values()) {
+            let player: Player = p as Player;
+            if (intersectCircleLine(this.pos, this.dashPos, player.pos, config.playerLength)) {
+                this.doDamage(dmg, p);
+            }
+        }
     }
 
     doDamage(amount: number, target: Player): void {
