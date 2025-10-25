@@ -30,8 +30,8 @@ export class PlayerC extends Player {
     }
 
     loadData(data: PlayerData): void {
-        super.loadData(data);
         this.serverDiff = v2.sub(data.pos, this.pos);
+        super.loadData(data);
     }
 
     dmgOtherPlayers(dmg: number): void {
