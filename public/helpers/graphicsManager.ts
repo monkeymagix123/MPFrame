@@ -23,3 +23,9 @@ export class GraphicsManager {
         return new Vec2(x, y);
     }
 }
+
+export function hasCanvas(): boolean {
+    const canvas = document.getElementById("game-canvas") as HTMLCanvasElement;
+	
+    return (canvas !== null);
+}

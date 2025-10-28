@@ -1,16 +1,14 @@
 import { session } from "./session";
 import { renderGame, resizeCanvas } from "./canvas";   
 import { config } from "../shared/config";
-import { settings } from "./settings";
-import { Vec2 } from "../shared/v2";
+import { hasCanvas } from "./helpers/graphicsManager";
 
 // Global variable to store the timestamp of the last frame
 let lastTime = 0;
 let lastDrawTime = 0;
 
 export function initGame(): void {
-	const canvas = document.getElementById("game-canvas") as HTMLCanvasElement;
-	if (!canvas) return;
+	if (!hasCanvas()) return;
 
 	resizeCanvas();
 	setupGameControls();
