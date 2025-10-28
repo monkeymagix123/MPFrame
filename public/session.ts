@@ -2,7 +2,7 @@ import { io, Socket } from "socket.io-client";
 import { ClientInput, Keys } from "../shared/types";
 import { Vec2 } from "../shared/v2";
 import { PlayerC } from "./player";
-import { CanvasManager } from "./helpers/graphicsManager";
+import { GraphicsManager } from "./helpers/graphicsManager";
 
 class Session {
 	// Network info
@@ -10,7 +10,7 @@ class Session {
 	currentRoom: string | null;
 
 	// UI manager
-	canvasManager: CanvasManager;
+	canvasManager: GraphicsManager;
 
 	gameLoop: number | null;
 
@@ -25,11 +25,14 @@ class Session {
 	constructor(canvas: HTMLCanvasElement) {
 		this.socket = io() as Socket;
 		this.currentRoom = null;
-		this.keys = {} as Keys;
-		this.canvasManager = new CanvasManager(canvas);
+
+		this.canvasManager = new GraphicsManager(canvas);
 		this.gameLoop = null as number | null;
-		this.mousePos = new Vec2();
+
 		this.currentPlayer = undefined;
+
+		this.keys = {} as Keys;
+		this.mousePos = new Vec2();
 		this.clientInput = new ClientInput();
 	}
 

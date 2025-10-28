@@ -3,7 +3,7 @@ import { Vec2 } from "../../shared/v2";
 import { settings } from "../settings";
 
 
-export class CanvasManager {
+export class GraphicsManager {
     canvas: HTMLCanvasElement;
 	ctx: CanvasRenderingContext2D;
 
