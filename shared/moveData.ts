@@ -1,10 +1,18 @@
+import { Vec2 } from "./v2";
+
 export interface MoveData {
-   timestamp: number;
-   x: number;
-   y: number;
-   vx: number;
-   vy: number;
+   time: number;
+   pos: Vec2;
+   moveVel: Vec2;
    dashing: boolean;
-   dashCooldown: number;
-   dashTimer: number;
+   dashProgress: number;
+   dashVel: Vec2;
+}
+
+export interface DamageData {
+   playerId: string;
+   health: number;
+   maxHealth: number;
+   damage: number;
+   timestamp: number;
 }

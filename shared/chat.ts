@@ -1,26 +1,24 @@
 export interface ChatMessage {
-	playerId: string;
-	playerName: string;
-	message: string;
+   id: string;
+   name: string;
+   message: string;
 }
 
 export class Chat {
-   chatMessages: ChatMessage[];
+   messages: ChatMessage[];
 
    constructor() {
-      this.chatMessages = [];
+      this.messages = [];
    }
 
    addChatMessage(message: ChatMessage): void {
-      this.chatMessages.push(message);
-      if (this.chatMessages.length > 100) {
-         this.chatMessages.shift();
+      this.messages.push(message);
+      if (this.messages.length > 100) {
+         this.messages.shift();
       }
    }
 
    clearChat(): void {
-      this.chatMessages = [];
+      this.messages = [];
    }
 }
-
-export const chat = new Chat();

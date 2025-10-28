@@ -16,16 +16,16 @@ export const playerNames = new Map<string, string>();
 app.use(express.static(path.join(__dirname, "..", "..", "public")));
 app.use("/dist", express.static(path.join(__dirname, "..", "..", "public", "dist")));
 app.get("/games/:roomCode", (req, res) => {
-	const roomCode = req.params.roomCode as string;
-	if (!/^[A-Z0-9]{4}$/.test(roomCode)) {
-		return res.status(404).send("Invalid room code format");
-	}
-	res.sendFile(path.join(__dirname, "..", "..", "public", "index.html"));
+   const roomCode = req.params.roomCode as string;
+   if (!/^[A-Z0-9]{4}$/.test(roomCode)) {
+      return res.status(404).send("Invalid room code format");
+   }
+   res.sendFile(path.join(__dirname, "..", "..", "public", "index.html"));
 });
 
 setupSocketHandlers(io);
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-	console.log(`Server running on port ${PORT}`);
+   console.log(`Server running on port ${PORT}`);
 });

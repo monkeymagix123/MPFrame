@@ -1,31 +1,88 @@
 import { Server } from "socket.io";
 import { GameSocket } from "./types";
-import { config } from "../shared/config";
-import { PlayerMoveData } from "../shared/types";
+import { MoveData, DamageData } from "../shared/moveData";
 import { rooms } from "./server";
-import { clampPosV } from "../shared/math";
+import { validateMoveData } from "../shared/serializer";
 
 export function setupGameHandlers(socket: GameSocket, io: Server): void {
-	socket.on("game/player-move", (data: PlayerMoveData) => {
-		if (!socket.roomCode || !rooms.has(socket.roomCode)) return;
+   socket.on("game/player-move", (data: MoveData) => {
+      if (!validateMoveData(data)) {
+         console.warn("Invalid move data received");
+         return;
+      }
 
-		const room = rooms.get(socket.roomCode)!;
-		const player = room.players.get(socket.id);
+      if (!socket.roomCode || !rooms.has(socket.roomCode)) return;
 
-		if (!player || room.roomState !== "playing") return;
+      const room = rooms.get(socket.roomCode)!;
+      const player = room.players.get(socket.id);
 
-		// Update player position with bounds checking
-		player.pos.x = Math.max(config.playerLength, Math.min(800 - config.playerLength, data.pos.x));
-		player.pos.y = Math.max(config.playerLength, Math.min(600 - config.playerLength, data.pos.y));
+      if (!player || room.roomState !== "playing") return;
 
-		if (data.dashPos) {
-			player.dashPos = data.dashPos;
-		}
+      const previousHealth = player.health;
 
-		socket.to(socket.roomCode).emit("game/player-moved", {
-			id: socket.id,
-			pos: player.pos,
-			dashPos: player.dashPos,
-		});
-	});
+      player.applyMoveData(data);
+
+      socket.to(socket.roomCode).emit("game/player-moved", { id: socket.id, move: data });
+
+      if (player.health < previousHealth) {
+         const damageData: DamageData = {
+            playerId: socket.id,
+            health: player.health,
+            maxHealth: player.maxHealth,
+            damage: previousHealth - player.health,
+            timestamp: Date.now(),
+         };
+
+         io.to(socket.roomCode).emit("game/player-damage", damageData);
+      }
+   });
+
+   const gameLoops = new Map<string, NodeJS.Timeout>();
+
+   socket.on("game/start-loop", () => {
+      if (!socket.roomCode || !rooms.has(socket.roomCode)) return;
+      const room = rooms.get(socket.roomCode)!;
+
+      if (room.roomState !== "playing" || gameLoops.has(socket.roomCode)) return;
+
+      let lastTime = Date.now();
+      const interval = setInterval(() => {
+         const currentTime = Date.now();
+         const dt = (currentTime - lastTime) / 1000;
+         lastTime = currentTime;
+
+         const previousHealths = new Map<string, number>();
+         for (const player of room.gameState.players) {
+            previousHealths.set(player.id, player.health);
+         }
+
+         room.gameState.updateAll(dt);
+
+         for (const player of room.gameState.players) {
+            const prevHealth = previousHealths.get(player.id)!;
+            if (player.health < prevHealth) {
+               const damageData: DamageData = {
+                  playerId: player.id,
+                  health: player.health,
+                  maxHealth: player.maxHealth,
+                  damage: prevHealth - player.health,
+                  timestamp: currentTime,
+               };
+
+               io.to(socket.roomCode!).emit("game/player-damage", damageData);
+            }
+         }
+      }, 1000 / 60);
+
+      gameLoops.set(socket.roomCode, interval);
+   });
+
+   socket.on("game/stop-loop", () => {
+      if (!socket.roomCode) return;
+      const interval = gameLoops.get(socket.roomCode);
+      if (interval) {
+         clearInterval(interval);
+         gameLoops.delete(socket.roomCode);
+      }
+   });
 }

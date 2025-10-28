@@ -1,7 +1,9 @@
-class Settings {
+export class Settings {
    highQuality: boolean;
    resolutionScale: number;
-   debugMode?: boolean;
+   debugMode: boolean;
+
+   clientInterpolation: boolean = true;
 
    constructor() {
       this.highQuality = false;
@@ -9,5 +11,3 @@ class Settings {
       this.debugMode = false;
    }
 }
-
-export const settings = new Settings();

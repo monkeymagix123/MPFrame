@@ -1,90 +1,70 @@
 import { config } from "../shared/config";
+import { Player } from "./player";
 import { v2, Vec2 } from "./v2";
 
 export function clamp(n: number, min: number, max: number): number {
-	if (n < min) {
-		return min;
-	}
-
-	if (n > max) {
-		return max;
-	}
-
-	return n;
+   return Math.min(Math.max(n, min), max);
 }
 
 export function clampPos(v: Vec2): Vec2 {
-    return new Vec2(
-        clamp(v.x, 0, config.mapWidth),
-        clamp(v.y, 0, config.mapHeight)
-    );
+   return new Vec2(clamp(v.x, 0, config.mapWidth), clamp(v.y, 0, config.mapHeight));
 }
 
-// this is from chatgpt idk if it works
-export function intersectCircleLine(start: Vec2, end: Vec2, center: Vec2, radius: number): boolean {
-    let x1 = start.x;
-    let y1 = start.y;
-    let x2 = end.x;
-    let y2 = end.y;
+// Check if two moving squares (AABB) collide and return collision time
+export function checkMovingSquareCollision(pos1: Vec2, vel1: Vec2, pos2: Vec2, vel2: Vec2, halfSize: number): number | null {
+   // Relative position and velocity
+   const relPos = v2.sub(pos1, pos2);
+   const relVel = v2.sub(vel1, vel2);
 
-    let x = center.x;
-    let y = center.y;
+   // Treat as a moving point vs a static expanded AABB
+   // The expanded AABB has size 2*halfSize (since both squares contribute halfSize)
+   const expandedHalfSize = 2 * halfSize;
 
-    const dPos = v2.sub(end, start);
-    const dx = dPos.x;
-    const dy = dPos.y;
+   // If no relative movement, check if already colliding
+   if (Math.abs(relVel.x) < 1e-10 && Math.abs(relVel.y) < 1e-10) {
+      const overlaps = Math.abs(relPos.x) < expandedHalfSize && Math.abs(relPos.y) < expandedHalfSize;
+      return overlaps ? 0 : null;
+   }
 
-    const f = v2.sub(start, center);
-    const fx = f.x;
-    const fy = f.y;
+   // Calculate time to enter and exit on each axis
+   let tEnter = 0;
+   let tExit = Infinity;
 
-    const a = dx * dx + dy * dy;
-    const b = 2 * (fx * dx + fy * dy);
-    const c = (fx * fx + fy * fy) - radius * radius;
+   // X axis
+   if (Math.abs(relVel.x) > 1e-10) {
+      const t1 = (-expandedHalfSize - relPos.x) / relVel.x;
+      const t2 = (expandedHalfSize - relPos.x) / relVel.x;
+      const tMin = Math.min(t1, t2);
+      const tMax = Math.max(t1, t2);
+      tEnter = Math.max(tEnter, tMin);
+      tExit = Math.min(tExit, tMax);
+   } else {
+      // No movement on X axis - check if already overlapping
+      if (Math.abs(relPos.x) >= expandedHalfSize) {
+         return null; // Will never collide
+      }
+   }
 
-    let discriminant = b * b - 4 * a * c;
+   // Y axis
+   if (Math.abs(relVel.y) > 1e-10) {
+      const t1 = (-expandedHalfSize - relPos.y) / relVel.y;
+      const t2 = (expandedHalfSize - relPos.y) / relVel.y;
+      const tMin = Math.min(t1, t2);
+      const tMax = Math.max(t1, t2);
+      tEnter = Math.max(tEnter, tMin);
+      tExit = Math.min(tExit, tMax);
+   } else {
+      // No movement on Y axis - check if already overlapping
+      if (Math.abs(relPos.y) >= expandedHalfSize) {
+         return null; // Will never collide
+      }
+   }
 
-    if (discriminant < 0) {
-        return false; // No real solutions, line does not intersect circle
-    } else {
-        discriminant = Math.sqrt(discriminant);
+   // Check if collision occurs
+   if (tEnter > tExit || tExit < 0) {
+      return null; // No collision
+   }
 
-        const t1 = (-b - discriminant) / (2 * a);
-        const t2 = (-b + discriminant) / (2 * a);
-
-        // Check if either intersection point lies within the line segment
-        if ((t1 >= 0 && t1 <= 1) || (t2 >= 0 && t2 <= 1)) {
-            return true;
-        }
-
-        // Check if the circle's center is within the line segment and the segment endpoints are outside the circle.
-        // This covers cases where the line segment passes *through* the circle without an intersection point
-        // being on the segment (e.g., segment entirely inside the circle).
-        // However, the quadratic formula already handles this if the segment is truly intersecting.
-        // A more robust check for this case is to check if the closest point on the line *to the circle's center*
-        // falls within the segment, and if that distance is less than the radius.
-
-        // Calculate the closest point on the line to the circle's center
-        const t = ((x - x1) * dx + (y - y1) * dy) / a;
-
-        if (t >= 0 && t <= 1) {
-            const closestX = x1 + t * dx;
-            const closestY = y1 + t * dy;
-            const distSq = (closestX - x) * (closestX - x) + (closestY - y) * (closestY - y);
-            if (distSq <= radius * radius) {
-                return true;
-            }
-        } else {
-            // If the closest point on the infinite line is outside the segment,
-            // then we need to check the distance from the circle's center to the segment endpoints.
-            const dist1Sq = (x1 - x) * (x1 - x) + (y1 - y) * (y1 - y);
-            const dist2Sq = (x2 - x) * (x2 - x) + (y2 - y) * (y2 - y);
-
-            if (dist1Sq <= radius * radius || dist2Sq <= radius * radius) {
-                return true;
-            }
-        }
-    }
-
-    return false;
+   // Return first collision time if it's non-negative
+   return tEnter >= 0 ? tEnter : null;
 }
