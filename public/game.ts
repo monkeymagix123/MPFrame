@@ -21,12 +21,10 @@ export function initGame(): void {
 function setupGameControls(): void {
 	document.addEventListener("keydown", (e: KeyboardEvent) => {
 		session.keys[e.key.toLowerCase()] = true;
-		session.clientInput.keys[e.key.toLowerCase()] = true;
 	});
 
 	document.addEventListener("keyup", (e: KeyboardEvent) => {
 		session.keys[e.key.toLowerCase()] = false;
-		session.clientInput.keys[e.key.toLowerCase()] = false;
 	});
 
 	document.addEventListener("click", (e: MouseEvent) => {
@@ -113,6 +111,8 @@ function updateGame(dt: number): void {
 
 	// if moving position or trying to dash, send data to server
 	if (moved || session.clientInput.mouseClick) {
+		session.clientInput.keys = keys;
+
 		session.clientInput.interval = dt;
 		session.socket.emit("game/client-input", session.clientInput);
 		session.resetInput();
