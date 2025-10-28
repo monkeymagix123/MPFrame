@@ -44,6 +44,11 @@ export class PlayerC extends Player {
         }
     }
 
+    update(dt: number): void {
+        super.update(dt);
+        this.interpolate();
+    }
+
     static copyData(player: Player): PlayerC {
         let p: PlayerC = new PlayerC(player.id, player.team, player.pos.x, player.pos.y, player.name, player.ready);
         p = Object.assign(p, player);
