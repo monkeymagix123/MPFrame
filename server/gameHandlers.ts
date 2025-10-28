@@ -22,7 +22,7 @@ export function setupGameHandlers(socket: GameSocket, io: Server): void {
 
       player.applyMoveData(data);
 
-      socket.to(socket.roomCode).emit("game/player-moved", { id: socket.id, move: data });
+      socket.to(socket.roomCode).emit("game/player-moved", socket.id, data);
 
       if (player.health < previousHealth) {
          const damageData: DamageData = {

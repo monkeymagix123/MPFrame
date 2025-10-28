@@ -10,13 +10,6 @@ let fps = 0;
 const fpsHistory: number[] = [];
 const fpsHistorySize = 30;
 
-// Offscreen canvas for double buffering
-let offscreenCanvas: HTMLCanvasElement | null = null;
-let offscreenCtx: CanvasRenderingContext2D | null = null;
-
-// Cache for pre-rendered elements
-let arrowCache: { [key: string]: HTMLCanvasElement } = {};
-
 export function resizeCanvas(): void {
    const canvas = document.getElementById("game-canvas") as HTMLCanvasElement;
    const gameArea = document.getElementById("game-area");
@@ -29,8 +22,8 @@ export function resizeCanvas(): void {
    const displayHeight = rect.height;
 
    // Set the canvas internal size to double resolution
-   canvas.width = displayWidth * session.settings.resolutionScale;
-   canvas.height = displayHeight * session.settings.resolutionScale;
+   canvas.width = displayWidth * session.settings.resScale;
+   canvas.height = displayHeight * session.settings.resScale;
 
    // Keep the same display size in CSS
    canvas.style.width = `${displayWidth}px`;
@@ -39,21 +32,10 @@ export function resizeCanvas(): void {
    // Scale the rendering context to match
    const scale = canvas.width / config.mapWidth;
    session.ctx.setTransform(scale, 0, 0, scale, 0, 0);
-
-   // Create or resize offscreen canvas
-   if (!offscreenCanvas) {
-      offscreenCanvas = document.createElement("canvas");
-      offscreenCtx = offscreenCanvas.getContext("2d", {
-         alpha: false,
-         desynchronized: true,
-      });
-   }
-   offscreenCanvas.width = config.mapWidth;
-   offscreenCanvas.height = config.mapHeight;
 }
 
 export function renderGame(): void {
-   if (!session.ctx || !session.canvas || !session.room || !offscreenCanvas || !offscreenCtx) return;
+   if (!session.ctx || !session.canvas || !session.room) return;
 
    // Update FPS
    const currentTime = performance.now();
@@ -69,11 +51,15 @@ export function renderGame(): void {
       fps = fpsHistory.reduce((a, b) => a + b, 0) / fpsHistory.length;
    }
 
-   const ctx = offscreenCtx; // Render to offscreen canvas first
+   const ctx = session.ctx;
 
    // Clear and fill background
    ctx.fillStyle = "#11111b";
-   ctx.fillRect(0, 0, config.mapWidth, config.mapHeight);
+   ctx.fillRect(0, 0, session.canvas.width, session.canvas.height);
+
+   // Scale the context to match
+   const scale = session.canvas.width / config.mapWidth;
+   ctx.setTransform(scale, 0, 0, scale, 0, 0);
 
    // Set image smoothing once
    ctx.imageSmoothingEnabled = session.settings.highQuality;
@@ -82,7 +68,7 @@ export function renderGame(): void {
       drawPlayer(player, ctx);
    });
 
-   // Reset quality session.settings after rendering
+   // Reset quality settings after rendering
    if (session.settings.highQuality) {
       ctx.shadowBlur = 0;
       ctx.globalAlpha = 1;
@@ -92,9 +78,6 @@ export function renderGame(): void {
    if (session.settings.debugMode) {
       drawFPS(ctx);
    }
-
-   // Copy offscreen canvas to main canvas in one operation
-   session.ctx.drawImage(offscreenCanvas, 0, 0);
 }
 
 function drawPlayer(player: Player, ctx: CanvasRenderingContext2D): void {
@@ -108,7 +91,7 @@ function drawPlayer(player: Player, ctx: CanvasRenderingContext2D): void {
    const healthRatio = player.health / player.maxHealth;
    const isRed = player.team === "red";
 
-   // Batch shadow session.settings
+   // Batch shadow settings
    if (session.settings.highQuality) {
       ctx.shadowBlur = isCurrentPlayer ? 20 : 15;
       ctx.shadowColor = isRed ? "#ea4179" : "#5075f9";
@@ -141,7 +124,7 @@ function drawPlayer(player: Player, ctx: CanvasRenderingContext2D): void {
       ctx.strokeRect(player.pos.x - halfPlayer, player.pos.y - halfPlayer, config.playerLength, config.playerLength);
    }
 
-   // Batch text session.settings
+   // Batch text settings
    if (session.settings.highQuality) {
       ctx.shadowBlur = 4;
       ctx.shadowColor = "rgba(0, 0, 0, 0.8)";
@@ -183,10 +166,10 @@ function drawArrow(from: Vec2, to: Vec2, ctx: CanvasRenderingContext2D): void {
    const length = v2.length(direction);
 
    // Calculate charge ratio once
-   const chargedRatio = 1 - Math.max(0, Math.min(1, session.player!.dashProgress / config.dashCooldown));
+   const chargedRatio = Math.max(0, Math.min(1, session.player!.dashProgress / config.dashCooldown));
    const chargedLength = length * chargedRatio;
    const arrowBaseDistance = headLength * Math.cos(Math.PI / 6);
-   const isFullyCharged = session.player!.dashProgress <= 0;
+   const isFullyCharged = session.player!.dashProgress >= config.dashCooldown;
 
    // Pre-calculate common values
    const cosAngle = Math.cos(angle);
@@ -272,9 +255,6 @@ function drawFPS(ctx: CanvasRenderingContext2D): void {
 
    // Add background for better readability
    const text = `FPS: ${Math.round(fps)}`;
-   const textWidth = ctx.measureText(text).width;
-   ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
-   ctx.fillRect(config.mapWidth - textWidth - 20, 10, textWidth + 15, 25);
 
    // Draw FPS text
    ctx.fillStyle = "#00ff00";

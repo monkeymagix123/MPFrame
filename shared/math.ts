@@ -1,5 +1,4 @@
 import { config } from "../shared/config";
-import { Player } from "./player";
 import { v2, Vec2 } from "./v2";
 
 export function clamp(n: number, min: number, max: number): number {

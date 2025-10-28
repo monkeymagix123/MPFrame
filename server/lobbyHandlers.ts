@@ -11,8 +11,8 @@ function startGame(room: Room, io: Server): void {
 
    room.players.forEach((player) => {
       player.ready = false;
-      player.pos.x = Math.random() * 760 + 20;
-      player.pos.y = Math.random() * 560 + 20;
+      player.pos.x = Math.random() * config.mapWidth;
+      player.pos.y = Math.random() * config.mapHeight;
       player.health = config.maxHealth;
       player.dashProgress = config.dashCooldown;
       player.dashing = false;

@@ -1,5 +1,5 @@
 import { session } from "./session";
-import { Chat, ChatMessage } from "../shared/chat";
+import { ChatMessage } from "../shared/chat";
 import * as ui from "./ui";
 import { startGameLoop } from "./input";
 import { updateURL } from "./url";
@@ -7,6 +7,7 @@ import { Lobby } from "../shared/types";
 import { MoveData } from "../shared/moveData";
 import { Player } from "../shared/player";
 import { Room } from "../shared/room";
+import { Serializer } from "../shared/serializer";
 import { Deserializer } from "../shared/deserializer";
 
 export function initSocket(): void {
@@ -18,7 +19,7 @@ export function initSocket(): void {
       "room/joined",
       Deserializer.createHandler<Room>("Room", (data) => {
          session.room = data;
-         updatePlayersInLobby(data.players);
+         updatePlayerList(data.players);
          ui.showLobby();
          updateURL(data.code);
          ui.updateChatDisplay();
@@ -32,14 +33,14 @@ export function initSocket(): void {
    session.socket.on(
       "room/player-list",
       Deserializer.createHandler<Map<string, Player>>("Map<string, Player>", (players) => {
-         updatePlayersInLobby(players);
+         updatePlayerList(players);
       })
    );
 
    session.socket.on(
       "game/start",
       Deserializer.createHandler<Map<string, Player>>("Map<string, Player>", (players) => {
-         updatePlayersInLobby(players);
+         updatePlayerList(players);
          startGameLoop();
          ui.showGame();
       })
@@ -49,6 +50,11 @@ export function initSocket(): void {
       if (id === session.socket.id) return;
       const player = session.room?.gameState.players.find((p) => p.id === id);
       player?.applyMoveData(data);
+
+      console.log(session.room?.gameState.players);
+      console.log(id);
+      console.log(data);
+      console.log(player);
    });
 
    session.socket.on(
@@ -62,15 +68,18 @@ export function initSocket(): void {
 
 export function emitPlayerMove(): void {
    if (!session.player) return;
-   session.socket.emit("game/player-move", session.player.getMoveData());
+
+   Serializer.emit(session.socket, "game/player-move", session.player.getMoveData(), "MoveData");
 }
 
 // Method to update which players are in lobby/playerList
-function updatePlayersInLobby(updatedPlayers: Map<string, Player>): void {
+function updatePlayerList(updatedPlayers: Map<string, Player>): void {
    if (!session.room || session.socket.id === undefined) return;
    session.room.players = updatedPlayers;
 
    session.player = updatedPlayers.get(session.socket.id) || null;
+   session.room.gameState.players = Array.from(updatedPlayers.values());
+
    ui.updateLobbyDisplay();
    ui.updateReadyButton();
 }

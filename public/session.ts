@@ -39,8 +39,8 @@ export class Session {
 
    saveMouseCoords(mouseX: number, mouseY: number): void {
       const rect = this.canvas.getBoundingClientRect();
-      const scaleX = (config.mapWidth * this.settings.resolutionScale) / this.canvas.width;
-      const scaleY = (config.mapHeight * this.settings.resolutionScale) / this.canvas.height;
+      const scaleX = (config.mapWidth * this.settings.resScale) / this.canvas.width;
+      const scaleY = (config.mapHeight * this.settings.resScale) / this.canvas.height;
 
       this.mousePos.x = (mouseX - rect.left) * scaleX;
       this.mousePos.y = (mouseY - rect.top) * scaleY;
