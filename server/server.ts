@@ -4,6 +4,7 @@ import { Server } from "socket.io";
 import path from "path";
 import { setupSocketHandlers } from "./socket";
 import { Room } from "../shared/room";
+// import rateLimit from "express-rate-limit";
 
 const app = express();
 const server = http.createServer(app);
@@ -22,6 +23,8 @@ app.get("/games/:roomCode", (req, res) => {
 	}
 	res.sendFile(path.join(__dirname, "..", "..", "public", "index.html"));
 });
+
+// app.use(rateLimit({ windowMs: 60000, max: 10 })); // 10 requests per minute
 
 setupSocketHandlers(io);
 

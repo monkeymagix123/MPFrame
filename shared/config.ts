@@ -17,6 +17,7 @@ export const config = {
 	dashDistance: 300,
 	dashCooldown: 2, // in seconds
 	dashDamage: 25,
+	dashDuration: 0.2, // in seconds
 
 	maxHealth: 100,
 }
