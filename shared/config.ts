@@ -11,6 +11,9 @@ export const config = {
 	playerLength: 30,
 	headLength: 30,
 
+	// Player starting position bounds
+	bound: 20,
+
 	// Player settings
 	speedPerSecond: 180,
 

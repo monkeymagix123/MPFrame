@@ -1,6 +1,10 @@
 import { config } from "../shared/config";
 import { v2, Vec2 } from "./v2";
 
+export function random(min: number, max: number): number {
+    return Math.random() * (max - min) + min;
+}
+
 export function clamp(n: number, min: number, max: number): number {
 	if (n < min) {
 		return min;

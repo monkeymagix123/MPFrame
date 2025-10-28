@@ -4,6 +4,7 @@ import { Room } from "../shared/room";
 import { rooms } from "./server";
 import { broadcastLobbiesList } from "./misc";
 import { config } from "../shared/config";
+import { random } from "../shared/math";
 
 function startGame(room: Room, io: Server): void {
 	const wasLobby = room.roomState === "lobby";
@@ -13,10 +14,11 @@ function startGame(room: Room, io: Server): void {
 	// Reset all players to not ready
 	for (const player of room.players.values()) {
 		player.ready = false;
-		
+
 		// Randomize starting positions
-		player.pos.x = Math.random() * 760 + 20;
-		player.pos.y = Math.random() * 560 + 20;
+		const bound = config.bound;
+		player.pos.x = random(bound, config.width - bound);
+		player.pos.y = random(bound, config.height - bound);
 	}
 
 	io.to(room.code).emit("game/start", Array.from(room.players.values()));
