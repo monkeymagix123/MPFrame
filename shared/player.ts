@@ -37,6 +37,7 @@ export abstract class Player {
      * @param dt time to update (in seconds)
      */
     update(dt: number): void {
+        // Decrement cooldown based on delta time in seconds
         this.decrementCooldown(dt);
     }
 

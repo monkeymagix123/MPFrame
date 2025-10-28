@@ -85,7 +85,7 @@ function updateGame(dt: number): void {
 	// Move player
 	let moved = session.currentPlayer.move(keys, dt);
 
-	// Decrement cooldown based on delta time in seconds
+	// Update by delta time in seconds
 	session.currentPlayer.update(dt);
 
 	// if moving position or trying to dash, send data to server
