@@ -82,25 +82,8 @@ function updateGame(dt: number): void {
 
 	const keys = session.keys;
 
-	let moved = false;
-	const speedPerSecond = config.speedPerSecond;
-
-	if (keys["w"] || keys["arrowup"]) {
-		session.currentPlayer.moveUp(speedPerSecond * dt);
-		moved = true;
-	}
-	if (keys["s"] || keys["arrowdown"]) {
-		session.currentPlayer.moveDown(speedPerSecond * dt);
-		moved = true;
-	}
-	if (keys["a"] || keys["arrowleft"]) {
-		session.currentPlayer.moveLeft(speedPerSecond * dt);
-		moved = true;
-	}
-	if (keys["d"] || keys["arrowright"]) {
-		session.currentPlayer.moveRight(speedPerSecond * dt);
-		moved = true;
-	}
+	// Move player
+	let moved = session.currentPlayer.move(keys, dt);
 
 	// Decrement cooldown based on delta time in seconds
 	session.currentPlayer.update(dt);
