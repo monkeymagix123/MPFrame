@@ -84,28 +84,30 @@ export function stopGameLoop(): void {
 function updateGame(dt: number): void {
 	if (!session.currentPlayer || !session.canvasManager.canvas) return;
 
+	const keys = session.keys;
+
 	let moved = false;
 	const speedPerSecond = config.speedPerSecond;
 
-	if (session.keys["w"] || session.keys["arrowup"]) {
+	if (keys["w"] || keys["arrowup"]) {
 		session.currentPlayer.moveUp(speedPerSecond * dt);
 		moved = true;
 	}
-	if (session.keys["s"] || session.keys["arrowdown"]) {
+	if (keys["s"] || keys["arrowdown"]) {
 		session.currentPlayer.moveDown(speedPerSecond * dt);
 		moved = true;
 	}
-	if (session.keys["a"] || session.keys["arrowleft"]) {
+	if (keys["a"] || keys["arrowleft"]) {
 		session.currentPlayer.moveLeft(speedPerSecond * dt);
 		moved = true;
 	}
-	if (session.keys["d"] || session.keys["arrowright"]) {
+	if (keys["d"] || keys["arrowright"]) {
 		session.currentPlayer.moveRight(speedPerSecond * dt);
 		moved = true;
 	}
 
 	// Decrement cooldown based on delta time in seconds
-	session.currentPlayer.decrementCooldown(dt);
+	session.currentPlayer.update(dt);
 
 	session.currentPlayer.interpolate();
 
