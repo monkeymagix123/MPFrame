@@ -30,7 +30,7 @@ function setupGameControls(): void {
 	});
 
 	document.addEventListener("click", (e: MouseEvent) => {
-		if (!session.canvas) return;
+		if (!session.canvasManager.canvas) return;
 		
 		// Converts raw mouse coordinates to game coordinates
 		session.saveMouseCoords(e.clientX, e.clientY);
@@ -42,10 +42,6 @@ function setupGameControls(): void {
 
 		session.clientInput.mouseClick = true;
 		session.clientInput.mousePos = session.mousePos;
-
-		// session.socket.emit("game/player-move", {
-		// 	pos: session.currentPlayer?.pos,
-		// });
 	});
 
 	document.addEventListener("mousemove", (e: MouseEvent) => {
@@ -86,7 +82,7 @@ export function stopGameLoop(): void {
 
 // Changed to accept dt (delta time)
 function updateGame(dt: number): void {
-	if (!session.currentPlayer || !session.canvas) return;
+	if (!session.currentPlayer || !session.canvasManager.canvas) return;
 
 	let moved = false;
 	const speedPerSecond = config.speedPerSecond;

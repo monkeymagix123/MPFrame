@@ -1,28 +1,32 @@
 import { io, Socket } from "socket.io-client";
 import { ClientInput, Keys } from "../shared/types";
 import { Vec2 } from "../shared/v2";
-import { config } from "../shared/config";
-import { settings } from "./settings";
 import { PlayerC } from "./player";
+import { CanvasManager } from "./helpers/graphicsManager";
 
 class Session {
+	// Network info
 	socket: Socket;
 	currentRoom: string | null;
-	keys: Keys;
-	canvas: HTMLCanvasElement;
-	ctx: CanvasRenderingContext2D;
+
+	// UI manager
+	canvasManager: CanvasManager;
+
 	gameLoop: number | null;
 
-	mousePos: Vec2;
+	// Current player
 	currentPlayer: PlayerC | undefined;
+
+	// Client inputs
+	mousePos: Vec2;
+	keys: Keys;
 	clientInput: ClientInput;
 
-	constructor(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
+	constructor(canvas: HTMLCanvasElement) {
 		this.socket = io() as Socket;
 		this.currentRoom = null;
 		this.keys = {} as Keys;
-		this.canvas = canvas as HTMLCanvasElement;
-		this.ctx = ctx as CanvasRenderingContext2D;
+		this.canvasManager = new CanvasManager(canvas);
 		this.gameLoop = null as number | null;
 		this.mousePos = new Vec2();
 		this.currentPlayer = undefined;
@@ -45,14 +49,10 @@ class Session {
 	}
 
 	saveMouseCoords(mouseX: number, mouseY: number): void {
-	  const rect = session.canvas.getBoundingClientRect();
-
-	  this.mousePos.x = (mouseX - rect.left) * config.width / session.canvas.width * settings.resolutionScale;
-	  this.mousePos.y = (mouseY - rect.top) * config.height / session.canvas.height * settings.resolutionScale;
+		this.mousePos = this.canvasManager.getCoordsFromMouse(mouseX, mouseY);
 	}
 }
 
 export const session = new Session(
-	document.getElementById("game-canvas") as HTMLCanvasElement,
-	(document.getElementById("game-canvas") as HTMLCanvasElement)?.getContext("2d") as CanvasRenderingContext2D
+	document.getElementById("game-canvas") as HTMLCanvasElement
 );

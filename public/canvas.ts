@@ -1,5 +1,5 @@
 import { config } from "../shared/config";
-import { clamp, clampPos, clampPosV } from "../shared/math";
+import { clamp, clampPosV } from "../shared/math";
 import { Player } from "../shared/player";
 import { state } from "./state";
 import { v2, Vec2 } from "../shared/v2";
@@ -33,11 +33,13 @@ export function resizeCanvas(): void {
 
    // Scale the rendering context to match
    const scale = canvas.width / config.width;
-   session.ctx.setTransform(scale, 0, 0, scale, 0, 0);
+   session.canvasManager.ctx.setTransform(scale, 0, 0, scale, 0, 0);
 }
 
 export function renderGame(): void {
-   if (!session.ctx || !session.canvas) return;
+   if (!session.canvasManager.ctx || !session.canvasManager.canvas) return;
+
+   const ctx = session.canvasManager.ctx;
 
    // Update FPS
    const currentTime = performance.now();
@@ -53,13 +55,13 @@ export function renderGame(): void {
       fps = fpsHistory.reduce((a, b) => a + b, 0) / fpsHistory.length;
    }
 
-	session.ctx.clearRect(0, 0, config.width, config.height)
-   session.ctx.fillStyle = "#11111b";
-   session.ctx.fillRect(0, 0, config.width, config.height)
+	ctx.clearRect(0, 0, config.width, config.height)
+   ctx.fillStyle = "#11111b";
+   ctx.fillRect(0, 0, config.width, config.height)
 
    // Enable high quality effects if setting is on
    if (settings.highQuality) {
-      session.ctx.shadowBlur = 0; // Reset for background
+      ctx.shadowBlur = 0; // Reset for background
    }
 
    state.players.forEach((player) => {
@@ -68,8 +70,8 @@ export function renderGame(): void {
 
    // Reset quality settings after rendering
    if (settings.highQuality) {
-      session.ctx.shadowBlur = 0;
-      session.ctx.globalAlpha = 1;
+      ctx.shadowBlur = 0;
+      ctx.globalAlpha = 1;
    }
 
    // Draw FPS counter if debug mode is on
@@ -79,7 +81,9 @@ export function renderGame(): void {
 }
 
 function drawPlayer(player: Player): void {
-   if (!session.ctx) return;
+   const ctx = session.canvasManager.ctx;
+
+   if (!ctx) return;
 
    const isCurrentPlayer = player.id === session.socket.id;
 
@@ -92,35 +96,35 @@ function drawPlayer(player: Player): void {
 
    // High quality effects
    if (settings.highQuality) {
-      session.ctx.shadowBlur = isCurrentPlayer ? 20 : 15;
-      session.ctx.shadowColor = player.team === "red" ? "#ea4179" : "#5075f9";
+      ctx.shadowBlur = isCurrentPlayer ? 20 : 15;
+      ctx.shadowColor = player.team === "red" ? "#ea4179" : "#5075f9";
    }
 
    // Reset shadow for outline
    if (settings.highQuality) {
-      session.ctx.shadowBlur = 0;
+      ctx.shadowBlur = 0;
    }
 
-   session.ctx.strokeStyle = player.team === "red" ? "#ff6b9d" : "#7d9bff";
+   ctx.strokeStyle = player.team === "red" ? "#ff6b9d" : "#7d9bff";
 
    if (settings.highQuality && isCurrentPlayer) {
-      session.ctx.shadowBlur = 8;
-      session.ctx.shadowColor = player.team === "red" ? "#ff6b9d" : "#7d9bff";
+      ctx.shadowBlur = 8;
+      ctx.shadowColor = player.team === "red" ? "#ff6b9d" : "#7d9bff";
    }
 
-   session.ctx.lineWidth = (config.playerLength * healthRatio) / 2;
-   session.ctx.strokeRect(
-      player.pos.x - config.playerLength / 2 + session.ctx.lineWidth / 2,
-      player.pos.y - config.playerLength / 2 + session.ctx.lineWidth / 2,
-      config.playerLength - session.ctx.lineWidth,
-      config.playerLength - session.ctx.lineWidth
+   ctx.lineWidth = (config.playerLength * healthRatio) / 2;
+   ctx.strokeRect(
+      player.pos.x - config.playerLength / 2 + ctx.lineWidth / 2,
+      player.pos.y - config.playerLength / 2 + ctx.lineWidth / 2,
+      config.playerLength - ctx.lineWidth,
+      config.playerLength - ctx.lineWidth
    );
 
    // Draw outline for current player
    if (isCurrentPlayer) {
-      session.ctx.strokeStyle = "#FFFFFF";
-      session.ctx.lineWidth = 2;
-      session.ctx.strokeRect(
+      ctx.strokeStyle = "#FFFFFF";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(
          player.pos.x - config.playerLength / 2,
          player.pos.y - config.playerLength / 2,
          config.playerLength,
@@ -129,30 +133,30 @@ function drawPlayer(player: Player): void {
    }
 
    if (settings.highQuality) {
-      session.ctx.shadowBlur = 0;
+      ctx.shadowBlur = 0;
    }
 
    // Draw player name
-   session.ctx.font = "bold 12px Arial";
-   session.ctx.textAlign = "center";
-   session.ctx.fillStyle = "white";
+   ctx.font = "bold 12px Arial";
+   ctx.textAlign = "center";
+   ctx.fillStyle = "white";
 
    if (settings.highQuality) {
       // Add text shadow for better readability
-      session.ctx.shadowBlur = 4;
-      session.ctx.shadowColor = "rgba(0, 0, 0, 0.8)";
+      ctx.shadowBlur = 4;
+      ctx.shadowColor = "rgba(0, 0, 0, 0.8)";
    }
 
    const name = player.id === session.socket.id ? "You" : player.name || player.id.substring(0, 4);
-   session.ctx.fillText(name, player.pos.x, player.pos.y - 25);
+   ctx.fillText(name, player.pos.x, player.pos.y - 25);
 
    if (settings.highQuality) {
-      session.ctx.shadowBlur = 0;
+      ctx.shadowBlur = 0;
    }
 }
 
 function drawDashArrow(toV: Vec2): void {
-   if (!session.currentPlayer || !session.canvas) return;
+   if (!session.currentPlayer || !session.canvasManager.canvas) return;
 
    // Using the same 100 unit distance for the arrow display
    const arrowDistance = config.dashDistance;
@@ -171,7 +175,9 @@ function drawDashArrow(toV: Vec2): void {
  * @param k The ratio of how charged it is, should be between 0 and 1
  */
 function drawArrow(fromPos: Vec2, toPos: Vec2, k: number): void {
-   if (!session.ctx) return;
+   const ctx = session.canvasManager.ctx;
+
+   if (!ctx) return;
 
    const headLength = config.headLength; // length of head in pixels
 
@@ -195,102 +201,104 @@ function drawArrow(fromPos: Vec2, toPos: Vec2, k: number): void {
 
    // Draw the charged (yellow/orange) part of the line from the start to the charged position
    if (k >= 0) {
-      session.ctx.lineWidth = config.playerLength / 3;
-      session.ctx.beginPath();
-      session.ctx.moveTo(fromPos.x, fromPos.y);
+      ctx.lineWidth = config.playerLength / 3;
+      ctx.beginPath();
+      ctx.moveTo(fromPos.x, fromPos.y);
 
       // Check if fully charged
       if (k === 0) {
          // If fully charged, extend to just before the arrowhead base
          const slightBeforeEnd = v2.sub(toPos, v2.mul(vAngle, arrowBaseDistance));
-         session.ctx.lineTo(slightBeforeEnd.x, slightBeforeEnd.y);
+         ctx.lineTo(slightBeforeEnd.x, slightBeforeEnd.y);
       } else {
-         session.ctx.lineTo(chargedPos.x, chargedPos.y);
+         ctx.lineTo(chargedPos.x, chargedPos.y);
       }
 
       // high-quality effects
       if (settings.highQuality) {
-         session.ctx.strokeStyle = "rgba(250, 200, 60, 0.7)";
-         session.ctx.shadowBlur = 15;
-         session.ctx.shadowColor = "rgba(250, 200, 60, 0.8)";
+         ctx.strokeStyle = "rgba(250, 200, 60, 0.7)";
+         ctx.shadowBlur = 15;
+         ctx.shadowColor = "rgba(250, 200, 60, 0.8)";
       } else {
-         session.ctx.strokeStyle = "rgba(250, 200, 60, 1)";
+         ctx.strokeStyle = "rgba(250, 200, 60, 1)";
       }
-      session.ctx.stroke();
+      ctx.stroke();
    }
 
    // Reset shadow for uncharged part
    if (settings.highQuality) {
-      session.ctx.shadowBlur = 0;
+      ctx.shadowBlur = 0;
    }
 
 
    // Draws the remaining uncharged (blue/cyan) part of the line
    // Goes from the charged part to the end
-   session.ctx.lineWidth = 10;
+   ctx.lineWidth = 10;
    if (k > 0) {
-      session.ctx.beginPath();
-      session.ctx.moveTo(chargedPos.x, chargedPos.y);
-      session.ctx.lineTo(toPos.x, toPos.y);
+      ctx.beginPath();
+      ctx.moveTo(chargedPos.x, chargedPos.y);
+      ctx.lineTo(toPos.x, toPos.y);
 
       if (settings.highQuality) {
-         session.ctx.strokeStyle = "rgba(100, 180, 230, 0.6)";
-         session.ctx.shadowBlur = 10;
-         session.ctx.shadowColor = "rgba(100, 180, 230, 0.5)";
+         ctx.strokeStyle = "rgba(100, 180, 230, 0.6)";
+         ctx.shadowBlur = 10;
+         ctx.shadowColor = "rgba(100, 180, 230, 0.5)";
       } else {
-         session.ctx.strokeStyle = "rgba(100, 180, 230, 1)";
+         ctx.strokeStyle = "rgba(100, 180, 230, 1)";
       }
-      session.ctx.stroke();
+      ctx.stroke();
    }
 
 
    // Draw the arrowhead when fully charged
    if (k === 0) {
       if (settings.highQuality) {
-         session.ctx.shadowBlur = 20;
-         session.ctx.shadowColor = "rgba(250, 200, 60, 0.9)";
+         ctx.shadowBlur = 20;
+         ctx.shadowColor = "rgba(250, 200, 60, 0.9)";
       }
 
-      session.ctx.beginPath();
-      session.ctx.moveTo(toPos.x, toPos.y);
-      session.ctx.lineTo(toPos.x - headLength * Math.cos(angle - Math.PI / 6), toPos.y - headLength * Math.sin(angle - Math.PI / 6));
-      session.ctx.lineTo(toPos.x - headLength * Math.cos(angle + Math.PI / 6), toPos.y - headLength * Math.sin(angle + Math.PI / 6));
-      session.ctx.closePath();
+      ctx.beginPath();
+      ctx.moveTo(toPos.x, toPos.y);
+      ctx.lineTo(toPos.x - headLength * Math.cos(angle - Math.PI / 6), toPos.y - headLength * Math.sin(angle - Math.PI / 6));
+      ctx.lineTo(toPos.x - headLength * Math.cos(angle + Math.PI / 6), toPos.y - headLength * Math.sin(angle + Math.PI / 6));
+      ctx.closePath();
 
       if (settings.highQuality) {
-         session.ctx.fillStyle = "rgba(250, 200, 60, 0.7)";
+         ctx.fillStyle = "rgba(250, 200, 60, 0.7)";
       } else {
-         session.ctx.fillStyle = "rgba(250, 200, 60, 1)";
+         ctx.fillStyle = "rgba(250, 200, 60, 1)";
       }
-      session.ctx.fill();
+      ctx.fill();
 
       if (settings.highQuality) {
-         session.ctx.shadowBlur = 0;
+         ctx.shadowBlur = 0;
       }
    }
 }
 
 function drawFPS(): void {
-   if (!session.ctx) return;
+   const ctx = session.canvasManager.ctx;
+
+   if (!ctx) return;
 
    // Save context state
-   session.ctx.save();
+   ctx.save();
 
    // Draw FPS in top right corner
-   session.ctx.font = "bold 16px monospace";
-   session.ctx.textAlign = "right";
-   session.ctx.fillStyle = "#00ff00";
+   ctx.font = "bold 16px monospace";
+   ctx.textAlign = "right";
+   ctx.fillStyle = "#00ff00";
 
    // Add background for better readability
    const text = `FPS: ${Math.round(fps)}`;
-   const textWidth = session.ctx.measureText(text).width;
-   session.ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
-   session.ctx.fillRect(config.width - textWidth - 20, 10, textWidth + 15, 25);
+   const textWidth = ctx.measureText(text).width;
+   ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+   ctx.fillRect(config.width - textWidth - 20, 10, textWidth + 15, 25);
 
    // Draw FPS text
-   session.ctx.fillStyle = "#00ff00";
-   session.ctx.fillText(text, config.width - 10, 28);
+   ctx.fillStyle = "#00ff00";
+   ctx.fillText(text, config.width - 10, 28);
 
    // Restore context state
-   session.ctx.restore();
+   ctx.restore();
 }
