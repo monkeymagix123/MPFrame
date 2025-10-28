@@ -1,7 +1,7 @@
 import { config } from "./config";
 import { clampPos, clampPosV, intersectCircleLine } from "./math";
 
-import { ClientInput, PlayerData } from "./types";
+import { ClientInput, Keys, PlayerData } from "./types";
 import { v2, Vec2 } from "./v2";
 
 export abstract class Player {
@@ -54,6 +54,30 @@ export abstract class Player {
 
     moveDown(distance: number): void {
         this.pos.y = clampPos(this.pos.x, this.pos.y + distance).y;
+    }
+
+    move(keys: Keys, dt: number): boolean {
+        let moved = false;
+
+        // Update position
+		if (keys["arrowdown"] || keys["s"]) {
+            this.moveDown(dt * config.speedPerSecond);
+            moved = true;
+        }
+		if (keys["arrowup"] || keys["w"]) {
+            this.moveUp(dt * config.speedPerSecond);
+            moved = true;
+        }
+		if (keys["arrowleft"] || keys["a"]) {
+            this.moveLeft(dt * config.speedPerSecond);
+            moved = true;
+        }
+		if (keys["arrowright"] || keys["d"]) {
+            this.moveRight(dt * config.speedPerSecond);
+            moved = true;
+        }
+
+        return moved;
     }
 
     doDash(v: Vec2): void {
@@ -162,10 +186,7 @@ export abstract class Player {
         const dt = input.interval;
 
         // Update position
-		if (input.keys["arrowdown"] || input.keys["s"]) this.moveDown(dt * config.speedPerSecond);
-		if (input.keys["arrowup"] || input.keys["w"]) this.moveUp(dt * config.speedPerSecond);
-		if (input.keys["arrowleft"] || input.keys["a"]) this.moveLeft(dt * config.speedPerSecond);
-		if (input.keys["arrowright"] || input.keys["d"]) this.moveRight(dt * config.speedPerSecond);
+		this.move(input.keys, dt);
 
         // Dash calculations
 		if (input.mouseClick) {
