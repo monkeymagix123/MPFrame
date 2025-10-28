@@ -3,6 +3,7 @@ import { GameSocket } from "./types";
 import { MoveData, DamageData } from "../shared/moveData";
 import { rooms } from "./server";
 import { validateMoveData } from "../shared/serializer";
+import { config } from "config";
 
 export function setupGameHandlers(socket: GameSocket, io: Server): void {
    socket.on("game/player-move", (data: MoveData) => {
@@ -72,7 +73,7 @@ export function setupGameHandlers(socket: GameSocket, io: Server): void {
                io.to(socket.roomCode!).emit("game/player-damage", damageData);
             }
          }
-      }, 1000 / 60);
+      }, 1000 / config.simulationRate);
 
       gameLoops.set(socket.roomCode, interval);
    });
