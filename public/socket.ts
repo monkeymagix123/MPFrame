@@ -50,11 +50,6 @@ export function initSocket(): void {
       if (id === session.socket.id) return;
       const player = session.room?.gameState.players.find((p) => p.id === id);
       player?.applyMoveData(data);
-
-      console.log(session.room?.gameState.players);
-      console.log(id);
-      console.log(data);
-      console.log(player);
    });
 
    session.socket.on(

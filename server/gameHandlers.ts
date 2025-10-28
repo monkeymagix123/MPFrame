@@ -56,7 +56,7 @@ export function setupGameHandlers(socket: GameSocket, io: Server): void {
             previousHealths.set(player.id, player.health);
          }
 
-         room.gameState.updateAll(dt);
+         room.gameState.updateAll(dt, true);
 
          for (const player of room.gameState.players) {
             const prevHealth = previousHealths.get(player.id)!;

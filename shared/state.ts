@@ -18,7 +18,7 @@ export class State {
       this.players = [];
    }
 
-   update(player: Player, dt: number): void {
+   updatePlayerPos(player: Player, dt: number): void {
       // Update dash progress (cooldown timer)
       player.dashProgress = Math.min(player.dashProgress + dt, config.dashCooldown);
 
@@ -54,7 +54,7 @@ export class State {
    }
 
    // Update all players and detect collisions during movement
-   updateAll(dt: number): void {
+   updateAll(dt: number, damage?: boolean): void {
       // Store initial states
       interface PlayerState {
          player: Player;
@@ -99,83 +99,85 @@ export class State {
          states.push({ player, startPos, endPos, velocity, wasDashing, dashEndsAt });
       }
 
-      // Find earliest collision
-      let earliestCollision: {
-         time: number;
-         i: number;
-         j: number;
-      } | null = null;
+      if (damage) {
+         // Find earliest collision
+         let earliestCollision: {
+            time: number;
+            i: number;
+            j: number;
+         } | null = null;
 
-      for (let i = 0; i < states.length; i++) {
-         for (let j = i + 1; j < states.length; j++) {
-            const s1 = states[i];
-            const s2 = states[j];
+         for (let i = 0; i < states.length; i++) {
+            for (let j = i + 1; j < states.length; j++) {
+               const s1 = states[i];
+               const s2 = states[j];
 
-            // Skip if same team or either dead
-            if (s1.player.team === s2.player.team || !s1.player.isAlive() || !s2.player.isAlive()) {
-               continue;
-            }
+               // Skip if same team or either dead
+               if (s1.player.team === s2.player.team || !s1.player.isAlive() || !s2.player.isAlive()) {
+                  continue;
+               }
 
-            // Calculate velocities for each segment if dash ends mid-frame
-            const segments: Array<{ start: number; end: number; vel1: Vec2; vel2: Vec2; dash1: boolean; dash2: boolean }> = [];
+               // Calculate velocities for each segment if dash ends mid-frame
+               const segments: Array<{ start: number; end: number; vel1: Vec2; vel2: Vec2; dash1: boolean; dash2: boolean }> = [];
 
-            const times = [0, dt];
-            if (s1.dashEndsAt !== null) times.push(s1.dashEndsAt);
-            if (s2.dashEndsAt !== null) times.push(s2.dashEndsAt);
-            times.sort((a, b) => a - b);
+               const times = [0, dt];
+               if (s1.dashEndsAt !== null) times.push(s1.dashEndsAt);
+               if (s2.dashEndsAt !== null) times.push(s2.dashEndsAt);
+               times.sort((a, b) => a - b);
 
-            for (let k = 0; k < times.length - 1; k++) {
-               const segStart = times[k];
-               const segEnd = times[k + 1];
+               for (let k = 0; k < times.length - 1; k++) {
+                  const segStart = times[k];
+                  const segEnd = times[k + 1];
 
-               const dash1 = s1.wasDashing && (s1.dashEndsAt === null || segStart < s1.dashEndsAt);
-               const dash2 = s2.wasDashing && (s2.dashEndsAt === null || segStart < s2.dashEndsAt);
+                  const dash1 = s1.wasDashing && (s1.dashEndsAt === null || segStart < s1.dashEndsAt);
+                  const dash2 = s2.wasDashing && (s2.dashEndsAt === null || segStart < s2.dashEndsAt);
 
-               const vel1 = dash1 ? s1.player.dashVel : s1.player.moveVel;
-               const vel2 = dash2 ? s2.player.dashVel : s2.player.moveVel;
+                  const vel1 = dash1 ? s1.player.dashVel : s1.player.moveVel;
+                  const vel2 = dash2 ? s2.player.dashVel : s2.player.moveVel;
 
-               segments.push({ start: segStart, end: segEnd, vel1, vel2, dash1, dash2 });
-            }
+                  segments.push({ start: segStart, end: segEnd, vel1, vel2, dash1, dash2 });
+               }
 
-            // Check collision in each segment
-            for (const seg of segments) {
-               const segDuration = seg.end - seg.start;
-               const pos1 = v2.add(s1.startPos, v2.mul(seg.vel1, seg.start));
-               const pos2 = v2.add(s2.startPos, v2.mul(seg.vel2, seg.start));
+               // Check collision in each segment
+               for (const seg of segments) {
+                  const segDuration = seg.end - seg.start;
+                  const pos1 = v2.add(s1.startPos, v2.mul(seg.vel1, seg.start));
+                  const pos2 = v2.add(s2.startPos, v2.mul(seg.vel2, seg.start));
 
-               const collisionTime = checkMovingSquareCollision(pos1, seg.vel1, pos2, seg.vel2, config.playerLength / 2);
+                  const collisionTime = checkMovingSquareCollision(pos1, seg.vel1, pos2, seg.vel2, config.playerLength / 2);
 
-               if (collisionTime !== null && collisionTime <= segDuration) {
-                  const absoluteTime = seg.start + collisionTime;
+                  if (collisionTime !== null && collisionTime <= segDuration) {
+                     const absoluteTime = seg.start + collisionTime;
 
-                  // Check if this is the earliest collision and if someone is dashing
-                  if ((seg.dash1 || seg.dash2) && (earliestCollision === null || absoluteTime < earliestCollision.time)) {
-                     earliestCollision = { time: absoluteTime, i, j };
+                     // Check if this is the earliest collision and if someone is dashing
+                     if ((seg.dash1 || seg.dash2) && (earliestCollision === null || absoluteTime < earliestCollision.time)) {
+                        earliestCollision = { time: absoluteTime, i, j };
+                     }
                   }
                }
             }
          }
-      }
 
-      // Apply damage if collision occurred
-      if (earliestCollision !== null) {
-         const s1 = states[earliestCollision.i];
-         const s2 = states[earliestCollision.j];
-         const t = earliestCollision.time;
+         // Apply damage if collision occurred
+         if (earliestCollision !== null) {
+            const s1 = states[earliestCollision.i];
+            const s2 = states[earliestCollision.j];
+            const t = earliestCollision.time;
 
-         const dash1 = s1.wasDashing && (s1.dashEndsAt === null || t < s1.dashEndsAt);
-         const dash2 = s2.wasDashing && (s2.dashEndsAt === null || t < s2.dashEndsAt);
+            const dash1 = s1.wasDashing && (s1.dashEndsAt === null || t < s1.dashEndsAt);
+            const dash2 = s2.wasDashing && (s2.dashEndsAt === null || t < s2.dashEndsAt);
 
-         if (dash1 && !dash2) {
-            s2.player.takeDamage(config.dashDamage);
-         } else if (dash2 && !dash1) {
-            s1.player.takeDamage(config.dashDamage);
+            if (dash1 && !dash2) {
+               s2.player.takeDamage(config.dashDamage);
+            } else if (dash2 && !dash1) {
+               s1.player.takeDamage(config.dashDamage);
+            }
          }
       }
 
       // Update all players' positions
       for (const player of this.players) {
-         this.update(player, dt);
+         this.updatePlayerPos(player, dt);
       }
    }
 }
