@@ -65,9 +65,9 @@ export function renderGame(): void {
       ctx.shadowBlur = 0; // Reset for background
    }
 
-   state.players.forEach((player) => {
+   for (const player of state.players) {
       drawPlayer(player);
-   });
+   }
 
    // Reset quality settings after rendering
    if (settings.highQuality) {

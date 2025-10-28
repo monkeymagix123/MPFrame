@@ -11,12 +11,13 @@ function startGame(room: Room, io: Server): void {
 	room.startVotes.clear();
 
 	// Reset all players to not ready
-	room.players.forEach((player) => {
+	for (const player of room.players.values()) {
 		player.ready = false;
+		
 		// Randomize starting positions
 		player.pos.x = Math.random() * 760 + 20;
 		player.pos.y = Math.random() * 560 + 20;
-	}); 
+	}
 
 	io.to(room.code).emit("game/start", Array.from(room.players.values()));
 

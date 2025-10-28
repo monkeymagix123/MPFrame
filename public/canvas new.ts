@@ -80,9 +80,9 @@ export function renderGame(): void {
    // Set image smoothing once
    ctx.imageSmoothingEnabled = settings.highQuality;
 
-   state.players.forEach((player) => {
+   for (const player of state.players) {
       drawPlayer(player, ctx);
-   });
+   }
 
    // Reset quality settings after rendering
    if (settings.highQuality) {
