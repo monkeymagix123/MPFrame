@@ -24,8 +24,12 @@ export class GraphicsManager {
     }
 }
 
+export function getCanvas(): HTMLCanvasElement {
+    return document.getElementById("game-canvas") as HTMLCanvasElement;
+}
+
 export function hasCanvas(): boolean {
-    const canvas = document.getElementById("game-canvas") as HTMLCanvasElement;
+    const canvas = getCanvas();
 	
     return (canvas !== null);
 }

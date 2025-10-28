@@ -5,6 +5,7 @@ import { state } from "./state";
 import { v2, Vec2 } from "../shared/v2";
 import { session } from "./session";
 import { settings } from "./settings";
+import { getCanvas } from "./helpers/graphicsManager";
 
 // FPS tracking
 let lastFrameTime = performance.now();
@@ -13,7 +14,7 @@ const fpsHistory: number[] = [];
 const fpsHistorySize = 30;
 
 export function resizeCanvas(): void {
-   const canvas = document.getElementById("game-canvas") as HTMLCanvasElement;
+   const canvas = getCanvas();
    const gameArea = document.getElementById("game-area");
 
    if (!canvas || !gameArea) return;
