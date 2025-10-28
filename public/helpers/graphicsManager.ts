@@ -22,6 +22,18 @@ export class GraphicsManager {
 
         return new Vec2(x, y);
     }
+
+    hasCanvas(): boolean {
+        return (this.canvas !== null);
+    }
+
+    hasContext(): boolean {
+        return (this.ctx !== null);
+    }
+
+    hasDrawUI(): boolean {
+        return (this.hasCanvas() && this.hasContext());
+    }
 }
 
 export function getCanvas(): HTMLCanvasElement {
