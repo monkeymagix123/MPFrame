@@ -24,18 +24,6 @@ export function setupGameHandlers(socket: GameSocket, io: Server): void {
       player.applyMoveData(data);
 
       socket.to(socket.roomCode).emit("game/player-moved", socket.id, data);
-
-      if (player.health < previousHealth) {
-         const damageData: DamageData = {
-            playerId: socket.id,
-            health: player.health,
-            maxHealth: player.maxHealth,
-            damage: previousHealth - player.health,
-            timestamp: Date.now(),
-         };
-
-         io.to(socket.roomCode).emit("game/player-damage", damageData);
-      }
    });
 
    const gameLoops = new Map<string, NodeJS.Timeout>();
@@ -70,6 +58,7 @@ export function setupGameHandlers(socket: GameSocket, io: Server): void {
                   timestamp: currentTime,
                };
 
+               console.log(damageData);
                io.to(socket.roomCode!).emit("game/player-damage", damageData);
             }
          }

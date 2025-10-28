@@ -1,5 +1,5 @@
 export const config = {
-   port: 8080,
+   port: 3000,
 
    simulationRate: 60,
 };
