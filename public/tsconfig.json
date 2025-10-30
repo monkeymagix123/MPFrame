@@ -9,6 +9,6 @@
       "composite": true
    },
    "references": [{ "path": "../shared" }],
-   "include": ["./**/*.ts", "../shared/math.ts"],
+   "include": ["./**/*.ts"],
    "exclude": ["dist", "node_modules"]
 }

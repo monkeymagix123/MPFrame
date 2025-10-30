@@ -15,10 +15,16 @@
 -  [ ] Improve graphics
 -  [ ] Fix leave game
    -  [ ] have win condititon/ui
--  [ ] Use
+-  [ ] Separate out moving & dashing velocity
 -  [ ] Fix server system and how it handles/stores player information
+-  [ ] Lobby vs Room??
 
 ## Coding Readability
 
 -  [ ] Ensure no other areas without v2 when useful
 -  [ ] Move dashing to inputUpdate.
+-  [ ] stick to one, state players[] or room map players
+
+## Bugs
+
+-  [ ] Rare Case, dashing to wall

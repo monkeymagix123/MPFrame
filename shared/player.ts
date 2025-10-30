@@ -1,117 +1,78 @@
 import { config } from "./config";
-import { clampPos, intersectCircleLine } from "./math";
-
-import { state } from "./state";
+import { MoveData } from "./moveData";
 import { v2, Vec2 } from "./v2";
 
 export class Player {
-	id: string;
-	name: string;
-	team: string; // red or blue
-	ready: boolean;
+   id: string;
+   name: string;
+   team: string; // red or blue
+   ready: boolean;
 
-    pos: Vec2;
-    vel: Vec2;
+   pos: Vec2;
 
-    dashing: boolean = false;
-    dashPos?: Vec2 | undefined ;
-    dashCooldown: number = 0;
+   moveVel: Vec2;
 
-    maxHealth: number;
-    health: number;
+   dashing: boolean;
+   dashProgress: number;
+   dashVel: Vec2;
 
-    constructor(id: string, team: string, x: number, y: number, name: string = "Player", ready: boolean = false) {
-        this.id = id;
-        this.name = name;
-        this.team = team;
-        this.ready = ready;
+   health: number;
+   maxHealth: number;
 
-        this.pos = new Vec2(x, y);
-        this.vel = new Vec2(0, 0);
+   constructor(id: string, team: string, pos: Vec2, name: string = "Player", ready: boolean = false) {
+      this.id = id;
+      this.name = name;
+      this.team = team;
+      this.ready = ready;
 
-        this.maxHealth = config.maxHealth;
-        this.health = this.maxHealth;
-    }
+      this.pos = pos;
+      this.moveVel = new Vec2(0, 0);
 
-    doDash(v: Vec2): void {
-        this.dashing = true;
-        this.dashPos = v;
+      this.dashing = false;
+      this.dashProgress = config.dashCooldown;
+      this.dashVel = new Vec2(0, 0);
 
-        // dash & arrow calculation
-        let diffPos = v2.sub(v, this.pos);
+      this.health = config.maxHealth;
+      this.maxHealth = config.maxHealth;
+   }
 
-        // let length = Math.sqrt(dx * dx + dy * dy);
-        let length = v2.length(diffPos);
+   attemptDash(v: Vec2): boolean {
+      if (this.dashProgress < config.dashCooldown) {
+         return false; // Dash is on cooldown
+      }
 
-        // Assuming a fixed dash distance of 100 units (original code logic)
-        const dashDistance = config.dashDistance;
-        // Normalize and scale the dash vector
-        let dashVec = v2.mul(diffPos, dashDistance / length);
+      this.dashing = true;
+      this.dashProgress = 0;
+      this.dashVel = v2.mul(v2.normalize(v2.sub(v, this.pos)), config.dashSpeed);
 
-        // do a dash
-        this.dashPos = clampPos(v2.add(this.pos, dashVec));
+      return true;
+   }
 
-        // do damage to stuff
-        for (const p of state.players.values()) {
-            let player: Player = p as Player;
-            if (intersectCircleLine(this.pos, this.dashPos, player.pos, config.playerLength)) {
-                this.doDamage(config.dashDamage, p);
-            }
-        }
+   heal(amount: number): void {
+      this.health += amount;
+      if (this.health > this.maxHealth) this.health = this.maxHealth;
+   }
 
-        // move to target point
-        this.pos = this.dashPos;
+   isAlive(): boolean {
+      return this.health > 0;
+   }
 
-        // 1 sec dash cooldown
-        this.startDashCooldown();
+   getMoveData(): MoveData {
+      return {
+         time: Date.now(), // TODO: Maybe return time since start of game
+         pos: this.pos,
+         moveVel: this.moveVel,
+         dashing: this.dashing,
+         dashProgress: this.dashProgress,
+         dashVel: this.dashVel,
+      };
+   }
 
-        // will change later
-        this.dashing = false;
-    }
-
-    attemptDash(v: Vec2): boolean {
-        if (this.dashCooldown > 0) {
-            return false; // Dash is on cooldown
-        }
-
-        this.doDash(v);
-
-        return true;
-    }
-
-    doDamage(amount: number, target: Player): void {
-        target.takeDamage(amount);
-    }
-
-    takeDamage(amount: number): void {
-        if (this.dashing) return; // Invulnerable during dash
-        
-        this.health -= amount;
-        if (this.health < 0) this.health = 0;
-    }
-
-    heal(amount: number): void {
-        this.health += amount;
-        if (this.health > 100) this.health = 100;
-    }
-
-    isAlive(): boolean {
-        return this.health > 0;
-    }
-
-    startDashCooldown(): void {
-        this.dashCooldown = config.dashCooldown;
-    }
-
-    decrementCooldown(dt: number): void {
-        this.dashCooldown -= dt;
-    }
-
-    static fromData(data: any): Player {
-        const player = new Player(data.id, data.team, data.pos.x, data.pos.y, data.name, data.ready);
-        player.dashCooldown = data.dashCooldown || 0;
-        player.dashing = data.startDash || false;
-        player.dashPos = data.dashPos;
-        return player;
-    }
+   applyMoveData(move: MoveData): void {
+      this.pos = move.pos;
+      this.moveVel = move.moveVel;
+      this.dashing = move.dashing;
+      this.dashProgress = move.dashProgress;
+      this.dashVel = move.dashVel;
+   }
 }

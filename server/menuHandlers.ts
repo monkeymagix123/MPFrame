@@ -4,87 +4,75 @@ import { Room } from "../shared/room";
 import { Player } from "../shared/player";
 import { rooms, playerNames } from "./server";
 import { broadcastLobbiesList, generateRoomCode } from "./misc";
+import { Vec2 } from "../shared/v2";
+import { config } from "../shared/config";
+import { Serializer } from "../shared/serializer";
 
 export function setupMenuHandlers(socket: GameSocket, io: Server): void {
-	socket.on("menu/list-lobbies", () => {
-		broadcastLobbiesList(io);
-	});
+   socket.on("menu/list-lobbies", () => {
+      broadcastLobbiesList(io);
+   });
 
-	socket.on("menu/create-room", () => {
-		if (rooms.size >= 10000) {
-			socket.emit("room/error", "Maximum number of rooms reached");
-			return;
-		}
+   socket.on("menu/create-room", () => {
+      if (rooms.size >= 10000) {
+         socket.emit("room/error", "Maximum number of rooms reached");
+         return;
+      }
 
-		let roomCode = generateRoomCode();
+      let roomCode = generateRoomCode();
 
-		const room = new Room(roomCode);
-		rooms.set(roomCode, room);
+      const room = new Room(roomCode);
+      rooms.set(roomCode, room);
 
-		socket.join(roomCode);
-		socket.roomCode = roomCode;
+      socket.join(roomCode);
+      socket.roomCode = roomCode;
 
-		// Add player to room, use stored name if available
-		const p: Player = new Player(
-			socket.id,
-			"red",
-			Math.random() * 760 + 20,
-			Math.random() * 560 + 20,
-			playerNames.get(socket.id),
-			false
-		);
-		room.players.set(socket.id, p);
+      const p: Player = new Player(
+         socket.id,
+         "red",
+         new Vec2(Math.random() * config.mapWidth, Math.random() * config.mapHeight),
+         playerNames.get(socket.id) || "Player",
+         false
+      );
+      room.players.set(socket.id, p);
 
-		socket.emit("room/joined", {
-			roomCode,
-			players: Array.from(room.players.values()),
-			gameState: room.roomState,
-			chatMessages: room.chatMessages,
-		});
+      Serializer.emit(socket, "room/joined", room, "Room");
 
-		console.log(`Room ${roomCode} created by ${playerNames.get(socket.id) || "[unnamed]"}`);
+      console.log(`Room ${roomCode} created by ${playerNames.get(socket.id) || "[unnamed]"}`);
 
-		broadcastLobbiesList(io);
-	});
+      broadcastLobbiesList(io);
+   });
 
-	socket.on("menu/join-room", (roomCode: string) => {
-		roomCode = roomCode.toUpperCase();
+   socket.on("menu/join-room", (roomCode: string) => {
+      roomCode = roomCode.toUpperCase();
 
-		if (!rooms.has(roomCode)) {
-			socket.emit("room/error", "Room not found");
-			return;
-		}
+      if (!rooms.has(roomCode)) {
+         socket.emit("room/error", "Room not found");
+         return;
+      }
 
-		const room = rooms.get(roomCode)!;
+      const room = rooms.get(roomCode)!;
 
-		socket.join(roomCode);
-		socket.roomCode = roomCode;
+      socket.join(roomCode);
+      socket.roomCode = roomCode;
 
-		// Add player to room, use stored name if available
-		const p: Player = new Player(
-			socket.id,
-			room.getTeamCount("red") > room.getTeamCount("blue") ? "blue" : "red",
-			Math.random() * 760 + 20,
-			Math.random() * 560 + 20,
-			playerNames.get(socket.id),
-			false
-		);
-		room.players.set(socket.id, p);
+      const p: Player = new Player(
+         socket.id,
+         room.getTeamCount("red") > room.getTeamCount("blue") ? "blue" : "red",
+         new Vec2(Math.random() * config.mapWidth, Math.random() * config.mapHeight),
+         playerNames.get(socket.id),
+         false
+      );
+      room.players.set(socket.id, p);
 
-		socket.emit("room/joined", {
-			roomCode,
-			players: Array.from(room.players.values()),
-			gameState: room.roomState,
-			chatMessages: room.chatMessages,
-		});
+      Serializer.emit(socket, "room/joined", room, "Room");
 
-		// Notify other players
-		socket.to(roomCode).emit("room/player-list", Array.from(room.players.values()));
+      Serializer.emitToRoom(io, roomCode, "room/player-list", room.players, "Map<string, Player>");
 
-		console.log(`${playerNames.get(socket.id) || "[unnamed]"} joined room ${roomCode}`);
+      console.log(`${playerNames.get(socket.id) || "[unnamed]"} joined room ${roomCode}`);
 
-		if (room.players.size === 1 || room.roomState !== "lobby") {
-			broadcastLobbiesList(io);
-		}
-	});
+      if (room.players.size === 1 || room.roomState !== "waiting") {
+         broadcastLobbiesList(io);
+      }
+   });
 }

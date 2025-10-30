@@ -15,7 +15,7 @@ export function generateRoomCode(): string {
 
 export function broadcastLobbiesList(io: Server): void {
 	const publicLobbies = Array.from(rooms.values())
-		.filter((room) => room.roomState === "lobby")
+		.filter((room) => room.roomState === "waiting")
 		.map((room) => ({
 			code: room.code,
 			playerCount: room.players.size,

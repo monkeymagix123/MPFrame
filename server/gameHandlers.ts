@@ -1,31 +1,27 @@
 import { Server } from "socket.io";
 import { GameSocket } from "./types";
-import { config } from "../shared/config";
-import { PlayerMoveData } from "../shared/types";
+import { MoveData } from "../shared/moveData";
 import { rooms } from "./server";
-import { clampPosV } from "../shared/math";
+import { validateMoveData } from "../shared/serializer";
 
 export function setupGameHandlers(socket: GameSocket, io: Server): void {
-	socket.on("game/player-move", (data: PlayerMoveData) => {
-		if (!socket.roomCode || !rooms.has(socket.roomCode)) return;
+   socket.on("game/player-move", (data: MoveData) => {
+      if (!validateMoveData(data)) {
+         console.warn("Invalid move data received");
+         return;
+      }
 
-		const room = rooms.get(socket.roomCode)!;
-		const player = room.players.get(socket.id);
+      if (!socket.roomCode || !rooms.has(socket.roomCode)) return;
 
-		if (!player || room.roomState !== "playing") return;
+      const room = rooms.get(socket.roomCode)!;
+      const player = room.players.get(socket.id);
 
-		// Update player position with bounds checking
-		player.pos.x = Math.max(config.playerLength, Math.min(800 - config.playerLength, data.pos.x));
-		player.pos.y = Math.max(config.playerLength, Math.min(600 - config.playerLength, data.pos.y));
+      if (!player || room.roomState !== "playing") return;
 
-		if (data.dashPos) {
-			player.dashPos = data.dashPos;
-		}
+      const previousHealth = player.health;
 
-		socket.to(socket.roomCode).emit("game/player-moved", {
-			id: socket.id,
-			pos: player.pos,
-			dashPos: player.dashPos,
-		});
-	});
+      player.applyMoveData(data);
+
+      socket.to(socket.roomCode).emit("game/player-moved", socket.id, data);
+   });
 }
