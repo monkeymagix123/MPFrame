@@ -4,7 +4,7 @@ import * as ui from "./ui";
 import { startGameLoop } from "./input";
 import { updateURL } from "./url";
 import { Lobby } from "../shared/types";
-import { MoveData } from "../shared/moveData";
+import { DamageData, MoveData } from "../shared/moveData";
 import { Player } from "../shared/player";
 import { Room } from "../shared/room";
 import { Serializer } from "../shared/serializer";
@@ -50,6 +50,14 @@ export function initSocket(): void {
       if (id === session.socket.id) return;
       const player = session.room?.gameState.players.find((p) => p.id === id);
       player?.applyMoveData(data);
+   });
+
+   session.socket.on("game/player-damage", (damage: DamageData) => {
+      const player = session.room?.gameState.players.find((p) => p.id === damage.playerId);
+
+      if (!player) return;
+
+      player.health = Math.max(0, player.health - damage.damage);
    });
 
    session.socket.on(

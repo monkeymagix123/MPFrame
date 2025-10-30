@@ -34,7 +34,8 @@ export function setupMenuHandlers(socket: GameSocket, io: Server): void {
          playerNames.get(socket.id) || "Player",
          false
       );
-      room.players.set(socket.id, p);
+
+      room.addPlayer(p);
 
       Serializer.emit(socket, "room/joined", room, "Room");
 
@@ -46,12 +47,23 @@ export function setupMenuHandlers(socket: GameSocket, io: Server): void {
    socket.on("menu/join-room", (roomCode: string) => {
       roomCode = roomCode.toUpperCase();
 
-      if (!rooms.has(roomCode)) {
-         socket.emit("room/error", "Room not found");
+      if (rooms.size >= 10000) {
+         socket.emit("room/error", "Maximum number of rooms reached");
          return;
       }
 
-      const room = rooms.get(roomCode)!;
+      let room: Room;
+      let isNewRoom = false;
+
+      if (!rooms.has(roomCode)) {
+         // Create new room with the specified code
+         room = new Room(roomCode);
+         rooms.set(roomCode, room);
+         isNewRoom = true;
+         console.log(`Room ${roomCode} created by ${playerNames.get(socket.id) || "[unnamed]"}`);
+      } else {
+         room = rooms.get(roomCode)!;
+      }
 
       socket.join(roomCode);
       socket.roomCode = roomCode;
@@ -63,13 +75,16 @@ export function setupMenuHandlers(socket: GameSocket, io: Server): void {
          playerNames.get(socket.id),
          false
       );
-      room.players.set(socket.id, p);
+
+      room.addPlayer(p);
 
       Serializer.emit(socket, "room/joined", room, "Room");
 
       Serializer.emitToRoom(io, roomCode, "room/player-list", room.players, "Map<string, Player>");
 
-      console.log(`${playerNames.get(socket.id) || "[unnamed]"} joined room ${roomCode}`);
+      if (!isNewRoom) {
+         console.log(`${playerNames.get(socket.id) || "[unnamed]"} joined room ${roomCode}`);
+      }
 
       if (room.players.size === 1 || room.roomState !== "waiting") {
          broadcastLobbiesList(io);

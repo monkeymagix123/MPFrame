@@ -7,6 +7,7 @@ import { config } from "../shared/config";
 import { Serializer } from "../shared/serializer";
 import { DamageData } from "../shared/moveData";
 import { serverConfig } from "serverConfig";
+import { Vec2 } from "../shared/v2";
 
 const gameLoops = new Map<string, NodeJS.Timeout>();
 
@@ -14,7 +15,7 @@ function startGame(room: Room, io: Server): void {
    const wasWaiting = room.roomState === "waiting";
 
    room.players.forEach((player) => {
-      player.ready = false;
+      player.ready = true;
       player.pos.x = Math.random() * config.mapWidth;
       player.pos.y = Math.random() * config.mapHeight;
       player.health = config.maxHealth;
@@ -54,6 +55,7 @@ function startGame(room: Room, io: Server): void {
                   damage: prevHealth - player.health,
                   timestamp: currentTime,
                };
+
                io.to(room.code).emit("game/player-damage", damageData);
             }
          }

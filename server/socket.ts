@@ -6,6 +6,7 @@ import { setupGameHandlers } from "./gameHandlers";
 import { setupMiscHandlers } from "./miscHandlers";
 import { setupDisconnectHandler } from "./disconnectHandler";
 import { playerNames } from "server";
+import { broadcastLobbiesList } from "misc";
 
 export function setupSocketHandlers(io: Server): void {
    io.on("connection", (socket: GameSocket) => {
@@ -17,5 +18,8 @@ export function setupSocketHandlers(io: Server): void {
       setupGameHandlers(socket, io);
       setupMiscHandlers(socket, io);
       setupDisconnectHandler(socket, io);
+
+      // Emit current lobbies list
+      broadcastLobbiesList(io);
    });
 }
