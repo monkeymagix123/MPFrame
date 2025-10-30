@@ -7,9 +7,9 @@ export const config = {
 
    moveSpeed: 180,
 
-   dashCooldown: 2,
+   dashCooldown: 1.5,
    dashDuration: 0.5, // includes part of cooldown
-   dashSpeed: 300,
+   dashSpeed: 500,
    dashDamage: 25,
 
    maxHealth: 100,

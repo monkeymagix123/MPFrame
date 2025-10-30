@@ -56,7 +56,7 @@ function gameLoop(currentTime: number): void {
    lastTime = currentTime;
 
    if (session.player) {
-      session.room?.gameState.updateAll(dt, true);
+      session.room?.gameState.updateAll(dt, false);
    }
    renderGame();
 
