@@ -14,11 +14,9 @@ export function setupGameHandlers(socket: GameSocket, io: Server): void {
       if (!socket.roomCode || !rooms.has(socket.roomCode)) return;
 
       const room = rooms.get(socket.roomCode)!;
-      const player = room.players.get(socket.id);
+      const player = room.gameState.players.find((p) => p.id === socket.id); // figure out why players map doesn't link
 
       if (!player || room.roomState !== "playing") return;
-
-      const previousHealth = player.health;
 
       player.applyMoveData(data);
 
