@@ -106,7 +106,7 @@ function drawPlayer(player: Player, ctx: CanvasRenderingContext2D): void {
    }
 
    const halfPlayer = config.playerLength / 2;
-   const lineWidth = (config.playerLength * healthRatio) / 2;
+   const lineWidth = Math.max(1, (config.playerLength * healthRatio) / 2);
    ctx.lineWidth = lineWidth;
 
    ctx.strokeRect(
@@ -121,7 +121,12 @@ function drawPlayer(player: Player, ctx: CanvasRenderingContext2D): void {
       if (session.settings.highQuality) ctx.shadowBlur = 0;
       ctx.strokeStyle = "#FFFFFF";
       ctx.lineWidth = 2;
-      ctx.strokeRect(player.pos.x - halfPlayer, player.pos.y - halfPlayer, config.playerLength, config.playerLength);
+      ctx.strokeRect(
+         player.pos.x - halfPlayer + ctx.lineWidth / 2,
+         player.pos.y - halfPlayer + ctx.lineWidth / 2,
+         config.playerLength - ctx.lineWidth,
+         config.playerLength - ctx.lineWidth
+      );
    }
 
    // Batch text settings

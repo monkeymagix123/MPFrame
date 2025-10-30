@@ -1,4 +1,5 @@
 import { config } from "../shared/config";
+import { PlayerSegment } from "./state";
 import { v2, Vec2 } from "./v2";
 
 export function clamp(n: number, min: number, max: number): number {
@@ -10,19 +11,31 @@ export function clampPos(v: Vec2): Vec2 {
 }
 
 // Check if two moving squares (AABB) collide and return collision time
-export function checkMovingSquareCollision(pos1: Vec2, vel1: Vec2, pos2: Vec2, vel2: Vec2, halfSize: number): number | null {
-   // Relative position and velocity
-   const relPos = v2.sub(pos1, pos2);
-   const relVel = v2.sub(vel1, vel2);
+export function checkMovingSquareCollision(seg1: PlayerSegment, seg2: PlayerSegment, length: number): number | null {
+   // Determine the overlapping time range
+   const startTime = Math.max(seg1.startTime, seg2.startTime);
+   const endTime = Math.min(seg1.endTime, seg2.endTime);
 
-   // Treat as a moving point vs a static expanded AABB
-   // The expanded AABB has size 2*halfSize (since both squares contribute halfSize)
-   const expandedHalfSize = 2 * halfSize;
+   // If segments don't overlap in time, no collision possible
+   if (startTime >= endTime) {
+      return null;
+   }
+
+   // Project positions to the common start time
+   const dt1 = startTime - seg1.startTime;
+   const dt2 = startTime - seg2.startTime;
+
+   const projPos1 = v2.add(seg1.startPos, v2.mul(seg1.velocity, dt1));
+   const projPos2 = v2.add(seg2.startPos, v2.mul(seg2.velocity, dt2));
+
+   // Relative position and velocity
+   const relPos = v2.sub(projPos1, projPos2);
+   const relVel = v2.sub(seg1.velocity, seg2.velocity);
 
    // If no relative movement, check if already colliding
    if (Math.abs(relVel.x) < 1e-10 && Math.abs(relVel.y) < 1e-10) {
-      const overlaps = Math.abs(relPos.x) < expandedHalfSize && Math.abs(relPos.y) < expandedHalfSize;
-      return overlaps ? 0 : null;
+      const overlaps = Math.abs(relPos.x) < length && Math.abs(relPos.y) < length;
+      return overlaps ? startTime : null;
    }
 
    // Calculate time to enter and exit on each axis
@@ -31,30 +44,30 @@ export function checkMovingSquareCollision(pos1: Vec2, vel1: Vec2, pos2: Vec2, v
 
    // X axis
    if (Math.abs(relVel.x) > 1e-10) {
-      const t1 = (-expandedHalfSize - relPos.x) / relVel.x;
-      const t2 = (expandedHalfSize - relPos.x) / relVel.x;
+      const t1 = (-length - relPos.x) / relVel.x;
+      const t2 = (length - relPos.x) / relVel.x;
       const tMin = Math.min(t1, t2);
       const tMax = Math.max(t1, t2);
       tEnter = Math.max(tEnter, tMin);
       tExit = Math.min(tExit, tMax);
    } else {
       // No movement on X axis - check if already overlapping
-      if (Math.abs(relPos.x) >= expandedHalfSize) {
+      if (Math.abs(relPos.x) >= length) {
          return null; // Will never collide
       }
    }
 
    // Y axis
    if (Math.abs(relVel.y) > 1e-10) {
-      const t1 = (-expandedHalfSize - relPos.y) / relVel.y;
-      const t2 = (expandedHalfSize - relPos.y) / relVel.y;
+      const t1 = (-length - relPos.y) / relVel.y;
+      const t2 = (length - relPos.y) / relVel.y;
       const tMin = Math.min(t1, t2);
       const tMax = Math.max(t1, t2);
       tEnter = Math.max(tEnter, tMin);
       tExit = Math.min(tExit, tMax);
    } else {
       // No movement on Y axis - check if already overlapping
-      if (Math.abs(relPos.y) >= expandedHalfSize) {
+      if (Math.abs(relPos.y) >= length) {
          return null; // Will never collide
       }
    }
@@ -64,6 +77,13 @@ export function checkMovingSquareCollision(pos1: Vec2, vel1: Vec2, pos2: Vec2, v
       return null; // No collision
    }
 
-   // Return first collision time if it's non-negative
-   return tEnter >= 0 ? tEnter : null;
+   // Calculate absolute collision time
+   const collisionTime = startTime + tEnter;
+
+   // Check if collision occurs within the overlapping time range
+   if (collisionTime < startTime || collisionTime > endTime) {
+      return null;
+   }
+
+   return collisionTime;
 }

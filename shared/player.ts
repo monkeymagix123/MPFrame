@@ -29,7 +29,7 @@ export class Player {
       this.moveVel = new Vec2(0, 0);
 
       this.dashing = false;
-      this.dashProgress = 0;
+      this.dashProgress = config.dashCooldown;
       this.dashVel = new Vec2(0, 0);
 
       this.health = config.maxHealth;
@@ -46,12 +46,6 @@ export class Player {
       this.dashVel = v2.mul(v2.normalize(v2.sub(v, this.pos)), config.dashSpeed);
 
       return true;
-   }
-
-   takeDamage(amount: number): void {
-      if (this.dashing) return; // Invulnerable during dash
-
-      this.health = Math.max(0, this.health - amount);
    }
 
    heal(amount: number): void {

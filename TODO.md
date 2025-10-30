@@ -24,3 +24,7 @@
 -  [ ] Ensure no other areas without v2 when useful
 -  [ ] Move dashing to inputUpdate.
 -  [ ] stick to one, state players[] or room map players
+
+## Bugs
+
+-  [ ] Rare Case, dashing to wall

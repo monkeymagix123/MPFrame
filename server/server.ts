@@ -4,7 +4,7 @@ import { Server } from "socket.io";
 import path from "path";
 import { setupSocketHandlers } from "./socket";
 import { Room } from "../shared/room";
-import { config } from "config";
+import { serverConfig } from "serverConfig";
 
 const app = express();
 const server = http.createServer(app);
@@ -26,7 +26,7 @@ app.get("/games/:roomCode", (req, res) => {
 
 setupSocketHandlers(io);
 
-const PORT = process.env.PORT || config.port;
+const PORT = process.env.PORT || serverConfig.port;
 server.listen(PORT, () => {
    console.log(`Server running on port ${PORT}`);
 });

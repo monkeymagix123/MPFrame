@@ -67,7 +67,7 @@ export function deserializePlayerMap(data: unknown): Map<string, Player> {
          map.set(id, player);
       }
    } else {
-      console.warn("⚠️ Unexpected player map data format:", typeof data);
+      console.warn("Unexpected player map data format:", typeof data);
    }
 
    return map;
@@ -144,7 +144,7 @@ export class Serializer {
                // These serialize correctly as-is
                break;
             default:
-               console.log(`ℹ️ Auto-serializing type '${dataType}'`);
+               console.log(`Auto-serializing type '${dataType}'`);
          }
       }
 

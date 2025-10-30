@@ -45,7 +45,7 @@ export function deserializePlayerMap(data: unknown): Map<string, Player> {
          map.set(id, player);
       }
    } else {
-      console.warn("⚠️ Unexpected player map data format:", typeof data);
+      console.warn("Unexpected player map data format:", typeof data);
    }
 
    return map;
@@ -179,7 +179,7 @@ export class Deserializer {
                return data;
 
             default:
-               console.log(`ℹ️ No deserializer for type '${dataType}', returning raw data`);
+               console.log(`No deserializer for type '${dataType}', returning raw data`);
                return data;
          }
       } catch (error) {
