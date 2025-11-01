@@ -17,14 +17,14 @@ export class Session {
    gameLoop: number | null;
    mousePos: Vec2;
 
-   constructor(canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) {
+   constructor(canvas: HTMLCanvasElement, ctx?: CanvasRenderingContext2D) {
       this.socket = io();
       this.room = null;
       this.player = null;
       this.keys = {} as Keys;
       this.settings = new Settings();
       this.canvas = canvas;
-      this.ctx = ctx;
+      this.ctx = ctx ?? canvas.getContext("2d") as CanvasRenderingContext2D;
       this.gameLoop = null;
       this.mousePos = new Vec2();
    }
@@ -49,8 +49,7 @@ export class Session {
 
 export function initializeSession() {
    const canvas = document.getElementById("game-canvas") as HTMLCanvasElement;
-   const ctx = canvas?.getContext("2d") as CanvasRenderingContext2D;
-   session = new Session(canvas, ctx);
+   session = new Session(canvas);
 }
 
 export let session: Session;

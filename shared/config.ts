@@ -8,8 +8,11 @@ export const config = {
    moveSpeed: 180,
 
    dashCooldown: 1.5,
+   dashDistance: 250,
    dashDuration: 0.5, // includes part of cooldown
-   dashSpeed: 500,
+   get dashSpeed() { // use for computed property
+	  return this.dashDistance / this.dashDuration;
+   },
    dashDamage: 25,
 
    maxHealth: 100,
