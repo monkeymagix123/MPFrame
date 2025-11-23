@@ -85,22 +85,5 @@ export function stopGameLoop(): void {
 
 // Changed to accept dt (delta time)
 function updateGame(dt: number): void {
-	if (!session.currentPlayer || !session.canvasManager.canvas) return;
-
-	const keys = session.keys;
-
-	// Move player
-	let moved = session.currentPlayer.move(keys, dt);
-
-	// Update by delta time in seconds
-	session.currentPlayer.update(dt);
-
-	// if moving position or trying to dash, send data to server
-	if (moved || session.clientInput.mouseClick) {
-		session.clientInput.keys = keys;
-
-		session.clientInput.interval = dt;
-		session.socket.emit("game/client-input", session.clientInput);
-		session.resetInput();
-	}
+	session.update(dt);
 }

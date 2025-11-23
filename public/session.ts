@@ -22,6 +22,8 @@ class Session {
 	keys: Keys;
 	clientInput: ClientInput;
 
+   recentInputs: ClientInput[] = [];
+
 	constructor(canvas: HTMLCanvasElement) {
 		this.socket = io() as Socket;
 		this.currentRoom = null;
@@ -54,6 +56,27 @@ class Session {
 	saveMouseCoords(mouseX: number, mouseY: number): void {
 		this.mousePos = this.canvasManager.getCoordsFromMouse(mouseX, mouseY);
 	}
+
+   update(dt: number): void {
+      if (!this.currentPlayer || !this.canvasManager.canvas) return;
+
+      const keys = this.keys;
+
+      // Move player
+      let moved = this.currentPlayer.move(keys, dt);
+
+      // Update by delta time in seconds
+      this.currentPlayer.update(dt);
+
+      // if moving position or trying to dash, send data to server
+      if (moved || this.clientInput.mouseClick) {
+         this.clientInput.keys = keys;
+
+         this.clientInput.interval = dt;
+         this.socket.emit("game/client-input", this.clientInput);
+         this.resetInput();
+      }
+   }
 }
 
 export const session = new Session(
