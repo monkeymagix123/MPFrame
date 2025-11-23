@@ -103,6 +103,5 @@ class Session {
    }
 }
 
-export const session = new Session(
-	document.getElementById("game-canvas") as HTMLCanvasElement
-);
+const gameCanvas = document.getElementById("game-canvas") as HTMLCanvasElement;
+export const session = new Session(gameCanvas);
