@@ -18,6 +18,9 @@
 -  [ ] Separate out movement and render
 -  [ ] Fix server system and how it handles/stores player information
 
+
+- Interpolate by storing timestamps & client inputs, delete when server message arrive (server message contains timestamp client input?)
+
 ## Bugs
 - [ ] Chat not clearing
 - [ ] Typing in chat move player

@@ -7,6 +7,10 @@ import { hasCanvas } from "./helpers/graphicsManager";
 let lastTime = 0;
 let lastDrawTime = 0;
 
+/**
+ * Initializes the game (resize canvas, set up keybinds & mouse events).
+ * Does nothing if the canvas does not exist.
+ */
 export function initGame(): void {
 	if (!hasCanvas()) return;
 
@@ -16,6 +20,9 @@ export function initGame(): void {
 	window.addEventListener("resize", resizeCanvas);
 }
 
+/**
+ * Sets up keybinds and mouse events for the game.
+ */
 function setupGameControls(): void {
 	document.addEventListener("keydown", (e: KeyboardEvent) => {
 		session.keys[e.key.toLowerCase()] = true;
