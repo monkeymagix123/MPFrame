@@ -32,20 +32,7 @@ function setupGameControls(): void {
 		session.keys[e.key.toLowerCase()] = false;
 	});
 
-	document.addEventListener("click", (e: MouseEvent) => {
-		if (!session.canvasManager.canvas) return;
-		
-		// Converts raw mouse coordinates to game coordinates
-		session.saveMouseCoords(e.clientX, e.clientY);
-
-		// Attempt to dash
-		if (session.currentPlayer) {
-			session.currentPlayer.attemptDash(session.mousePos);
-		}
-
-		session.clientInput.mouseClick = true;
-		session.clientInput.mousePos = session.mousePos;
-	});
+	document.addEventListener("click", (e: MouseEvent) => session.onClick(e));
 
 	document.addEventListener("mousemove", (e: MouseEvent) => {
 		if (performance.now() - lastDrawTime < 20) return; 

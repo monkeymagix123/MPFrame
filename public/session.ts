@@ -20,7 +20,7 @@ class Session {
 	// Client inputs
 	mousePos: Vec2;
 	keys: Keys;
-	clientInput: ClientInput;
+	input: ClientInput;
 
    recentInputs: ClientInput[] = [];
 
@@ -35,7 +35,7 @@ class Session {
 
 		this.keys = {} as Keys;
 		this.mousePos = new Vec2();
-		this.clientInput = new ClientInput();
+		this.input = new ClientInput();
 	}
 
 	resetSession(): void {
@@ -44,13 +44,13 @@ class Session {
 		this.gameLoop = null;
 		this.mousePos = new Vec2();
 		this.currentPlayer = undefined;
-		this.clientInput = new ClientInput();
+		this.input = new ClientInput();
 	}
 
 	resetInput(): void {
 		// this.clientInput = new ClientInput();
-		this.clientInput.interval = 0;
-		this.clientInput.mouseClick = false;
+		this.input.interval = 0;
+		this.input.mouseClick = false;
 	}
 
 	saveMouseCoords(mouseX: number, mouseY: number): void {
@@ -69,13 +69,37 @@ class Session {
       this.currentPlayer.update(dt);
 
       // if moving position or trying to dash, send data to server
-      if (moved || this.clientInput.mouseClick) {
-         this.clientInput.keys = keys;
+      if (moved || this.input.mouseClick) {
+         this.input.keys = keys;
 
-         this.clientInput.interval = dt;
-         this.socket.emit("game/client-input", this.clientInput);
+         this.input.interval = dt;
+         this.socket.emit("game/client-input", this.input);
          this.resetInput();
       }
+   }
+
+   // input handlers
+
+   
+	/**
+	 * Called when the user clicks on the game canvas.
+	 * Saves the mouse position to session.mousePos and
+	 * attempts to dash if the player is currently alive.
+	 * @param {MouseEvent} e - The mouse event data.
+	 */
+   onClick(e: MouseEvent): void {
+      if (!this.canvasManager.canvas) return;
+		
+		// Converts raw mouse coordinates to game coordinates and save the coordinates
+		this.saveMouseCoords(e.clientX, e.clientY);
+
+		// Attempt to dash
+		if (this.currentPlayer) {
+			this.currentPlayer.attemptDash(this.mousePos);
+		}
+
+		this.input.mouseClick = true;
+		this.input.mousePos = this.mousePos;
    }
 }
 
