@@ -3,11 +3,11 @@ import { ClientInput, Keys } from "../shared/types";
 import { Vec2 } from "../shared/v2";
 import { PlayerC } from "./player";
 import { GraphicsManager } from "./helpers/graphicsManager";
+import { GameNetworkManager } from "./helpers/gameNetworkManager";
 
 class Session {
 	// Network info
-	socket: Socket;
-	currentRoom: string | null;
+	gameNetManager: GameNetworkManager;
 
 	// UI manager
 	canvasManager: GraphicsManager;
@@ -25,10 +25,9 @@ class Session {
    recentInputs: ClientInput[] = [];
 
 	constructor(canvas: HTMLCanvasElement) {
-		this.socket = io() as Socket;
-		this.currentRoom = null;
-
+      this.gameNetManager = new GameNetworkManager();
 		this.canvasManager = new GraphicsManager(canvas);
+
 		this.gameLoop = null as number | null;
 
 		this.currentPlayer = undefined;
@@ -39,7 +38,7 @@ class Session {
 	}
 
 	resetSession(): void {
-		this.currentRoom = null;
+		this.gameNetManager.resetSession();
 		this.keys = {} as Keys;
 		this.gameLoop = null;
 		this.mousePos = new Vec2();
@@ -70,10 +69,16 @@ class Session {
 
       // if moving position or trying to dash, send data to server
       if (moved || this.input.mouseClick) {
+         // Load keys variable
          this.input.keys = keys;
 
+         // Record time of this interval
          this.input.interval = dt;
-         this.socket.emit("game/client-input", this.input);
+
+         // Send the input
+         this.gameNetManager.sendInput(this.input);
+
+         // Reset for next interval
          this.resetInput();
       }
    }

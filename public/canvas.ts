@@ -6,6 +6,7 @@ import { v2, Vec2 } from "../shared/v2";
 import { session } from "./session";
 import { settings } from "./settings";
 import { getCanvas } from "./helpers/graphicsManager";
+import { util } from "./helpers/util";
 
 // FPS tracking
 let lastFrameTime = performance.now();
@@ -86,7 +87,7 @@ function drawPlayer(player: Player): void {
 
    if (!ctx) return;
 
-   const isCurrentPlayer = player.id === session.socket.id;
+   const isCurrentPlayer = util.isCurPlayer(player);
 
    // Draw dash arrow for current player
    if (isCurrentPlayer) {
@@ -148,7 +149,7 @@ function drawPlayer(player: Player): void {
       ctx.shadowColor = "rgba(0, 0, 0, 0.8)";
    }
 
-   const name = player.id === session.socket.id ? "You" : player.name || player.id.substring(0, 4);
+   const name = isCurrentPlayer ? "You" : player.name;
    ctx.fillText(name, player.pos.x, player.pos.y - 25);
 
    if (settings.highQuality) {
