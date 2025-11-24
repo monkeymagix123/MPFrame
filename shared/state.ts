@@ -29,68 +29,7 @@ export class State {
    }
 
    updatePlayer(player: Player, dt: number): PlayerSegment[] {
-      player.dashProgress = Math.min(player.dashProgress + dt, config.dashCooldown);
-
-      let vel = player.moveVel;
-
-      if (player.dashing) {
-         vel = player.dashVel;
-
-         // Check if dash should end during this frame
-         const dashTimeRemaining = config.dashDuration - (player.dashProgress - dt);
-
-         if (dashTimeRemaining <= 0) {
-            player.dashing = false;
-            vel = player.moveVel;
-         } else if (dashTimeRemaining < dt) {
-            const dashPortion = dashTimeRemaining;
-            const movePortion = dt - dashTimeRemaining;
-
-            const dashMovement = v2.mul(player.dashVel, dashPortion);
-            const normalMovement = v2.mul(player.moveVel, movePortion);
-
-            let segments: PlayerSegment[] = [];
-
-            segments.push({
-               player,
-               startPos: player.pos,
-               velocity: player.dashVel,
-               dashing: true,
-               startTime: 0,
-               endTime: dashTimeRemaining,
-            });
-
-            player.pos = clampPos(v2.add(player.pos, dashMovement));
-
-            segments.push({
-               player,
-               startPos: player.pos,
-               velocity: player.moveVel,
-               dashing: false,
-               startTime: dashTimeRemaining,
-               endTime: dt,
-            });
-
-            player.pos = clampPos(v2.add(player.pos, normalMovement));
-            player.dashing = false;
-
-            return segments;
-         }
-      }
-
-      const startPos: Vec2 = player.pos;
-      player.pos = clampPos(v2.add(player.pos, v2.mul(vel, dt)));
-
-      return [
-         {
-            player,
-            startPos: startPos,
-            velocity: vel,
-            dashing: player.dashing,
-            startTime: 0,
-            endTime: dt,
-         },
-      ];
+      return player.update(dt);
    }
 
    updateAll(dt: number, damage?: boolean): void {
