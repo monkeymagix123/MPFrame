@@ -50,15 +50,29 @@ export class Player {
       return true;
    }
 
+   /**
+    * Heals the player for a given amount of health.
+    * If the player's health exceeds their maximum health, caps their health at their maximum health.
+    * @param {number} amount - The amount of health to heal by.
+    */
    heal(amount: number): void {
       this.health += amount;
       if (this.health > this.maxHealth) this.health = this.maxHealth;
    }
 
+   /**
+    * Check if the player is alive.
+    * @returns {boolean} True if player is alive, false otherwise.
+    */
    isAlive(): boolean {
       return this.health > 0;
    }
 
+   /**
+    * Returns the current move data of the player.
+    * This data contains information about the player's position, velocity, dashing status, dashing progress, and dashing velocity.
+    * @return {MoveData} The current move data of the player.
+    */
    getMoveData(): MoveData {
       return {
          time: performance.now(), // TODO: Maybe return time since start of game
