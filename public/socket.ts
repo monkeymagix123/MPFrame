@@ -72,6 +72,10 @@ export function initSocket(): void {
 export function emitPlayerMove(): void {
    if (!session.player) return;
 
+   const moveData = session.player.getMoveData();
+   
+   session.recentInput.set(moveData.time, moveData);
+
    Serializer.emit(session.socket, "game/player-move", session.player.getMoveData(), "MoveData");
 }
 

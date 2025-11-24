@@ -5,6 +5,7 @@ import { Vec2 } from "../shared/v2";
 import { config } from "../shared/config";
 import { Room } from "../shared/room";
 import { Settings } from "./settings";
+import { MoveData } from "../shared/moveData";
 
 export class Session {
    socket: Socket;
@@ -16,6 +17,8 @@ export class Session {
    ctx: CanvasRenderingContext2D;
    gameLoop: number | null;
    mousePos: Vec2;
+
+   recentInput: Map<number, MoveData> = new Map();
 
    constructor(canvas: HTMLCanvasElement, ctx?: CanvasRenderingContext2D) {
       this.socket = io();

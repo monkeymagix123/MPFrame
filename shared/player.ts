@@ -61,7 +61,7 @@ export class Player {
 
    getMoveData(): MoveData {
       return {
-         time: Date.now(), // TODO: Maybe return time since start of game
+         time: performance.now(), // TODO: Maybe return time since start of game
          pos: this.pos,
          moveVel: this.moveVel,
          dashing: this.dashing,
