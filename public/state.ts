@@ -1,5 +1,6 @@
 import { PlayerData } from "../shared/types";
 import { v2 } from "../shared/v2";
+import { util } from "./helpers/util";
 import { PlayerC } from "./player";
 import { settings } from "./settings";
 
@@ -18,8 +19,16 @@ export class State {
 		this.players = [];
 	}
 
+	getCurrentPlayer(): PlayerC | undefined {
+		return this.players.find((p) => util.isCurPlayer(p));
+	}
+
+	getPlayerFromId(id: string): PlayerC | undefined {
+		return this.players.find((p) => p.id === id);
+	}
+
 	updatePlayer(data: PlayerData): void {
-		const player = this.players.find((p) => p.id === data.id);
+		const player = this.getPlayerFromId(data.id);
 		if (player) {
 			// this.interpolateDum(player, data);
 			player.loadData(data);

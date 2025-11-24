@@ -8,13 +8,15 @@ import { RoomData, Lobby, PlayerData } from "../shared/types";
 import { Player } from "../shared/player";
 import { PlayerC } from "./player";
 
+const socket = session.gameNetManager.gameSocket;
+
 export function initSocket(): void {
-	session.socket.on("menu/lobbies-list", (lobbies: Lobby[]) => {
+	socket.on("menu/lobbies-list", (lobbies: Lobby[]) => {
 		ui.updateLobbiesList(lobbies);
 	});
 	
-	session.socket.on("room/joined", (data: RoomData) => {
-		session.currentRoom = data.roomCode;
+	socket.on("room/joined", (data: RoomData) => {
+		session.gameNetManager.currentRoom = data.roomCode;
 		updatePlayersInLobby(data.players);
 		data.chatMessages.forEach(chat.addChatMessage);
 		ui.showLobby();
@@ -23,30 +25,30 @@ export function initSocket(): void {
 		ui.showLobby();
 	});  
 
-	session.socket.on("room/error", (error: string) => {
+	socket.on("room/error", (error: string) => {
 		ui.showError("menu-error", error);
 	});
 
-	session.socket.on("room/player-list", (players: Player[]) => {
+	socket.on("room/player-list", (players: Player[]) => {
 		updatePlayersInLobby(players);
 	});
 
-	session.socket.on("game/start", (players: Player[]) => {
+	socket.on("game/start", (players: Player[]) => {
 		updatePlayersInLobby(players);
 		startGameLoop();
 		ui.showGame();
 	});
 
-	session.socket.on("game/player-moved", (data: PlayerData) => {
+	socket.on("game/player-moved", (data: PlayerData) => {
 		state.updatePlayer(data);
 
 		// update for current player
-		if (data.id === session.socket.id) {
-			session.currentPlayer = state.players.find(p => p.id === session.socket.id);
+		if (data.id === session.gameNetManager.gameSocket.id) {
+			session.currentPlayer = state.getCurrentPlayer();
 		}
 	});
 
-	session.socket.on("game/chat-message", (message: ChatMessage) => {
+	socket.on("game/chat-message", (message: ChatMessage) => {
 		chat.addChatMessage(message);
 		ui.updateChatDisplay();
 	});
@@ -56,8 +58,7 @@ export function initSocket(): void {
 function updatePlayersInLobby(updatedPlayers: Player[]): void {
 	state.players = updatedPlayers.map(p => PlayerC.copyData(p));
 	
-	const currentPlayer = state.players.find(p => p.id === session.socket.id);
-	session.currentPlayer = currentPlayer;
+	session.currentPlayer = state.getCurrentPlayer();
 
 	ui.updateLobbyDisplay();
 	ui.updateReadyButton();
