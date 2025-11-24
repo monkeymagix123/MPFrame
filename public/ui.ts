@@ -3,6 +3,7 @@ import { session } from "./session";
 import { Lobby } from "../shared/types";
 import { initGame, stopGameLoop } from "./game";
 import { chat } from "../shared/chat";
+import { util } from "./helpers/util";
 
 export function initUI(): void {
 	setupUIListeners();
@@ -16,16 +17,14 @@ function setupUIListeners(): void {
 
 	// Menu buttons
 	const createRoomBtn = document.getElementById("create-room-btn");
-	createRoomBtn?.addEventListener("click", () => {
-		session.socket.emit("menu/create-room");
-	});
+	createRoomBtn?.addEventListener("click", () => session.gameNetManager.createRoom());
 
 	const joinRoomBtn = document.getElementById("join-room-btn");
 	joinRoomBtn?.addEventListener("click", () => {
 		const roomCodeInput = document.getElementById("room-code-input") as HTMLInputElement;
 		const roomCode = roomCodeInput?.value.trim() || "";
 		if (roomCode.length === 4) {
-			session.socket.emit("menu/join-room", roomCode);
+			session.gameNetManager.joinRoom(roomCode);
 		} else {
 			showError("menu-error", "Room code must be 4 characters");
 		}
@@ -44,58 +43,36 @@ function setupUIListeners(): void {
 	playerNameInput?.addEventListener("keypress", (e: Event) => {
 		const keyEvent = e as KeyboardEvent;
 		if (keyEvent.key === "Enter") {
-			const target = e.target as HTMLInputElement;
-			const name = target.value.trim();
-			if (name) {
-				session.socket.emit("misc/set-name", name);
-			}
+			readName(e);
 		}
 	});
 
-	playerNameInput?.addEventListener("blur", (e: Event) => {
-		const target = e.target as HTMLInputElement;
-		const name = target.value.trim();
-		if (name) {
-			session.socket.emit("misc/set-name", name);
-		}
-	});
+	playerNameInput?.addEventListener("blur", (e: Event) => readName(e));
 
 	// Player name setting (lobby)
 	const lobbyNameInput = document.getElementById("lobby-name-input");
 	lobbyNameInput?.addEventListener("keypress", (e: Event) => {
 		const keyEvent = e as KeyboardEvent;
 		if (keyEvent.key === "Enter") {
-			const target = e.target as HTMLInputElement;
-			const name = target.value.trim();
-			if (name) {
-				session.socket.emit("misc/set-name", name);
-			}
+			readName(e);
 		}
 	});
 
-	lobbyNameInput?.addEventListener("blur", (e: Event) => {
-		const target = e.target as HTMLInputElement;
-		const name = target.value.trim();
-		if (name) {
-			session.socket.emit("misc/set-name", name);
-		}
-	});
+	lobbyNameInput?.addEventListener("blur", (e: Event) => readName);
 
 	// Lobby buttons
 	const joinRedBtn = document.getElementById("join-red-btn");
 	joinRedBtn?.addEventListener("click", () => {
-		session.socket.emit("lobby/change-team", "red");
+		session.gameNetManager.changeTeam("red");
 	});
 
 	const joinBlueBtn = document.getElementById("join-blue-btn");
 	joinBlueBtn?.addEventListener("click", () => {
-		session.socket.emit("lobby/change-team", "blue");
+		session.gameNetManager.changeTeam("blue");
 	});
 
 	const readyBtn = document.getElementById("ready-btn");
-	readyBtn?.addEventListener("click", () => {
-		session.socket.emit("lobby/ready-toggle");
-	});
+	readyBtn?.addEventListener("click", () => session.gameNetManager.toggleReady());
 
 	const leaveRoomBtn = document.getElementById("leave-room-btn");
 	leaveRoomBtn?.addEventListener("click", () => {
@@ -122,13 +99,19 @@ function setupUIListeners(): void {
 	});
 }
 
+function readName(e: Event): void {
+	const target = e.target as HTMLInputElement;
+	const name = target.value.trim();
+	session.gameNetManager.setName(name);
+}
+
 export function leaveRoom(): void {
 	stopGameLoop();
 
 	window.history.replaceState({}, "", window.location.pathname);
 
-	session.socket.disconnect();
-	session.socket.connect();
+	session.gameNetManager.gameSocket.disconnect();
+	session.gameNetManager.gameSocket.connect();
 
 	showMenu();
 }
@@ -144,14 +127,14 @@ export function showScreen(screenId: string): void {
 export function showMenu(): void {
 	showScreen("menu");
 	clearErrors();
-	session.socket.emit("menu/list-lobbies");
+	session.gameNetManager.showLobbies();
 }
 
 export function showLobby(): void {
 	showScreen("lobby");
 	const roomCodeDisplay = document.getElementById("room-code-display");
 	if (roomCodeDisplay) {
-		roomCodeDisplay.textContent = session.currentRoom;
+		roomCodeDisplay.textContent = session.gameNetManager.currentRoom ?? null;
 	}
 	clearErrors();
 }
@@ -160,7 +143,7 @@ export function showGame(): void {
 	showScreen("game");
 	const gameRoomCode = document.getElementById("game-room-code");
 	if (gameRoomCode) {
-		gameRoomCode.textContent = session.currentRoom;
+		gameRoomCode.textContent = session.gameNetManager.currentRoom ?? null;
 	}
 	updateChatDisplay();
 	initGame();
@@ -193,7 +176,7 @@ export function updateLobbyDisplay(): void {
 		const playerDiv = document.createElement("div");
 		playerDiv.className = `player ${player.ready ? "ready" : ""}`;
 		const username = player.name || `Player ${player.id.substring(0, 6)}`;
-		const playerName = player.id === session.socket.id ? `${username} (You)` : username;
+		const playerName = util.isCurPlayer(player) ? `${username} (You)` : username;
 		playerDiv.innerHTML = `
 			<span>${playerName}</span>
 			${player.ready ? '<span class="ready-indicator">READY</span>' : ""}
@@ -235,7 +218,7 @@ export function sendChatMessage(): void {
 
 	const message = chatInput.value.trim();
 	if (message.length > 0) {
-		session.socket.emit("misc/send-chat", message);
+		session.gameNetManager.sendChatMessage(message);
 		chatInput.value = "";
 	}
 }
@@ -273,7 +256,7 @@ export function updateLobbiesList(lobbies: Lobby[]): void {
 			if (roomCodeInput) {
 				roomCodeInput.value = lobby.code;
 			}
-			session.socket.emit("menu/join-room", lobby.code);
+			session.gameNetManager.joinRoom(lobby.code);
 		});
 		lobbiesContainer.appendChild(lobbyDiv);
 	}
@@ -296,13 +279,17 @@ export function updateChatDisplay(): void {
 
 	chatMessagesDiv.innerHTML = "";
 	for (const message of chat.chatMessages) {
+		const isOwnMessage = util.isSessionID(message.playerId);
+
 		const messageDiv = document.createElement("div");
-		messageDiv.className = `chat-message ${message.playerId === session.socket.id ? "own" : ""}`;
-		const senderName = message.playerId === session.socket.id ? "You" : message.playerName;
+		messageDiv.className = `chat-message ${isOwnMessage ? "own" : ""}`;
+
+		const senderName = isOwnMessage ? "You" : message.playerName;
 		messageDiv.innerHTML = `
 			<div class="chat-sender">${senderName}</div>
 			<div class="chat-text">${escapeHtml(message.message)}</div>
 		`;
+
 		chatMessagesDiv.appendChild(messageDiv);
 	}
 

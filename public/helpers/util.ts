@@ -4,5 +4,9 @@ import { session } from "../session";
 export const util = {
     isCurPlayer(player: Player) {
         return player.id === session.gameNetManager.gameSocket.id;
+    },
+
+    isSessionID(id: string) {
+        return id === session.gameNetManager.gameSocket.id;
     }
 }
