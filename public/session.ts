@@ -22,10 +22,10 @@ class Session {
 	keys: Keys;
 	input: ClientInput;
 
-   recentInputs: ClientInput[] = [];
+	recentInputs: ClientInput[] = [];
 
 	constructor(canvas: HTMLCanvasElement) {
-      this.gameNetManager = new GameNetworkManager();
+	  	this.gameNetManager = new GameNetworkManager();
 		this.canvasManager = new GraphicsManager(canvas);
 
 		this.gameLoop = null as number | null;
@@ -56,44 +56,45 @@ class Session {
 		this.mousePos = this.canvasManager.getCoordsFromMouse(mouseX, mouseY);
 	}
 
-   update(dt: number): void {
-      if (!this.currentPlayer || !this.canvasManager.canvas) return;
+   	update(dt: number): void {
+	  	if (!this.currentPlayer || !this.canvasManager.canvas) return;
 
-      const keys = this.keys;
+	  	const keys = this.keys;
 
-      // Move player
-      let moved = this.currentPlayer.move(keys, dt);
+		// Move player
+		let moved = this.currentPlayer.move(keys, dt);
 
-      // Update by delta time in seconds
-      this.currentPlayer.update(dt);
+		// Update by delta time in seconds
+		this.currentPlayer.update(dt);
 
-      // if moving position or trying to dash, send data to server
-      if (moved || this.input.mouseClick) {
-         // Load keys variable
-         this.input.keys = keys;
+		// if moving position or trying to dash, send data to server
+		if (moved || this.input.mouseClick) {
+			// Load keys variable
+			this.input.keys = keys;
 
-         // Record time of this interval
-         this.input.interval = dt;
+			// Record time of this interval
+			this.input.interval = dt;
 
-         // Send the input
-         this.gameNetManager.sendInput(this.input);
+			// Send the input
+			this.gameNetManager.sendInput(this.input);
 
-         // Reset for next interval
-         this.resetInput();
-      }
+			// Save the input
+
+			// Reset for next interval
+			this.resetInput();
+		}
    }
 
-   // input handlers
+   	// input handlers
 
-   
 	/**
 	 * Called when the user clicks on the game canvas.
 	 * Saves the mouse position to session.mousePos and
 	 * attempts to dash if the player is currently alive.
 	 * @param {MouseEvent} e - The mouse event data.
 	 */
-   onClick(e: MouseEvent): void {
-      if (!this.canvasManager.canvas) return;
+	onClick(e: MouseEvent): void {
+		if (!this.canvasManager.canvas) return;
 		
 		// Converts raw mouse coordinates to game coordinates and save the coordinates
 		this.saveMouseCoords(e.clientX, e.clientY);
@@ -105,7 +106,7 @@ class Session {
 
 		this.input.mouseClick = true;
 		this.input.mousePos = this.mousePos;
-   }
+	}
 }
 
 const gameCanvas = document.getElementById("game-canvas") as HTMLCanvasElement;
