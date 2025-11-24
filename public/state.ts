@@ -29,6 +29,7 @@ export class State {
 
 	updatePlayer(data: PlayerData): void {
 		const player = this.getPlayerFromId(data.id);
+		
 		if (player) {
 			// this.interpolateDum(player, data);
 			player.loadData(data);

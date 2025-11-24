@@ -79,6 +79,7 @@ class Session {
 			this.gameNetManager.sendInput(this.input);
 
 			// Save the input
+			this.recentInputs.push(this.input);
 
 			// Reset for next interval
 			this.resetInput();

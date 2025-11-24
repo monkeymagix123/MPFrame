@@ -1,6 +1,5 @@
 import { session } from "./session";
 import { renderGame, resizeCanvas } from "./canvas";   
-import { config } from "../shared/config";
 import { hasCanvas } from "./helpers/graphicsManager";
 
 // Global variable to store the timestamp of the last frame
