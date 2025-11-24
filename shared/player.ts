@@ -5,6 +5,8 @@ import { ClientInput, Keys, PlayerData } from "./types";
 import { v2, Vec2 } from "./v2";
 
 export abstract class Player {
+    timestamp: number; // store time of last update
+
 	id: string;
 	name: string;
 	team: string; // red or blue
@@ -20,6 +22,8 @@ export abstract class Player {
     health: number;
 
     constructor(id: string, team: string, x: number, y: number, name: string = "Player", ready: boolean = false) {
+        this.timestamp = performance.now();
+
         this.id = id;
         this.name = name;
         this.team = team;
@@ -162,6 +166,8 @@ export abstract class Player {
      */
     getData(): PlayerData {
         return {
+            timestamp: this.timestamp,
+
             id: this.id,
             pos: this.pos,
             dashPos: this.dashPos,

@@ -5,6 +5,8 @@ import { state } from "./state";
 import { v2, Vec2 } from "../shared/v2";
 import { PlayerData } from "../shared/types";
 import { settings } from "./settings";
+import { util } from "./helpers/util";
+import { session } from "./session";
 
 export class PlayerC extends Player {
     serverDiff: Vec2; // used for interpolation
@@ -30,8 +32,35 @@ export class PlayerC extends Player {
     }
 
     loadData(data: PlayerData): void {
+        const lastTimeUpdate = this.timestamp;
+        const timeUpdate = data.timestamp;
+
         this.serverDiff = v2.sub(data.pos, this.pos);
         super.loadData(data);
+
+        if (util.isCurPlayer(this)) {
+            // apply recent inputs from session
+            const recentInput = session.recentInputs;
+            for (const [key, value] of recentInput.entries()) {
+                // should have already been deleted
+                if (key < lastTimeUpdate) {
+                    recentInput.delete(key);
+                    continue;
+                }
+
+                const input = recentInput.get(key);
+
+                // server already took care of this
+                if (key < timeUpdate) {
+                    recentInput.delete(key);
+                    continue;
+                }
+
+                // server hasn't received it yet
+                // we now apply these inputs
+                this.doInput(value);
+            }
+        }
     }
 
     dmgOtherPlayers(dmg: number): void {
@@ -46,7 +75,7 @@ export class PlayerC extends Player {
 
     update(dt: number): void {
         super.update(dt);
-        this.interpolate();
+        // this.interpolate();
     }
 
     static copyData(player: Player): PlayerC {

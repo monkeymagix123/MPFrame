@@ -15,6 +15,8 @@ export interface Lobby {
 }
 
 export interface PlayerData {
+	timestamp: number;
+
 	id: string;
 	pos: Vec2;
 	dashPos: Vec2;
@@ -28,6 +30,8 @@ export interface Keys {
 }
 
 export class ClientInput {
+	timestamp: number;
+
 	interval: number = 0;
 
 	keys: Keys;
@@ -36,6 +40,8 @@ export class ClientInput {
 	mousePos: Vec2;
 
 	constructor() {
+		this.timestamp = performance.now();
+
 		this.mousePos = new Vec2();
 
 		this.keys = {

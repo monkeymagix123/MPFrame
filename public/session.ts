@@ -1,4 +1,3 @@
-import { io, Socket } from "socket.io-client";
 import { ClientInput, Keys } from "../shared/types";
 import { Vec2 } from "../shared/v2";
 import { PlayerC } from "./player";
@@ -22,7 +21,7 @@ class Session {
 	keys: Keys;
 	input: ClientInput;
 
-	recentInputs: ClientInput[] = [];
+	recentInputs: Map<number, ClientInput> = new Map(); // map timestamps to client input
 
 	constructor(canvas: HTMLCanvasElement) {
 	  	this.gameNetManager = new GameNetworkManager();
@@ -52,6 +51,13 @@ class Session {
 		this.input.mouseClick = false;
 	}
 
+	addInput(input: ClientInput): void {
+        // const timestamp = performance.now();
+		const timestamp = input.timestamp;
+
+        this.recentInputs.set(timestamp, input);
+    }
+
 	saveMouseCoords(mouseX: number, mouseY: number): void {
 		this.mousePos = this.canvasManager.getCoordsFromMouse(mouseX, mouseY);
 	}
@@ -79,7 +85,7 @@ class Session {
 			this.gameNetManager.sendInput(this.input);
 
 			// Save the input
-			this.recentInputs.push(this.input);
+			this.addInput(this.input);
 
 			// Reset for next interval
 			this.resetInput();
