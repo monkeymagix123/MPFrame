@@ -8,6 +8,7 @@ import { Serializer } from "../shared/serializer";
 import { DamageData } from "../shared/moveData";
 import { serverConfig } from "serverConfig";
 import { Vec2 } from "../shared/v2";
+import { TeamColor } from "../shared/types";
 
 const gameLoops = new Map<string, NodeJS.Timeout>();
 
@@ -83,7 +84,7 @@ function endGame(room: Room, io: Server): void {
 }
 
 export function setupLobbyHandlers(socket: GameSocket, io: Server): void {
-   socket.on("lobby/change-team", (team: "red" | "blue") => {
+   socket.on("lobby/change-team", (team: TeamColor) => {
       if (!socket.roomCode || !rooms.has(socket.roomCode)) return;
 
       const room = rooms.get(socket.roomCode)!;
@@ -109,8 +110,8 @@ export function setupLobbyHandlers(socket: GameSocket, io: Server): void {
 
       Serializer.emitToRoom(io, socket.roomCode, "room/player-list", room.players, "Map<string, Player>");
 
-      const redCount = room.getTeamCount("red");
-      const blueCount = room.getTeamCount("blue");
+      const redCount = room.getTeamCount(TeamColor.red);
+      const blueCount = room.getTeamCount(TeamColor.blue);
 
       if (room.allPlayersReady() && room.players.size >= 2 && redCount > 0 && blueCount > 0) {
          startGame(room, io);

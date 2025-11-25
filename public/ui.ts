@@ -1,5 +1,5 @@
 import { session } from "./session";
-import { Lobby } from "../shared/types";
+import { Lobby, TeamColor } from "../shared/types";
 import { initGame, stopGameLoop } from "./input";
 
 export function initUI(): void {
@@ -78,12 +78,12 @@ export function initUI(): void {
    // Lobby buttons
    const joinRedBtn = document.getElementById("join-red-btn");
    joinRedBtn?.addEventListener("click", () => {
-      session.socket.emit("lobby/change-team", "red");
+      session.socket.emit("lobby/change-team", TeamColor.red);
    });
 
    const joinBlueBtn = document.getElementById("join-blue-btn");
    joinBlueBtn?.addEventListener("click", () => {
-      session.socket.emit("lobby/change-team", "blue");
+      session.socket.emit("lobby/change-team", TeamColor.blue);
    });
 
    const readyBtn = document.getElementById("ready-btn");
@@ -193,7 +193,7 @@ export function updateLobbyDisplay(): void {
       ${player.ready ? '<span class="ready-indicator">READY</span>' : ""}
     `;
 
-      if (player.team === "red") {
+      if (player.team === TeamColor.red) {
          redPlayersDiv?.appendChild(playerDiv);
       } else {
          bluePlayersDiv?.appendChild(playerDiv);
@@ -201,8 +201,8 @@ export function updateLobbyDisplay(): void {
    });
 
    const players = session.room?.gameState.players.values();
-   const redCount = players ? Array.from(players).filter((p) => p.team === "red").length : 0;
-   const blueCount = players ? Array.from(players).filter((p) => p.team === "blue").length : 0;
+   const redCount = players ? Array.from(players).filter((p) => p.team === TeamColor.red).length : 0;
+   const blueCount = players ? Array.from(players).filter((p) => p.team === TeamColor.blue).length : 0;
 
    const joinRedBtn = document.getElementById("join-red-btn") as HTMLButtonElement;
    const joinBlueBtn = document.getElementById("join-blue-btn") as HTMLButtonElement;

@@ -16,3 +16,14 @@ export interface Lobby {
 export interface Keys {
    [key: string]: boolean;
 }
+
+// export enum gameEndReason {
+//    win = "win",
+//    draw = "draw",
+//    disconnect = "disconnect",
+// }
+
+export enum TeamColor {
+   red = "red",
+   blue = "blue",
+}

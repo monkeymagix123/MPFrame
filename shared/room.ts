@@ -1,6 +1,7 @@
 import { Chat } from "./chat";
 import { Player } from "./player";
 import { State } from "./state";
+import { TeamColor } from "./types";
 
 export type RoomState = "waiting" | "playing" | "finished";
 
@@ -33,7 +34,7 @@ export class Room {
       return this.players.get(playerId);
    }
 
-   getTeamCount(team: "red" | "blue"): number {
+   getTeamCount(team: TeamColor): number {
       let count = 0;
       for (const player of this.players.values()) {
          if (player.team === team) count++;

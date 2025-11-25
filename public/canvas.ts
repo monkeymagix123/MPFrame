@@ -1,6 +1,7 @@
 import { config } from "../shared/config";
 import { clampPos } from "../shared/math";
 import { Player } from "../shared/player";
+import { TeamColor } from "../shared/types";
 import { v2, Vec2 } from "../shared/v2";
 import { session } from "./session";
 
@@ -89,7 +90,7 @@ function drawPlayer(player: Player, ctx: CanvasRenderingContext2D): void {
    }
 
    const healthRatio = player.health / player.maxHealth;
-   const isRed = player.team === "red";
+   const isRed = player.team === TeamColor.red;
 
    // Batch shadow settings
    if (session.settings.highQuality) {

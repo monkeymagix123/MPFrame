@@ -2,12 +2,13 @@ import { config } from "./config";
 import { clampPos } from "./math";
 import { MoveData } from "./moveData";
 import { PlayerSegment } from "./state";
+import { TeamColor } from "./types";
 import { v2, Vec2 } from "./v2";
 
 export class Player {
    id: string;
    name: string;
-   team: string; // red or blue
+   team: TeamColor; // red or blue
    ready: boolean;
 
    pos: Vec2;
@@ -21,7 +22,7 @@ export class Player {
    health: number;
    maxHealth: number;
 
-   constructor(id: string, team: string, pos: Vec2, name: string = "Player", ready: boolean = false) {
+   constructor(id: string, team: TeamColor, pos: Vec2, name: string = "Player", ready: boolean = false) {
       this.id = id;
       this.name = name;
       this.team = team;
