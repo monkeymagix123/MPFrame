@@ -74,9 +74,9 @@ export class Game {
 
 		// this.startUpdateLoop();
 		// this.interval = setTimeout(() => this.update(), 1000 / serverConfig.simulationRate);
-	 }
+	}
 
-	 update() {
+	update() {
 		const currentTime = performance.now();
 		const dt = (currentTime - this.lastTime) / 1000;
 		this.lastTime = currentTime;
@@ -94,11 +94,11 @@ export class Game {
 			const prevHealth = previousHealths.get(player.id)!;
 			if (player.health < prevHealth) {
 				const damageData: DamageData = {
-						playerId: player.id,
-						health: player.health,
-						maxHealth: player.maxHealth,
-						damage: prevHealth - player.health,
-						timestamp: currentTime,
+					playerId: player.id,
+					health: player.health,
+					maxHealth: player.maxHealth,
+					damage: prevHealth - player.health,
+					timestamp: currentTime,
 				};
 
 				this.io.to(this.room.code).emit("game/player-damage", damageData);
