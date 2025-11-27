@@ -112,6 +112,18 @@ export class Game {
 		}
 
 		// Determine whether game is over
+		this.checkGameOver();
+	}
+	
+	/**
+	 * Checks if the game is over.
+	 * If all players of a team are dead, the opposing team wins.
+	 * If all players of both teams are dead, the game is a draw.
+	 * If the game is over, end the game loop and broadcast an end game message to all players.
+	 */
+	checkGameOver() {
+		const players = this.room.gameState.players;
+
 		// Make a record of whether there is no alive player in each team
 		let teamStatus: Record<TeamColor, boolean> = Object.fromEntries(
 			Object.values(TeamColor).map((color) => [color, true])
