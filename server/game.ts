@@ -112,25 +112,21 @@ export class Game {
 		}
 
 		// Determine whether game is over
-		let redLost = true;
-		let blueLost = true;
+		// Make a record of whether there is no alive player in each team
+		let teamStatus: Record<TeamColor, boolean> = Object.fromEntries(
+			Object.values(TeamColor).map((color) => [color, true])
+		) as Record<TeamColor, boolean>;
+
 
 		for (const player of players) {
 			// check if player still alive
 			if (!player.isAlive()) continue;
 
-			switch (player.team) {
-				case TeamColor.red:
-					redLost = false;
-					break;
-				case TeamColor.blue:
-					blueLost = false;
-					break;
-			}
+			teamStatus[player.team] = false;
 		}
 
-		if (redLost) {
-			if (blueLost) {
+		if (teamStatus[TeamColor.red]) {
+			if (teamStatus[TeamColor.blue]) {
 				// Draw
 				const msg: EndGameMsg = { reason: EndGameResult.draw, winColor: "None" };
 				endGame(this.room, this.io, msg);
@@ -139,7 +135,7 @@ export class Game {
 				const msg: EndGameMsg = { reason: EndGameResult.win, winColor: TeamColor.blue };
 				endGame(this.room, this.io, msg);
 			}
-		} else if (blueLost) {
+		} else if (teamStatus[TeamColor.blue]) {
 			// Red wins
 			const msg: EndGameMsg = { reason: EndGameResult.win, winColor: TeamColor.red };
 			endGame(this.room, this.io, msg);
