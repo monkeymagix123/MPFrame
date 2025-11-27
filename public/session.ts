@@ -70,20 +70,20 @@ export class Session {
          case EndGameResult.win:
             // check if team color is same as win color
             if (msg.winColor === this.player?.team) {
-               alert("You win!");
+               // alert("You win!");
                drawEndScreen(this.ctx, "You win!", colorSettings.good);
                // TODO: show better win screen
             } else {
-               alert("You lose!");
+               // alert("You lose!");
                drawEndScreen(this.ctx, "You lost.", colorSettings.bad);
             }
             break;
          case EndGameResult.draw:
-            alert("Draw!");
+            // alert("Draw!");
             drawEndScreen(this.ctx, "Draw", colorSettings.neutral);
             break;
          case EndGameResult.disconnect:
-            alert("Disconnected / Game Over");
+            // alert("Disconnected / Game Over");
             drawEndScreen(this.ctx, "Disconnected", colorSettings.neutral);
             break;
          default:
