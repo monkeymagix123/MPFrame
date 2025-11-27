@@ -7,7 +7,7 @@ export const config = {
 
    moveSpeed: 180,
 
-   dashCooldown: 0.5,
+   dashCooldown: 1.5,
    dashDistance: 250,
    dashDuration: 0.5, // includes part of cooldown
    get dashSpeed() { // use for computed property
