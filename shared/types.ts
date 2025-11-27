@@ -28,10 +28,15 @@ export enum TeamColor {
    blue = "blue",
 }
 
+export type WinColor = "None" | TeamColor;
+
+export interface EndGameMsg {
+   winColor: WinColor;
+   reason: EndGameResult;
+}
+
 export enum EndGameResult {
    win = "win",
-   redWin = "red",
-   blueWin = "blue",
    draw = "draw",
    disconnect = "disconnect",
 }

@@ -6,7 +6,7 @@ import { serverConfig } from "serverConfig";
 import { broadcastLobbiesList } from "./misc";
 import { config } from "../shared/config";
 import { Serializer } from "../shared/serializer";
-import { EndGameResult, TeamColor } from "../shared/types";
+import { EndGameMsg, EndGameResult, TeamColor, type WinColor } from "../shared/types";
 
 const gameLoops = new Map<string, NodeJS.Timeout>();
 
@@ -42,7 +42,7 @@ export function startGame(room: Room, io: Server): void {
 	}
 }
 
-function endGame(room: Room, io: Server, msg: EndGameResult): void {
+function endGame(room: Room, io: Server, msg: EndGameMsg): void {
 	const wasWaiting = room.roomState === "waiting";
 
 	// Stop game loop
@@ -52,13 +52,9 @@ function endGame(room: Room, io: Server, msg: EndGameResult): void {
 		gameLoops.delete(room.code);
 	}
 
-
-	console.log(`Game ${room.code} Finished`, msg); // this shows
-
 	// if was playing, broadcast end message
 	if (room.roomState === "playing") {
-		console.log(`Game ${room.code} Finished, sending message`, msg);
-		Serializer.emitToRoom(io, room.code, "game/end", msg, "EndGameResult");
+		Serializer.emitToRoom(io, room.code, "game/end", msg);
 	}
 
 	room.endGame();
@@ -135,12 +131,18 @@ export class Game {
 
 		if (redLost) {
 			if (blueLost) {
-				endGame(this.room, this.io, EndGameResult.draw);
+				// Draw
+				const msg: EndGameMsg = { reason: EndGameResult.draw, winColor: "None" };
+				endGame(this.room, this.io, msg);
 			} else {
-				endGame(this.room, this.io, EndGameResult.blueWin);
+				// Blue wins
+				const msg: EndGameMsg = { reason: EndGameResult.win, winColor: TeamColor.blue };
+				endGame(this.room, this.io, msg);
 			}
 		} else if (blueLost) {
-			endGame(this.room, this.io, EndGameResult.redWin);
+			// Red wins
+			const msg: EndGameMsg = { reason: EndGameResult.win, winColor: TeamColor.red };
+			endGame(this.room, this.io, msg);
 		}
 	}
 
