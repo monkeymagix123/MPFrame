@@ -3,7 +3,7 @@ import { ChatMessage } from "../shared/chat";
 import * as ui from "./ui";
 import { startGameLoop } from "./input";
 import { updateURL } from "./url";
-import { Lobby } from "../shared/types";
+import { EndGameResult, Lobby } from "../shared/types";
 import { DamageData, MoveData } from "../shared/moveData";
 import { Player } from "../shared/player";
 import { Room } from "../shared/room";
@@ -67,6 +67,15 @@ export function initSocket(): void {
          ui.updateChatDisplay();
       })
    );
+
+   session.socket.on(
+      "game/end",
+      (data: EndGameResult) => {
+         // draw end game ui
+         console.log("Game ended", data);
+         session.endGame(data);
+      }
+   )
 }
 
 export function emitPlayerMove(): void {

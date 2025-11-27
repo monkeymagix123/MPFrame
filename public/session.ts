@@ -1,5 +1,5 @@
 import { io, Socket } from "socket.io-client";
-import { Keys } from "../shared/types";
+import { EndGameResult, Keys } from "../shared/types";
 import { Player } from "../shared/player";
 import { Vec2 } from "../shared/v2";
 import { config } from "../shared/config";
@@ -47,6 +47,27 @@ export class Session {
 
       this.mousePos.x = (mouseX - rect.left) * scaleX;
       this.mousePos.y = (mouseY - rect.top) * scaleY;
+   }
+
+   endGame(result: EndGameResult): void {
+      // const endGameModal = document.getElementById("end-game-modal");
+      // if (endGameModal) {
+      //    endGameModal.style.display = "flex";
+      // }
+
+      switch (result) {
+         case EndGameResult.redWin:
+            alert("Red wins!");
+            break;
+         case EndGameResult.blueWin:
+            alert("Blue wins!");
+            break;
+         case EndGameResult.draw:
+            alert("Draw!");
+            break;
+         default:
+            break;
+      }
    }
 }
 

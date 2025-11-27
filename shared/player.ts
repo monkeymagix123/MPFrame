@@ -67,6 +67,7 @@ export class Player {
     */
    isAlive(): boolean {
       return this.health > 0;
+      // TODO: also add check for if disconnected
    }
 
    /**

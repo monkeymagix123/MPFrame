@@ -27,3 +27,11 @@ export enum TeamColor {
    red = "red",
    blue = "blue",
 }
+
+export enum EndGameResult {
+   win = "win",
+   redWin = "red",
+   blueWin = "blue",
+   draw = "draw",
+   disconnect = "disconnect",
+}

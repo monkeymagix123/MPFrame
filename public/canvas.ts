@@ -269,3 +269,23 @@ function drawFPS(ctx: CanvasRenderingContext2D): void {
    // Restore context state
    ctx.restore();
 }
+
+function drawEndScreen(ctx: CanvasRenderingContext2D): void {
+   // Save context state
+   ctx.save();
+
+   ctx.clearRect(0, 0, config.mapWidth, config.mapHeight);
+
+   // Draw background
+   ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+   ctx.fillRect(0, 0, config.mapWidth, config.mapHeight);
+
+   // Draw game over text
+   ctx.font = "bold 32px monospace";
+   ctx.textAlign = "center";
+   ctx.fillStyle = "#ff0000";
+   ctx.fillText("Game Over", config.mapWidth / 2, config.mapHeight / 2);
+
+   // Restore context state
+   ctx.restore();
+}
