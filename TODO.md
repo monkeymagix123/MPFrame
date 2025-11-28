@@ -11,13 +11,14 @@
 
 ## Game/Server
 
--  [ ] Interpolate by broadcasting velocity/acceleration
--  [ ] Improve graphics
 -  [ ] Fix leave game
    -  [ ] have win condititon/ui
 -  [ ] Separate out moving & dashing velocity
--  [ ] Fix server system and how it handles/stores player information
 -  [ ] Lobby vs Room??
+
+Minor
+
+- [ ] Improve graphics
 
 ## Coding Readability
 

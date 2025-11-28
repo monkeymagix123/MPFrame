@@ -1,6 +1,7 @@
 import { config } from "../shared/config";
 import { clampPos } from "../shared/math";
 import { Player } from "../shared/player";
+import { TeamColor } from "../shared/types";
 import { v2, Vec2 } from "../shared/v2";
 import { session } from "./session";
 
@@ -89,7 +90,7 @@ function drawPlayer(player: Player, ctx: CanvasRenderingContext2D): void {
    }
 
    const healthRatio = player.health / player.maxHealth;
-   const isRed = player.team === "red";
+   const isRed = player.team === TeamColor.red;
 
    // Batch shadow settings
    if (session.settings.highQuality) {
@@ -264,6 +265,27 @@ function drawFPS(ctx: CanvasRenderingContext2D): void {
    // Draw FPS text
    ctx.fillStyle = "#00ff00";
    ctx.fillText(text, config.mapWidth - 10, 28);
+
+   // Restore context state
+   ctx.restore();
+}
+
+export function drawEndScreen(ctx: CanvasRenderingContext2D, msg: string, color: string): void {
+   // Save context state
+   ctx.save();
+
+   ctx.clearRect(0, 0, config.mapWidth, config.mapHeight);
+
+   // Draw background
+   ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+   ctx.fillRect(0, 0, config.mapWidth, config.mapHeight);
+
+   // Draw game over text
+   ctx.font = "bold 64px monospace";
+   ctx.textAlign = "center";
+   // ctx.fillStyle = "#ff0000";
+   ctx.fillStyle = color;
+   ctx.fillText(msg, config.mapWidth / 2, config.mapHeight / 2);
 
    // Restore context state
    ctx.restore();

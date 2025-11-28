@@ -7,6 +7,7 @@ import { broadcastLobbiesList, generateRoomCode } from "./misc";
 import { Vec2 } from "../shared/v2";
 import { config } from "../shared/config";
 import { Serializer } from "../shared/serializer";
+import { TeamColor } from "../shared/types";
 
 export function setupMenuHandlers(socket: GameSocket, io: Server): void {
    socket.on("menu/list-lobbies", () => {
@@ -29,7 +30,7 @@ export function setupMenuHandlers(socket: GameSocket, io: Server): void {
 
       const p: Player = new Player(
          socket.id,
-         "red",
+         TeamColor.red,
          new Vec2(Math.random() * config.mapWidth, Math.random() * config.mapHeight),
          playerNames.get(socket.id) || "Player",
          false
@@ -70,7 +71,7 @@ export function setupMenuHandlers(socket: GameSocket, io: Server): void {
 
       const p: Player = new Player(
          socket.id,
-         room.getTeamCount("red") > room.getTeamCount("blue") ? "blue" : "red",
+         room.getTeamCount(TeamColor.red) > room.getTeamCount(TeamColor.blue) ? TeamColor.blue : TeamColor.red,
          new Vec2(Math.random() * config.mapWidth, Math.random() * config.mapHeight),
          playerNames.get(socket.id),
          false

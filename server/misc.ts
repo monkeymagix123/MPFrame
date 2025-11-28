@@ -1,5 +1,6 @@
 import { rooms } from "server";
 import { Server } from "socket.io";
+import { TeamColor } from "../shared/types";
 
 export function generateRoomCode(): string {
 	const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -19,8 +20,8 @@ export function broadcastLobbiesList(io: Server): void {
 		.map((room) => ({
 			code: room.code,
 			playerCount: room.players.size,
-			redCount: room.getTeamCount("red"),
-			blueCount: room.getTeamCount("blue"),
+			redCount: room.getTeamCount(TeamColor.red),
+			blueCount: room.getTeamCount(TeamColor.blue),
 		}));
 
 	io.emit("menu/lobbies-list", publicLobbies);

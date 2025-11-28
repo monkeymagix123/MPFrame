@@ -16,3 +16,21 @@ export interface Lobby {
 export interface Keys {
    [key: string]: boolean;
 }
+
+export enum TeamColor {
+   red = "red",
+   blue = "blue",
+}
+
+export type WinColor = "None" | TeamColor;
+
+export interface EndGameMsg {
+   winColor: WinColor;
+   reason: EndGameResult;
+}
+
+export enum EndGameResult {
+   win = "win",
+   draw = "draw",
+   disconnect = "disconnect",
+}

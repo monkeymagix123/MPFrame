@@ -3,6 +3,7 @@ import { GameSocket } from "./types";
 import { rooms, playerNames } from "./server";
 import { broadcastLobbiesList } from "./misc";
 import { Serializer } from "../shared/serializer";
+import { TeamColor } from "../shared/types";
 
 export function setupDisconnectHandler(socket: GameSocket, io: Server): void {
    socket.on("disconnect", () => {
@@ -21,8 +22,8 @@ export function setupDisconnectHandler(socket: GameSocket, io: Server): void {
             console.log(`Room ${socket.roomCode} deleted (empty)`);
             broadcastLobbiesList(io);
          } else {
-            const redCount = room.getTeamCount("red");
-            const blueCount = room.getTeamCount("blue");
+            const redCount = room.getTeamCount(TeamColor.red);
+            const blueCount = room.getTeamCount(TeamColor.blue);
             const teamsRemaining = (redCount > 0 ? 1 : 0) + (blueCount > 0 ? 1 : 0);
 
             if (teamsRemaining === 1) {

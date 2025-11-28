@@ -1,11 +1,13 @@
 import { io, Socket } from "socket.io-client";
-import { Keys } from "../shared/types";
+import { EndGameMsg, EndGameResult, Keys } from "../shared/types";
 import { Player } from "../shared/player";
 import { Vec2 } from "../shared/v2";
 import { config } from "../shared/config";
 import { Room } from "../shared/room";
-import { Settings } from "./settings";
+import { colorSettings, Settings } from "./settings";
 import { MoveData } from "../shared/moveData";
+import { drawEndScreen } from "./canvas";
+import { stopGameLoop } from "./input";
 
 export class Session {
    socket: Socket;
@@ -47,6 +49,47 @@ export class Session {
 
       this.mousePos.x = (mouseX - rect.left) * scaleX;
       this.mousePos.y = (mouseY - rect.top) * scaleY;
+   }
+
+   /**
+    * Ends the current game session and displays a message based on the end result
+    * @param {EndGameResult} result - the result of the game, either red win, blue win, draw or disconnect
+    */
+   endGame(msg: EndGameMsg): void {
+      // const endGameModal = document.getElementById("end-game-modal");
+      // if (endGameModal) {
+      //    endGameModal.style.display = "flex";
+      // }
+
+      // stop updating graphics
+      stopGameLoop();
+
+      const result = msg.reason;
+
+      switch (result) {
+         case EndGameResult.win:
+            // check if team color is same as win color
+            if (msg.winColor === this.player?.team) {
+               // alert("You win!");
+               drawEndScreen(this.ctx, "You win!", colorSettings.good);
+               // TODO: show better win screen
+            } else {
+               // alert("You lose!");
+               drawEndScreen(this.ctx, "You lost.", colorSettings.bad);
+            }
+            break;
+         case EndGameResult.draw:
+            // alert("Draw!");
+            drawEndScreen(this.ctx, "Draw", colorSettings.neutral);
+            break;
+         case EndGameResult.disconnect:
+            // alert("Disconnected / Game Over");
+            drawEndScreen(this.ctx, "Disconnected", colorSettings.neutral);
+            break;
+         default:
+            drawEndScreen(this.ctx, "Game Over", colorSettings.neutral);
+            break;
+      }
    }
 }
 

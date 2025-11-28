@@ -11,3 +11,17 @@ export class Settings {
       this.debugMode = false;
    }
 }
+
+export class ColorSettings {
+   good: string;
+   bad: string;
+   neutral: string;
+
+   constructor() {
+      this.good = "green";
+      this.bad = "red";
+      this.neutral = "black";
+   }
+}
+
+export const colorSettings = new ColorSettings();
