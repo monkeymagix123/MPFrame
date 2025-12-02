@@ -9,6 +9,7 @@
       <link rel="stylesheet" href="/styles/lobby.css" />
       <link rel="stylesheet" href="/styles/game.css" />
       <link rel="preconnect" href="/styles/misc.css" />
+      <link rel="stylesheet" href="/styles/tree.css" />
       <link rel="icon" type="image/x-icon" href="/favicon.ico" />
    </head>
 
@@ -122,6 +123,12 @@
 
          <div id="game-area">
             <canvas id="game-canvas" width="1600" height="1200"></canvas>
+
+            <div id="skill-points-container" class="hidden">
+               <p>Skill Points: <span id="skill-points"></span> </p>
+            </div>
+            
+            <div id="skill-tree" class="hidden"> </div>
          </div>
       </div>
 

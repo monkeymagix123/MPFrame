@@ -4,6 +4,7 @@ import { Player } from "../shared/player";
 import { TeamColor } from "../shared/types";
 import { v2, Vec2 } from "../shared/v2";
 import { session } from "./session";
+import { drawUI } from "./tree";
 
 // FPS tracking
 let lastFrameTime = performance.now();
@@ -289,4 +290,7 @@ export function drawEndScreen(ctx: CanvasRenderingContext2D, msg: string, color:
 
    // Restore context state
    ctx.restore();
+
+   document.getElementById("game-canvas")!.style.display = "none";
+   drawUI();
 }
