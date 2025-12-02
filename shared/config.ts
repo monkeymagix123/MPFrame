@@ -1,4 +1,6 @@
 export const config = {
+   devMode: true,
+
    mapWidth: 900,
    mapHeight: 600,
 
@@ -13,7 +15,9 @@ export const config = {
    get dashSpeed() { // use for computed property
 	  return this.dashDistance / this.dashDuration;
    },
-   dashDamage: 25,
+   get dashDamage() { // dev mode makes 1 dash deal entire hp
+      return this.devMode ? this.maxHealth : 25;
+   },
 
    maxHealth: 100,
 };
