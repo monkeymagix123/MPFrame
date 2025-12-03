@@ -4,21 +4,7 @@ let player = {
     unlockedSkills: [] as string[]
 };
 
-const skillData = {
-    start: { name: "Start", cost: 1, prereq: [], desc: "Start" },
-    dash1: { name: "Dash upgrade 1", cost: 2, prereq: ["start"], desc: "Dash upgrade 1" },
-    b: { name: "B", cost: 2, prereq: ["start"], desc: "B" },
-    c: { name: "C", cost: 3, prereq: ["dash1"], desc: "C" },
-    d: { name: "D", cost: 3, prereq: ["c"], desc: "D" },
-    e: { name: "E", cost: 3, prereq: ["d"], desc: "E" },
-} as Record<string, Skill>;
-
-type Skill = {
-    name: string,
-    cost: number,
-    prereq: string[],
-    desc: string
-}
+import { skillData } from "../shared/skillTree";
 
 const skillPointsContainer = document.getElementById('skill-points-container') as HTMLDivElement;
 const skillPointsElement = document.getElementById('skill-points') as HTMLSpanElement;
@@ -53,7 +39,11 @@ export function drawUI() {
 
         const tooltipElement = document.createElement('span');
         tooltipElement.className = 'tooltiptext';
-        tooltipElement.innerHTML = `${skill.desc} <br> Cost: ${skill.cost} <br> Prereq: ${skill.prereq.map(prereq => skillData[prereq].name).join(', ')}`;
+        tooltipElement.innerHTML = `
+            ${skill.desc} <br>
+            Cost: ${skill.cost} <br>
+            Prereq: ${skill.prereq.map(prereq => skillData[prereq].name).join(', ')}
+        `;
         buttonElement.appendChild(tooltipElement);
     }
 }
