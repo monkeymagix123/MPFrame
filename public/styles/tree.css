@@ -1,3 +1,7 @@
+.hidden {
+    display: none;
+}
+
 .skill-tree {
     /* Basic container styling */
     position: relative;

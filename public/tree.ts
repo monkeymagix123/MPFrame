@@ -84,12 +84,12 @@ function getClass(skillId: string): string[] {
 
     // don't have all prereqs
     if (!hasPrereqs(skillId)) {
-        return ['locked'];
+        return ['hidden'];
     }
     
     // have all prereqs, but can't buy it
     if (player.skillPoints < skillData[skillId].cost) {
-        return ['cant-afford'];
+        return ['locked'];
     }
     
     return ['available'];
