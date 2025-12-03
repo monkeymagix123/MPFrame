@@ -5,10 +5,12 @@ let player = {
 };
 
 const skillData = {
-    a1: { name: "Power Attack", cost: 1, prereq: [] },
-    b1: { name: "Cleave", cost: 2, prereq: ["a1"] },
-    b2: { name: "Defensive Stance", cost: 2, prereq: ["a1"] },
-    c1: { name: "Execution", cost: 3, prereq: ["b1"] }
+    start: { name: "Start", cost: 1, prereq: [] },
+    dash1: { name: "Dash upgrade 1", cost: 2, prereq: ["start"] },
+    b: { name: "B", cost: 2, prereq: ["start"] },
+    c: { name: "C", cost: 3, prereq: ["dash1"] },
+    d: { name: "D", cost: 3, prereq: ["c"] },
+    e: { name: "E", cost: 3, prereq: ["d"] }
 } as Record<string, Skill>;
 
 type Skill = {
@@ -60,19 +62,31 @@ export function redrawUI() {
 
         const buttonElement = document.getElementById(skillId)! as HTMLButtonElement;
 
-        buttonElement.classList.remove('unlocked', 'locked');
-        buttonElement.classList.add(...getClass(skillId));
+        const classList = buttonElement.classList;
+        // clear all classes
+        classList.remove(...classList);
+        classList.add('skill');
+        classList.add(...getClass(skillId));
     }
 }
 
 function getClass(skillId: string): string[] {
+    // already unlocked
     if (player.unlockedSkills.includes(skillId)) {
         return ['unlocked'];
-    } else if (!hasPrereqs(skillId)) {
-        return ['locked'];
-    } else {
-        return [];
     }
+
+    // don't have all prereqs
+    if (!hasPrereqs(skillId)) {
+        return ['locked'];
+    }
+    
+    // have all prereqs, but can't buy it
+    if (player.skillPoints < skillData[skillId].cost) {
+        return ['cant-afford'];
+    }
+    
+    return [];
 }
 
 // --- 2. Logic to Check/Unlock ---
