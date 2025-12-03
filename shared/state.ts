@@ -49,11 +49,14 @@ export class State {
                   continue;
                }
 
+               // Now we know only one of the players is dashing and the other is not, so we check collision
                if (checkMovingSquareCollision(s1, s2, config.playerLength)) {
                   if (s1.dashing) {
-                     s2.player.health = Math.max(0, s2.player.health - config.dashDamage);
+                     // Player 1 is dashing
+                     s2.player.health = Math.max(0, s2.player.health - s1.player.damage);
                   } else {
-                     s1.player.health = Math.max(0, s1.player.health - config.dashDamage);
+                     // Player 2 is dashing
+                     s1.player.health = Math.max(0, s1.player.health - s2.player.damage);
                   }
                }
             }

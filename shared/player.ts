@@ -19,8 +19,10 @@ export class Player {
    dashProgress: number;
    dashVel: Vec2;
 
-   health: number;
-   maxHealth: number;
+   damage: number = config.dashDamage;
+
+   health: number = config.maxHealth;
+   maxHealth: number = config.maxHealth;
 
    constructor(id: string, team: TeamColor, pos: Vec2, name: string = "Player", ready: boolean = false) {
       this.id = id;
@@ -34,9 +36,6 @@ export class Player {
       this.dashing = false;
       this.dashProgress = config.dashCooldown;
       this.dashVel = new Vec2(0, 0);
-
-      this.health = config.maxHealth;
-      this.maxHealth = config.maxHealth;
    }
 
    attemptDash(v: Vec2): boolean {
