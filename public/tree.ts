@@ -5,18 +5,19 @@ let player = {
 };
 
 const skillData = {
-    start: { name: "Start", cost: 1, prereq: [] },
-    dash1: { name: "Dash upgrade 1", cost: 2, prereq: ["start"] },
-    b: { name: "B", cost: 2, prereq: ["start"] },
-    c: { name: "C", cost: 3, prereq: ["dash1"] },
-    d: { name: "D", cost: 3, prereq: ["c"] },
-    e: { name: "E", cost: 3, prereq: ["d"] }
+    start: { name: "Start", cost: 1, prereq: [], desc: "Start" },
+    dash1: { name: "Dash upgrade 1", cost: 2, prereq: ["start"], desc: "Dash upgrade 1" },
+    b: { name: "B", cost: 2, prereq: ["start"], desc: "B" },
+    c: { name: "C", cost: 3, prereq: ["dash1"], desc: "C" },
+    d: { name: "D", cost: 3, prereq: ["c"], desc: "D" },
+    e: { name: "E", cost: 3, prereq: ["d"], desc: "E" },
 } as Record<string, Skill>;
 
 type Skill = {
     name: string,
     cost: number,
-    prereq: string[]
+    prereq: string[],
+    desc: string
 }
 
 const skillPointsContainer = document.getElementById('skill-points-container') as HTMLDivElement;
@@ -43,12 +44,17 @@ export function drawUI() {
         buttonElement.dataset.cost = skill.cost.toString();
         buttonElement.dataset.prereq = skill.prereq.join(',');
 
-        buttonElement.className = 'skill';
+        buttonElement.className = 'skill tooltip';
         buttonElement.addEventListener('click', () => attemptUnlock(skillId));
 
         buttonElement.classList.add(...getClass(skillId));
 
         skillsElement.appendChild(buttonElement);
+
+        const tooltipElement = document.createElement('span');
+        tooltipElement.className = 'tooltiptext';
+        tooltipElement.innerHTML = `${skill.desc} <br> Cost: ${skill.cost} <br> Prereq: ${skill.prereq.map(prereq => skillData[prereq].name).join(', ')}`;
+        buttonElement.appendChild(tooltipElement);
     }
 }
 
@@ -65,7 +71,7 @@ export function redrawUI() {
         const classList = buttonElement.classList;
         // clear all classes
         classList.remove(...classList);
-        classList.add('skill');
+        classList.add('skill', 'tooltip');
         classList.add(...getClass(skillId));
     }
 }
