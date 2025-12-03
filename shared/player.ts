@@ -19,6 +19,10 @@ export class Player {
    dashProgress: number;
    dashVel: Vec2;
 
+   // Stats
+   dashSpeed: number = config.dashSpeed;
+   dashDistance: number = config.dashDistance;
+
    damage: number = config.dashDamage;
 
    health: number = config.maxHealth;
@@ -45,7 +49,7 @@ export class Player {
 
       this.dashing = true;
       this.dashProgress = 0;
-      this.dashVel = v2.mul(v2.normalize(v2.sub(v, this.pos)), config.dashSpeed);
+      this.dashVel = v2.mul(v2.normalize(v2.sub(v, this.pos)), this.dashSpeed);
 
       return true;
    }

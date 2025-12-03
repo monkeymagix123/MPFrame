@@ -158,7 +158,7 @@ function drawDashArrow(mousePos: Vec2, ctx: CanvasRenderingContext2D): void {
    const length = v2.length(direction);
 
    // Using the same 100 unit distance for the arrow display
-   const arrowDistance = config.dashSpeed * config.dashDuration;
+   const arrowDistance = session.player.dashDistance;
 
    const arrowVec = v2.mul(v2.div(direction, length), arrowDistance);
    const targetPos = clampPos(v2.add(session.player.pos, arrowVec));
