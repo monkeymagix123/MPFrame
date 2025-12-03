@@ -86,7 +86,7 @@ function getClass(skillId: string): string[] {
         return ['cant-afford'];
     }
     
-    return [];
+    return ['available'];
 }
 
 // --- 2. Logic to Check/Unlock ---
