@@ -1,6 +1,6 @@
 // --- 1. Player State ---
 import { session } from "./session";
-import { skillData } from "../shared/skillTree";
+import { skillData, treeUtil } from "../shared/skillTree";
 import { Player } from "../shared/player";
 
 let player: Player;
@@ -34,7 +34,7 @@ export function drawUI() {
         buttonElement.dataset.prereq = skill.prereq.join(',');
 
         buttonElement.className = 'skill tooltip';
-        buttonElement.addEventListener('click', () => attemptUnlock(skillId));
+        buttonElement.addEventListener('click', () => requestUnlock(skillId));
 
         buttonElement.classList.add(...getClass(skillId));
 
@@ -107,7 +107,20 @@ function getClass(skillId: string): string[] {
 }
 
 // --- 2. Logic to Check/Unlock ---
-function attemptUnlock(skillId: string) {
+
+export function requestUnlock(skillId: string): void {
+    session.socket.emit('game/player-buy-upgrade', skillId);
+}
+
+/**
+ * Attempts to unlock a skill.
+ * Called after receiving 'ok' from server.
+ * 
+ * @param {string} skillId - The skill ID to unlock.
+ * @returns {void}
+ * @throws {Error} - If the skill is already unlocked, or if the player does not have enough skill points.
+ */
+export function attemptUnlock(skillId: string): void {
     const cost = skillData[skillId].cost;
 
     // Check if skill is already unlocked
@@ -129,8 +142,9 @@ function attemptUnlock(skillId: string) {
     }
 
     // 3. SUCCESS: Apply changes
-    player.skillPoints -= cost;
-    player.unlockedSkills.push(skillId);
+    // player.skillPoints -= cost;
+    // player.unlockedSkills.push(skillId);
+    player.buyUpgrade(skillId);
 
     // Dev log
     console.log(`Unlocked ${skillId}. Remaining points: ${player.skillPoints}`);
@@ -143,8 +157,7 @@ function attemptUnlock(skillId: string) {
 }
 
 function hasPrereqs(skillId: string): boolean {
-    const prereqs = skillData[skillId].prereq;
-    return prereqs.every(prereq => player.unlockedSkills.includes(prereq));
+    return treeUtil.hasPrereqs(skillId, player.unlockedSkills);
 }
 
 // // --- 3. Event Listener Setup ---

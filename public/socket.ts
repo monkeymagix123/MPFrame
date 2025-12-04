@@ -70,13 +70,16 @@ export function initSocket(): void {
 
    // receive player buy upgrade
    session.socket.on(
-      "game/player-buy-upgrade",
-      (id: string, upgrade: string) => {
+      "game/player-bought-upgrade",
+      (data: { id: string; upgrade: string }) => {
+         const id = data.id;
+         const upgrade = data.upgrade;
+
          const player = session.room?.gameState.players.find((p) => p.id === id);
 
          if (!player) return;
 
-         player.buyUpgrade(upgrade);
+         player.buyUpgrade(upgrade); // updating already handled by tree update loop
       }
    )
 

@@ -2,7 +2,7 @@ import { Server } from "socket.io";
 import { GameSocket } from "./types";
 import { MoveData } from "../shared/moveData";
 import { rooms } from "./server";
-import { validateMoveData } from "../shared/serializer";
+import { Serializer, validateMoveData } from "../shared/serializer";
 
 export function setupGameHandlers(socket: GameSocket, io: Server): void {
    socket.on("game/player-move", (data: MoveData) => {
@@ -29,12 +29,12 @@ export function setupGameHandlers(socket: GameSocket, io: Server): void {
       const room = rooms.get(socket.roomCode)!;
       const player = room.gameState.players.find((p) => p.id === socket.id); // figure out why players map doesn't link
 
-      if (!player || room.roomState !== "playing") return;
+      if (!player || room.roomState !== "skill-selection") return;
 
       const boughtUpgrade = player.buyUpgrade(upgrade);
 
       if (boughtUpgrade) {
-         socket.to(socket.roomCode).emit("game/player-bought-upgrade", socket.id, boughtUpgrade);
+         Serializer.emitToRoom(io, socket.roomCode, "game/player-bought-upgrade", { id: socket.id, upgrade: upgrade })
       }
    })
 }

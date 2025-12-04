@@ -68,10 +68,10 @@ function endGame(room: Room, io: Server, msg: EndGameMsg): void {
 	}
 
 	// this works correctly
-	console.log("End Game data:");
-	for (const player of room.gameState.players) {
-		console.log(player);
-	}
+	// console.log("End Game data:");
+	// for (const player of room.gameState.players) {
+	// 	console.log(player);
+	// }
 
 	// broadcast player data to all players
 	Serializer.emitToRoom(io, room.code, "game/player-all-data", room.gameState.players, "Player[]");
