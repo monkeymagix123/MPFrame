@@ -3,7 +3,7 @@
         "name": "Start",
         "cost": 1,
         "prereq": [],
-        "desc": "Start"
+        "desc": "Well, you gotta start somewhere. \n (Does nothing)"
     },
     "dash1": {
         "name": "Dash upgrade 1",
