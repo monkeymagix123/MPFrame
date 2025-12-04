@@ -26,6 +26,7 @@ export class Player {
    // Stats
    dashSpeed: number = config.dashSpeed;
    dashDistance: number = config.dashDistance;
+   dashCooldown: number = config.dashCooldown;
 
    damage: number = config.dashDamage;
 
@@ -48,12 +49,12 @@ export class Player {
       this.moveVel = new Vec2(0, 0);
 
       this.dashing = false;
-      this.dashProgress = config.dashCooldown;
+      this.dashProgress = this.dashCooldown;
       this.dashVel = new Vec2(0, 0);
    }
 
    attemptDash(v: Vec2): boolean {
-      if (this.dashProgress < config.dashCooldown) {
+      if (this.dashProgress < this.dashCooldown) {
          return false; // Dash is on cooldown
       }
 
@@ -119,7 +120,7 @@ export class Player {
    }
 
    update(dt: number): PlayerSegment[] {
-      this.dashProgress = Math.min(this.dashProgress + dt, config.dashCooldown);
+      this.dashProgress = Math.min(this.dashProgress + dt, this.dashCooldown);
       
       let vel = this.moveVel;
 
@@ -260,8 +261,8 @@ export class Player {
 		this.ready = true;
 		this.pos.x = Math.random() * config.mapWidth;
 		this.pos.y = Math.random() * config.mapHeight;
-		this.health = config.maxHealth;
-		this.dashProgress = config.dashCooldown;
+		this.health = this.maxHealth;
+		this.dashProgress = this.dashCooldown;
 		this.dashing = false;
    }
 }
