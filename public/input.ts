@@ -85,9 +85,9 @@ function moveUpdate(): void {
 
    session.player.moveVel.x =
       ((session.keys["d"] || session.keys["arrowright"] ? 1 : 0) - (session.keys["a"] || session.keys["arrowleft"] ? 1 : 0)) *
-      session.player.moveSpeed;
+      session.player.stats.moveSpeed;
 
    session.player.moveVel.y =
       ((session.keys["s"] || session.keys["arrowdown"] ? 1 : 0) - (session.keys["w"] || session.keys["arrowup"] ? 1 : 0)) *
-      session.player.moveSpeed;
+      session.player.stats.moveSpeed;
 }

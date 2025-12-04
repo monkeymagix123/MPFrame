@@ -53,10 +53,10 @@ export class State {
                if (checkMovingSquareCollision(s1, s2, config.playerLength)) {
                   if (s1.dashing) {
                      // Player 1 is dashing
-                     s2.player.takeDamage(s1.player.damage, s1.player);
+                     s2.player.takeDamage(s1.player.stats.damage, s1.player);
                   } else {
                      // Player 2 is dashing
-                     s1.player.takeDamage(s2.player.damage, s2.player);
+                     s1.player.takeDamage(s2.player.stats.damage, s2.player);
                   }
                }
             }

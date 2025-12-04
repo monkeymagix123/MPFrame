@@ -1,6 +1,7 @@
 import { config } from "./config";
 import { clampPos } from "./math";
 import { MoveData } from "./moveData";
+import { PlayerStats } from "./playerStats";
 import { Effect, skillData, treeUtil } from "./skillTree";
 import { PlayerSegment } from "./state";
 import { TeamColor } from "./types";
@@ -17,21 +18,15 @@ export class Player {
    pos: Vec2;
 
    moveVel: Vec2;
-   moveSpeed: number = config.moveSpeed;
 
    dashing: boolean;
    dashProgress: number;
    dashVel: Vec2;
 
-   // Stats
-   dashSpeed: number = config.dashSpeed;
-   dashDistance: number = config.dashDistance;
-   dashCooldown: number = config.dashCooldown;
-
-   damage: number = config.dashDamage;
-
    health: number = config.maxHealth;
-   maxHealth: number = config.maxHealth;
+
+   // Stats
+   stats: PlayerStats = new PlayerStats();
 
    unlockedSkills: string[] = [];
    skillPoints: number = 0;
@@ -49,18 +44,18 @@ export class Player {
       this.moveVel = new Vec2(0, 0);
 
       this.dashing = false;
-      this.dashProgress = this.dashCooldown;
+      this.dashProgress = this.stats.dashCooldown;
       this.dashVel = new Vec2(0, 0);
    }
 
    attemptDash(v: Vec2): boolean {
-      if (this.dashProgress < this.dashCooldown) {
+      if (this.dashProgress < this.stats.dashCooldown) {
          return false; // Dash is on cooldown
       }
 
       this.dashing = true;
       this.dashProgress = 0;
-      this.dashVel = v2.mul(v2.normalize(v2.sub(v, this.pos)), this.dashSpeed);
+      this.dashVel = v2.mul(v2.normalize(v2.sub(v, this.pos)), this.stats.dashSpeed);
 
       return true;
    }
@@ -83,7 +78,7 @@ export class Player {
     */
    heal(amount: number): void {
       this.health += amount;
-      if (this.health > this.maxHealth) this.health = this.maxHealth;
+      if (this.health > this.stats.maxHealth) this.health = this.stats.maxHealth;
    }
 
    /**
@@ -120,7 +115,7 @@ export class Player {
    }
 
    update(dt: number): PlayerSegment[] {
-      this.dashProgress = Math.min(this.dashProgress + dt, this.dashCooldown);
+      this.dashProgress = Math.min(this.dashProgress + dt, this.stats.dashCooldown);
       
       let vel = this.moveVel;
 
@@ -231,19 +226,19 @@ export class Player {
          for (const stat in statData) {
             switch (stat) {
                case 'damage':
-                  this.damage += statData[stat];
+                  this.stats.damage += statData[stat];
                   break;
 
                case 'health':
-                  this.maxHealth += statData[stat];
+                  this.stats.maxHealth += statData[stat];
                   break;
                
                case 'speed':
-                  this.moveSpeed += statData[stat];
+                  this.stats.moveSpeed += statData[stat];
                   break;
                
                case 'dashCooldown':
-                  this.dashCooldown += statData[stat];
+                  this.stats.dashCooldown += statData[stat];
                   break;
             }
          }
@@ -265,8 +260,8 @@ export class Player {
 		this.ready = true;
 		this.pos.x = Math.random() * config.mapWidth;
 		this.pos.y = Math.random() * config.mapHeight;
-		this.health = this.maxHealth;
-		this.dashProgress = this.dashCooldown;
+		this.health = this.stats.maxHealth;
+		this.dashProgress = this.stats.dashCooldown;
 		this.dashing = false;
    }
 }

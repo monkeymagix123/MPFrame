@@ -141,7 +141,7 @@ export class Game {
 				const damageData: DamageData = {
 					playerId: player.id,
 					health: player.health,
-					maxHealth: player.maxHealth,
+					maxHealth: player.stats.maxHealth,
 					damage: prevHealth - player.health,
 					timestamp: currentTime,
 				};
