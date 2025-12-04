@@ -9,6 +9,7 @@ import { Player } from "../shared/player";
 import { Room } from "../shared/room";
 import { Serializer } from "../shared/serializer";
 import { Deserializer } from "../shared/deserializer";
+import * as tree from "./tree";
 
 export function initSocket(): void {
    session.socket.on("menu/lobbies-list", (lobbies: Lobby[]) => {
@@ -43,6 +44,16 @@ export function initSocket(): void {
          updatePlayerList(players);
          startGameLoop();
          ui.showGame();
+      })
+   );
+
+   session.socket.on(
+      "game/start-match",
+      Deserializer.createHandler<Map<string, Player>>("Map<string, Player>", (players) => {
+         updatePlayerList(players);
+         startGameLoop();
+         ui.showGame();
+         tree.hideUI();
       })
    );
 

@@ -10,7 +10,7 @@ export type Skill = {
     effects?: Effect,
 }
 
-type Effect = {
+export type Effect = {
     stats?: Record<string, number>
 }
 

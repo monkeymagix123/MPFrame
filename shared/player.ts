@@ -1,7 +1,7 @@
 import { config } from "./config";
 import { clampPos } from "./math";
 import { MoveData } from "./moveData";
-import { skillData, treeUtil } from "./skillTree";
+import { Effect, skillData, treeUtil } from "./skillTree";
 import { PlayerSegment } from "./state";
 import { TeamColor } from "./types";
 import { v2, Vec2 } from "./v2";
@@ -12,9 +12,12 @@ export class Player {
    team: TeamColor; // red or blue
    ready: boolean;
 
+   skillReady: boolean = false;
+
    pos: Vec2;
 
    moveVel: Vec2;
+   moveSpeed: number = config.moveSpeed;
 
    dashing: boolean;
    dashProgress: number;
@@ -181,8 +184,8 @@ export class Player {
    }
 
    endMatch(): void {
-      // calculate skill points
-      this.skillPoints = config.points.base + this.killCount * config.points.perKill;
+      // calculate how many skill points gained
+      this.skillPoints += config.points.base + this.killCount * config.points.perKill;
    }
 
    buyUpgrade(skillId: string): boolean {
@@ -201,10 +204,64 @@ export class Player {
          return false;
       }
 
-      
-      this.skillPoints -= skillData[skillId].cost;
+      // process upgrade
+      const skill = skillData[skillId];
+
+      // buy the upgrades
+      this.skillPoints -= skill.cost;
       this.unlockedSkills.push(skillId);
 
+      console.log(skill);
+
+      // actually do the upgrade
+      if (skill.effects !== undefined) {
+         this.applyEffects(skill.effects);
+      }
+
       return true;
+   }
+
+   applyEffects(effect: Effect): void {
+      const statData = effect.stats;
+
+      console.log(statData);
+
+      if (statData) {
+         for (const stat in statData) {
+            switch (stat) {
+               case 'damage':
+                  this.damage += statData[stat];
+                  break;
+
+               case 'health':
+                  this.maxHealth += statData[stat];
+                  break;
+               
+               case 'speed':
+                  this.moveSpeed += statData[stat];
+                  break;
+            }
+         }
+      }
+
+      console.log(this);
+   }
+
+   // match utilities
+   
+   /**
+    * Resets the player's state at the start of a match.
+    * This will reset the player's position, health, dash progress, and skill ready state.
+    */
+   resetForMatch(): void {
+      // reset skill ready
+		this.skillReady = false;
+
+		this.ready = true;
+		this.pos.x = Math.random() * config.mapWidth;
+		this.pos.y = Math.random() * config.mapHeight;
+		this.health = config.maxHealth;
+		this.dashProgress = config.dashCooldown;
+		this.dashing = false;
    }
 }

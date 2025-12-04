@@ -76,7 +76,7 @@ export function renderGame(): void {
    }
 
    // Draw FPS counter if debug mode is on
-   if (session.settings.debugMode) {
+   if (session.settings.showFPS) {
       drawFPS(ctx);
    }
 }

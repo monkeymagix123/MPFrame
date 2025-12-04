@@ -12,9 +12,9 @@
             "start"
         ],
         "desc": "Dash upgrade 1",
-        "effects?": {
+        "effects": {
             "stats": {
-                "speed": 100
+                "speed": 500
             }
         }
     }

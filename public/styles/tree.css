@@ -87,3 +87,23 @@
 .tooltip:hover .tooltiptext {
   visibility: visible;
 }
+
+/* Ready button */
+.ready-btn {
+   background: #4caf50;
+   color: white;
+   font-size: 18px;
+   padding: 15px 30px;
+   border: none;
+   border-radius: 10px;
+   font-weight: 600;
+   cursor: pointer;
+   transition: all 0.3s;
+
+   width: auto;
+   margin: 10px;
+}
+
+.ready-btn.ready {
+   background: #ff9800;
+}

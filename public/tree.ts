@@ -6,11 +6,37 @@ import { Player } from "../shared/player";
 let player: Player;
 let interval: number;
 
+// check if initialized UI
+let hasInitUI = false;
+
 const skillPointsContainer = document.getElementById('skill-points-container') as HTMLDivElement;
 const skillPointsElement = document.getElementById('skill-points') as HTMLSpanElement;
 const skillsElement = document.getElementById('skill-tree') as HTMLDivElement;
+const skillReadyBtn = document.getElementById('skill-ready-btn') as HTMLButtonElement;
 
 export function drawUI() {
+    if (!hasInitUI) {
+        initTreeUI();
+        hasInitUI = true;
+        return;
+    }
+
+    // unhide everything
+    skillPointsContainer.classList.remove('hidden');
+    skillsElement.classList.remove('hidden');
+    skillReadyBtn.classList.remove('hidden');
+
+    // start loop
+    startUpdateLoop();
+}
+
+/**
+ * Draw the UI for the player's skill tree.
+ * This function sets up the DOM elements for the skill tree,
+ * and adds event listeners for the buttons.
+ * It also starts the update loop, which updates the UI every frame.
+ */
+export function initTreeUI() {
     // set the player
     player = session.player!;
 
@@ -50,7 +76,39 @@ export function drawUI() {
         buttonElement.appendChild(tooltipElement);
     }
 
+    // show ready button
+    skillReadyBtn.classList.remove('hidden');
+    skillReadyBtn.addEventListener('click', () => {
+        // Send to server
+        session.socket.emit('game/player-skill-ready');
+
+        // Update button
+        if (skillReadyBtn.classList.contains('ready')) {
+            skillReadyBtn.classList.remove('ready');
+            skillReadyBtn.innerText = 'Ready';
+        } else {
+            skillReadyBtn.classList.add('ready');
+            skillReadyBtn.innerText = 'Not Ready';
+        }
+    });
+
     startUpdateLoop();
+}
+
+export function hideUI() {
+    // If haven't initialized UI, don't do anything
+    if (!hasInitUI) return;
+
+    // Hide elements
+    skillPointsContainer.classList.add('hidden');
+    skillsElement.classList.add('hidden');
+    skillReadyBtn.classList.add('hidden');
+
+    // Reset button status
+    skillReadyBtn.classList.remove('ready');
+    skillReadyBtn.innerText = 'Ready';
+
+    cancelUpdateLoop();
 }
 
 function startUpdateLoop() {
