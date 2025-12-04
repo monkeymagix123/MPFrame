@@ -12,39 +12,11 @@ export function deserializePlayerMap(data: unknown): Map<string, Player> {
 
    if (Array.isArray(data)) {
       for (const playerData of data) {
-         // const player = new Player(
-         //    playerData.id,
-         //    playerData.team,
-         //    new Vec2(playerData.pos.x, playerData.pos.y),
-         //    playerData.name,
-         //    playerData.ready
-         // );
-
-         // // Restore additional state
-         // player.moveVel = new Vec2(playerData.moveVel.x, playerData.moveVel.y);
-         // player.dashing = playerData.dashing;
-         // player.dashProgress = playerData.dashProgress;
-         // player.dashVel = new Vec2(playerData.dashVel.x, playerData.dashVel.y);
-         // player.health = playerData.health;
-         // player.maxHealth = playerData.maxHealth;
-
-         // map.set(player.id, player);
          map.set(playerData.id, networkUtil.deserializePlayer(playerData));
       }
    } else if (data && typeof data === "object") {
       for (const [id, playerData] of Object.entries(data)) {
-         const pd = playerData as any;
-         const player = new Player(pd.id, pd.team, new Vec2(pd.pos.x, pd.pos.y), pd.name, pd.ready);
-
-         // Restore additional state
-         player.moveVel = new Vec2(pd.moveVel.x, pd.moveVel.y);
-         player.dashing = pd.dashing;
-         player.dashProgress = pd.dashProgress;
-         player.dashVel = new Vec2(pd.dashVel.x, pd.dashVel.y);
-         player.health = pd.health;
-         player.maxHealth = pd.maxHealth;
-
-         map.set(id, player);
+         map.set(playerData.id, networkUtil.deserializePlayer(playerData));
       }
    } else {
       console.warn("Unexpected player map data format:", typeof data);
@@ -158,6 +130,7 @@ export class Deserializer {
                return deserializeRoom(data);
 
             case "Map<string, Player>":
+            case "Player[]":
                return deserializePlayerMap(data);
 
             case "State":

@@ -3,7 +3,7 @@ import { Player } from "./player";
 import { State } from "./state";
 import { TeamColor } from "./types";
 
-export type RoomState = "waiting" | "playing" | "finished";
+export type RoomState = "waiting" | "playing" | "finished" | "skill-selection";
 
 export class Room {
    code: string;
@@ -56,6 +56,11 @@ export class Room {
 
    endGame(): void {
       this.roomState = "finished";
+   }
+
+   endMatch(): void {
+      this.roomState = "skill-selection";
+      // this.gameState.resetState();
    }
 
    resetGame(): void {

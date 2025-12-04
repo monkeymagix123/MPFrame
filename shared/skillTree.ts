@@ -13,3 +13,10 @@ export type Skill = {
 type Effect = {
     stats?: Record<string, number>
 }
+
+export const treeUtil = {
+    hasPrereqs: function (skillId: string, unlockedSkills: string[]): boolean {
+        const prereqs = skillData[skillId].prereq;
+        return prereqs.every(prereq => unlockedSkills.includes(prereq));
+    }
+}

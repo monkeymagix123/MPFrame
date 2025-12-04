@@ -57,7 +57,24 @@ function endGame(room: Room, io: Server, msg: EndGameMsg): void {
 		Serializer.emitToRoom(io, room.code, "game/end", msg);
 	}
 
-	room.endGame();
+	// technically still "playing" although just choosing the tree
+	// room.endGame();
+	room.endMatch();
+
+	for (const player of room.gameState.players) {
+		player.endMatch();
+
+		// console.log(player);
+	}
+
+	// this works correctly
+	console.log("End Game data:");
+	for (const player of room.gameState.players) {
+		console.log(player);
+	}
+
+	// broadcast player data to all players
+	Serializer.emitToRoom(io, room.code, "game/player-all-data", room.gameState.players, "Player[]");
 
 	if (wasWaiting) {
 		broadcastLobbiesList(io);

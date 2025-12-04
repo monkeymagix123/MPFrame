@@ -1,6 +1,7 @@
 import { config } from "./config";
 import { clampPos } from "./math";
 import { MoveData } from "./moveData";
+import { skillData, treeUtil } from "./skillTree";
 import { PlayerSegment } from "./state";
 import { TeamColor } from "./types";
 import { v2, Vec2 } from "./v2";
@@ -28,6 +29,12 @@ export class Player {
    health: number = config.maxHealth;
    maxHealth: number = config.maxHealth;
 
+   unlockedSkills: string[] = [];
+   skillPoints: number = 0;
+
+   killCount: number = 0;
+   deathCount: number = 0;
+
    constructor(id: string, team: TeamColor, pos: Vec2, name: string = "Player", ready: boolean = false) {
       this.id = id;
       this.name = name;
@@ -52,6 +59,17 @@ export class Player {
       this.dashVel = v2.mul(v2.normalize(v2.sub(v, this.pos)), this.dashSpeed);
 
       return true;
+   }
+
+   takeDamage(amount: number, source?: Player): void {
+      this.health -= amount;
+      if (this.health <= 0) {
+         // update round stats
+         this.deathCount++;
+         if (source) source.killCount++;
+
+         this.health = 0;
+      }
    }
 
    /**
@@ -160,5 +178,33 @@ export class Player {
             endTime: dt,
          },
       ];
+   }
+
+   endMatch(): void {
+      // calculate skill points
+      this.skillPoints = config.points.base + this.killCount * config.points.perKill;
+   }
+
+   buyUpgrade(skillId: string): boolean {
+      // Can't afford
+      if (this.skillPoints < skillData[skillId].cost) {
+         return false;
+      }
+
+      // Already unlocked
+      if (this.unlockedSkills.includes(skillId)) {
+         return false;
+      }
+
+      // No prerequisites
+      if (!treeUtil.hasPrereqs(skillId, this.unlockedSkills)) {
+         return false;
+      }
+
+      
+      this.skillPoints -= skillData[skillId].cost;
+      this.unlockedSkills.push(skillId);
+
+      return true;
    }
 }

@@ -22,4 +22,19 @@ export function setupGameHandlers(socket: GameSocket, io: Server): void {
 
       socket.to(socket.roomCode).emit("game/player-moved", socket.id, data);
    });
+
+   socket.on("game/player-buy-upgrade", (upgrade: string) => {
+      if (!socket.roomCode || !rooms.has(socket.roomCode)) return;
+
+      const room = rooms.get(socket.roomCode)!;
+      const player = room.gameState.players.find((p) => p.id === socket.id); // figure out why players map doesn't link
+
+      if (!player || room.roomState !== "playing") return;
+
+      const boughtUpgrade = player.buyUpgrade(upgrade);
+
+      if (boughtUpgrade) {
+         socket.to(socket.roomCode).emit("game/player-bought-upgrade", socket.id, boughtUpgrade);
+      }
+   })
 }

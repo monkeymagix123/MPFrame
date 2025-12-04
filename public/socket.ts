@@ -57,7 +57,7 @@ export function initSocket(): void {
 
       if (!player) return;
 
-      player.health = Math.max(0, player.health - damage.damage);
+      player.takeDamage(damage.damage);
    });
 
    session.socket.on(
@@ -67,6 +67,26 @@ export function initSocket(): void {
          ui.updateChatDisplay();
       })
    );
+
+   // receive player buy upgrade
+   session.socket.on(
+      "game/player-buy-upgrade",
+      (id: string, upgrade: string) => {
+         const player = session.room?.gameState.players.find((p) => p.id === id);
+
+         if (!player) return;
+
+         player.buyUpgrade(upgrade);
+      }
+   )
+
+   // receive match player data
+   session.socket.on(
+      "game/player-all-data",
+      Deserializer.createHandler<Map<string, Player>>("Player[]", (players) => {
+         updatePlayerList(players);
+      })
+   )
 
    session.socket.on(
       "game/end",

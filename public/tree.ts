@@ -1,16 +1,19 @@
 // --- 1. Player State ---
-let player = {
-    skillPoints: 5,
-    unlockedSkills: [] as string[]
-};
-
+import { session } from "./session";
 import { skillData } from "../shared/skillTree";
+import { Player } from "../shared/player";
+
+let player: Player;
+let interval: number;
 
 const skillPointsContainer = document.getElementById('skill-points-container') as HTMLDivElement;
 const skillPointsElement = document.getElementById('skill-points') as HTMLSpanElement;
 const skillsElement = document.getElementById('skill-tree') as HTMLDivElement;
 
 export function drawUI() {
+    // set the player
+    player = session.player!;
+
     // unhide points container
     skillPointsContainer.className = '';
 
@@ -46,9 +49,27 @@ export function drawUI() {
         `;
         buttonElement.appendChild(tooltipElement);
     }
+
+    startUpdateLoop();
+}
+
+function startUpdateLoop() {
+    interval = requestAnimationFrame(gameLoop);
+}
+
+function cancelUpdateLoop() {
+    cancelAnimationFrame(interval);
+}
+
+function gameLoop() {
+    redrawUI();
+    requestAnimationFrame(gameLoop);
 }
 
 export function redrawUI() {
+    // refresh player
+    player = session.player!;
+
     // show points
     skillPointsElement.innerText = player.skillPoints.toString();
 
@@ -134,4 +155,4 @@ function hasPrereqs(skillId: string): boolean {
 // });
 
 // Initial setup to show available points
-console.log(`Initial Skill Points: ${player.skillPoints}`);
+// console.log(`Initial Skill Points: ${player.skillPoints}`);

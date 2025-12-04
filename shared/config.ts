@@ -20,4 +20,9 @@ export const config = {
    },
 
    maxHealth: 100,
+
+   points: {
+      base: 5,
+      perKill: 2,
+   }
 };
