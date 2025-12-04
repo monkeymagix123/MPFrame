@@ -241,6 +241,10 @@ export class Player {
                case 'speed':
                   this.moveSpeed += statData[stat];
                   break;
+               
+               case 'dashCooldown':
+                  this.dashCooldown += statData[stat];
+                  break;
             }
          }
       }

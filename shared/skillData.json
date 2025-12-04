@@ -18,8 +18,8 @@
             }
         }
     },
-    "dash1": {
-        "name": "Dash Upgrade 1",
+    "dashDmg1": {
+        "name": "Dash Damage 1",
         "cost": 2,
         "prereq": [
             "start"
@@ -54,6 +54,19 @@
         "effects": {
             "stats": {
                 "speed": 100
+            }
+        }
+    },
+    "dashCooldown1": {
+        "name": "Dash Cooldown 1",
+        "cost": 2,
+        "prereq": [
+            "start"
+        ],
+        "desc": "Decrease dash cooldown by 0.5s.",
+        "effects": {
+            "stats": {
+                "dashCooldown": -0.5
             }
         }
     }
