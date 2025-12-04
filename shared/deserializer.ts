@@ -4,6 +4,7 @@ import { Chat } from "../shared/chat";
 import { State } from "../shared/state";
 import { ChatMessage } from "../shared/chat";
 import { Vec2 } from "../shared/v2";
+import { networkUtil } from "./networkHelper";
 
 // Deserialize array back to Map
 export function deserializePlayerMap(data: unknown): Map<string, Player> {
@@ -11,23 +12,24 @@ export function deserializePlayerMap(data: unknown): Map<string, Player> {
 
    if (Array.isArray(data)) {
       for (const playerData of data) {
-         const player = new Player(
-            playerData.id,
-            playerData.team,
-            new Vec2(playerData.pos.x, playerData.pos.y),
-            playerData.name,
-            playerData.ready
-         );
+         // const player = new Player(
+         //    playerData.id,
+         //    playerData.team,
+         //    new Vec2(playerData.pos.x, playerData.pos.y),
+         //    playerData.name,
+         //    playerData.ready
+         // );
 
-         // Restore additional state
-         player.moveVel = new Vec2(playerData.moveVel.x, playerData.moveVel.y);
-         player.dashing = playerData.dashing;
-         player.dashProgress = playerData.dashProgress;
-         player.dashVel = new Vec2(playerData.dashVel.x, playerData.dashVel.y);
-         player.health = playerData.health;
-         player.maxHealth = playerData.maxHealth;
+         // // Restore additional state
+         // player.moveVel = new Vec2(playerData.moveVel.x, playerData.moveVel.y);
+         // player.dashing = playerData.dashing;
+         // player.dashProgress = playerData.dashProgress;
+         // player.dashVel = new Vec2(playerData.dashVel.x, playerData.dashVel.y);
+         // player.health = playerData.health;
+         // player.maxHealth = playerData.maxHealth;
 
-         map.set(player.id, player);
+         // map.set(player.id, player);
+         map.set(playerData.id, networkUtil.deserializePlayer(playerData));
       }
    } else if (data && typeof data === "object") {
       for (const [id, playerData] of Object.entries(data)) {

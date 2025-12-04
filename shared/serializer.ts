@@ -5,24 +5,26 @@ import { State } from "./state";
 import { MoveData, DamageData } from "./moveData";
 import { ChatMessage } from "./chat";
 import { Vec2 } from "./v2";
+import { networkUtil } from "./networkHelper";
 
 // Serialize a Map to an array for network transmission
 export function serializePlayerMap(map: Map<string, Player>): any[] {
    const players: any[] = [];
    for (const [id, player] of map.entries()) {
-      players.push({
-         id: player.id,
-         name: player.name,
-         team: player.team,
-         ready: player.ready,
-         pos: { x: player.pos.x, y: player.pos.y },
-         moveVel: { x: player.moveVel.x, y: player.moveVel.y },
-         dashing: player.dashing,
-         dashProgress: player.dashProgress,
-         dashVel: { x: player.dashVel.x, y: player.dashVel.y },
-         health: player.health,
-         maxHealth: player.maxHealth,
-      });
+      // players.push({
+      //    id: player.id,
+      //    name: player.name,
+      //    team: player.team,
+      //    ready: player.ready,
+      //    pos: { x: player.pos.x, y: player.pos.y },
+      //    moveVel: { x: player.moveVel.x, y: player.moveVel.y },
+      //    dashing: player.dashing,
+      //    dashProgress: player.dashProgress,
+      //    dashVel: { x: player.dashVel.x, y: player.dashVel.y },
+      //    health: player.health,
+      //    maxHealth: player.maxHealth,
+      // });
+      players.push(networkUtil.serializePlayer(player));
    }
    return players;
 }
