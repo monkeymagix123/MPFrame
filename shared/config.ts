@@ -22,7 +22,8 @@ export const config = {
    maxHealth: 100,
 
    points: {
-      base: 5,
-      perKill: 2,
+      base: 1,
+      perKill: 1,
+      perDeath: 0.5, // kinda helps ensure dont just sit there
    }
 };

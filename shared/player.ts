@@ -181,7 +181,9 @@ export class Player {
 
    endMatch(): void {
       // calculate how many skill points gained
-      this.skillPoints += config.points.base + this.killCount * config.points.perKill;
+      this.skillPoints += config.points.base
+         + this.killCount * config.points.perKill
+         + this.deathCount * config.points.perDeath;
    }
 
    buyUpgrade(skillId: string): boolean {
