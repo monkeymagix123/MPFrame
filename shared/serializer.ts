@@ -49,7 +49,7 @@ export function serializeState(state: State): any {
          dashProgress: p.dashProgress,
          dashVel: { x: p.dashVel.x, y: p.dashVel.y },
          health: p.health,
-         maxHealth: p.maxHealth,
+         maxHealth: p.stats.maxHealth,
       })),
    };
 }
