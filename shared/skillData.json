@@ -5,16 +5,55 @@
         "prereq": [],
         "desc": "Well, you gotta start somewhere. \n (Does nothing)"
     },
-    "dash1": {
-        "name": "Dash upgrade 1",
+    "speed1": {
+        "name": "Speed Boost 1",
         "cost": 2,
         "prereq": [
             "start"
         ],
-        "desc": "Dash upgrade 1",
+        "desc": "Increase speed by +100.",
         "effects": {
             "stats": {
-                "speed": 500
+                "speed": 100
+            }
+        }
+    },
+    "dash1": {
+        "name": "Dash Upgrade 1",
+        "cost": 2,
+        "prereq": [
+            "start"
+        ],
+        "desc": "Increase damage by 25.",
+        "effects": {
+            "stats": {
+                "damage": 25
+            }
+        }
+    },
+    "health1": {
+        "name": "More Health 1",
+        "cost": 2,
+        "prereq": [
+            "start"
+        ],
+        "desc": "Increase max health by 50.",
+        "effects": {
+            "stats": {
+                "health": 50
+            }
+        }
+    },
+    "speed2": {
+        "name": "Speed Boost 2",
+        "cost": 3,
+        "prereq": [
+            "speed1"
+        ],
+        "desc": "Increase speed again by +100.",
+        "effects": {
+            "stats": {
+                "speed": 100
             }
         }
     }

@@ -1,5 +1,5 @@
 export const config = {
-   devMode: true,
+   devMode: false,
 
    mapWidth: 900,
    mapHeight: 600,
