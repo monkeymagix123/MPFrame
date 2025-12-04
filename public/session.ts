@@ -8,6 +8,7 @@ import { colorSettings, Settings } from "./settings";
 import { MoveData } from "../shared/moveData";
 import { drawEndScreen } from "./canvas";
 import { stopGameLoop } from "./input";
+import { drawUI } from "./tree";
 
 export class Session {
    socket: Socket;
@@ -90,6 +91,12 @@ export class Session {
             drawEndScreen(this.ctx, "Game Over", colorSettings.neutral);
             break;
       }
+
+      // hide the canvas
+      this.canvas.style.display = "none";
+      drawUI();
+
+      console.log(this.player);
    }
 }
 
