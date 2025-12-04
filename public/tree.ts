@@ -108,52 +108,13 @@ function getClass(skillId: string): string[] {
 
 // --- 2. Logic to Check/Unlock ---
 
-export function requestUnlock(skillId: string): void {
-    session.socket.emit('game/player-buy-upgrade', skillId);
-}
 
 /**
- * Attempts to unlock a skill.
- * Called after receiving 'ok' from server.
- * 
- * @param {string} skillId - The skill ID to unlock.
- * @returns {void}
- * @throws {Error} - If the skill is already unlocked, or if the player does not have enough skill points.
+ * Emits a socket event to the server to unlock a skill.
+ * @param {string} skillId - The ID of the skill to unlock.
  */
-export function attemptUnlock(skillId: string): void {
-    const cost = skillData[skillId].cost;
-
-    // Check if skill is already unlocked
-    if (player.unlockedSkills.includes(skillId)) {
-        console.log("Already unlocked.");
-        return;
-    }
-
-    // 1. Check Prerequisites
-    if (!hasPrereqs(skillId)) {
-        alert("You must first unlock all prerequisites!");
-        return;
-    }
-
-    // 2. Check Skill Points
-    if (player.skillPoints < cost) {
-        alert("Not enough skill points!");
-        return;
-    }
-
-    // 3. SUCCESS: Apply changes
-    // player.skillPoints -= cost;
-    // player.unlockedSkills.push(skillId);
-    player.buyUpgrade(skillId);
-
-    // Dev log
-    console.log(`Unlocked ${skillId}. Remaining points: ${player.skillPoints}`);
-
-    // Update the UI
-    redrawUI();
-
-    // Update the next tier of skills' unlock state (optional, for visual feedback)
-    // updateAllSkillsVisibility();
+export function requestUnlock(skillId: string): void {
+    session.socket.emit('game/player-buy-upgrade', skillId);
 }
 
 function hasPrereqs(skillId: string): boolean {
