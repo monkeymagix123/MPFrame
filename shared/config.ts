@@ -23,7 +23,7 @@ export const config = {
 
    points: {
       base: 1,
-      perKill: 1,
-      perDeath: 0.5, // kinda helps ensure dont just sit there
+      perKill: 2,
+      perDeath: 1, // kinda helps ensure dont just sit there
    }
 };
