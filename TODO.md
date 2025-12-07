@@ -29,3 +29,5 @@ Minor
 ## Bugs
 
 -  [ ] Rare Case, dashing to wall
+-  [ ] In 1 calculation frame there is both game object and player (get game object first or do damage first)
+-  [ ] Better square-circle collision

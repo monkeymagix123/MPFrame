@@ -45,15 +45,30 @@ export class State {
                const s1 = segments[i];
                const s2 = segments[j];
 
-               if (s1.player.team === s2.player.team || !s1.player.isAlive() || !s2.player.isAlive() || s1.dashing === s2.dashing) {
+               // If the players are on the same team or are dead, continue
+               if (s1.player.team === s2.player.team || !s1.player.isAlive() || !s2.player.isAlive()) {
                   continue;
                }
 
+               // If neither dashing, continue
+               if (!s1.dashing && !s2.dashing) {
+                  continue;
+               }
+
+               // If both invulnerable, continue
+               if (s1.player.isInvulnerable() && s2.player.isInvulnerable()) {
+                  continue;
+               }
+
+               // Now we check collision
                if (checkMovingSquareCollision(s1, s2, config.playerLength)) {
                   if (s1.dashing) {
-                     s2.player.health = Math.max(0, s2.player.health - config.dashDamage);
-                  } else {
-                     s1.player.health = Math.max(0, s1.player.health - config.dashDamage);
+                     // Player 1 is dashing
+                     s2.player.takeDamage(s1.player.stats.damage, s1.player);
+                  }
+                  if (s2.dashing) {
+                     // Player 2 is dashing
+                     s1.player.takeDamage(s2.player.stats.damage, s2.player);
                   }
                }
             }

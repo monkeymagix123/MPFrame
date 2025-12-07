@@ -1,0 +1,112 @@
+{
+    "start": {
+        "name": "Start",
+        "cost": 1,
+        "prereq": [],
+        "desc": "Well, you gotta start somewhere. \n (Does nothing)"
+    },
+    "speed1": {
+        "name": "Speed Boost 1",
+        "cost": 2,
+        "prereq": [
+            "start"
+        ],
+        "desc": "Increase speed by +50.",
+        "effects": {
+            "stats": {
+                "speed": 50
+            }
+        }
+    },
+    "dashDmg1": {
+        "name": "Dash Damage 1",
+        "cost": 2,
+        "prereq": [
+            "start"
+        ],
+        "desc": "Increase damage by 25.",
+        "effects": {
+            "stats": {
+                "damage": 25
+            }
+        }
+    },
+    "health1": {
+        "name": "More Health 1",
+        "cost": 2,
+        "prereq": [
+            "start"
+        ],
+        "desc": "Increase max health by 50.",
+        "effects": {
+            "stats": {
+                "health": 50
+            }
+        }
+    },
+    "speed2": {
+        "name": "Speed Boost 2",
+        "cost": 3,
+        "prereq": [
+            "speed1"
+        ],
+        "desc": "Increase speed again by +50.",
+        "effects": {
+            "stats": {
+                "speed": 50
+            }
+        }
+    },
+    "dashCooldown1": {
+        "name": "Dash Cooldown 1",
+        "cost": 2,
+        "prereq": [
+            "start"
+        ],
+        "desc": "Decrease dash cooldown by 0.5s.",
+        "effects": {
+            "stats": {
+                "dashCooldown": -0.5
+            }
+        }
+    },
+    "dashCooldown2": {
+        "name": "Dash Cooldown 2",
+        "cost": 5,
+        "prereq": [
+            "dashCooldown1"
+        ],
+        "desc": "Decrease dash cooldown again by 0.5s.",
+        "effects": {
+            "stats": {
+                "dashCooldown": -0.5
+            }
+        }
+    },
+    "speed3": {
+        "name": "Speed Boost 3",
+        "cost": 5,
+        "prereq": [
+            "speed2"
+        ],
+        "desc": "Increase speed once again by +50.",
+        "effects": {
+            "stats": {
+                "speed": 50
+            }
+        }
+    },
+    "dash-invulnerability": {
+        "name": "Dash Invulnerability",
+        "cost": 5,
+        "prereq": [
+            "speed1", "dashCooldown1", "dashDmg1", "health1"
+        ],
+        "desc": "Become invulnerable while dashing.",
+        "effects": {
+            "stats": {
+                "dashInvulnerability": true
+            }
+        }
+    }
+}

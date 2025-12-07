@@ -10,18 +10,14 @@ import { EndGameMsg, EndGameResult, TeamColor, type WinColor } from "../shared/t
 
 const gameLoops = new Map<string, NodeJS.Timeout>();
 
-// const games = new Map<string, Game>();
+// map room code to game object
+const games = new Map<string, Game>();
 
 export function startGame(room: Room, io: Server): void {
 	const wasWaiting = room.roomState === "waiting";
 
 	room.players.forEach((player) => {
-		player.ready = true;
-		player.pos.x = Math.random() * config.mapWidth;
-		player.pos.y = Math.random() * config.mapHeight;
-		player.health = config.maxHealth;
-		player.dashProgress = config.dashCooldown;
-		player.dashing = false;
+		player.resetForMatch();
 	});
 
 	room.startGame();
@@ -37,6 +33,32 @@ export function startGame(room: Room, io: Server): void {
 		// games.set(room.code, game);
 
 		const interval = game.startUpdateLoop();
+
+		games.set(room.code, game);
+
+		gameLoops.set(room.code, interval);
+	}
+}
+
+export function startMatch(room: Room, io: Server): void {
+	const wasWaiting = room.roomState === "waiting";
+
+	room.players.forEach((player) => {
+		player.resetForMatch();
+	});
+
+	room.startGame();
+	
+	// update everything
+	Serializer.emitToRoom(io, room.code, "game/start-match", room.players, "Map<string, Player>");
+
+	if (wasWaiting) {
+		broadcastLobbiesList(io);
+	}
+
+	// Start game loop
+	if (room.roomState === "playing" && !gameLoops.has(room.code)) {
+		const interval = games.get(room.code)!.startUpdateLoop(); // call startGame before startMatch so already initialized
 
 		gameLoops.set(room.code, interval);
 	}
@@ -57,7 +79,24 @@ function endGame(room: Room, io: Server, msg: EndGameMsg): void {
 		Serializer.emitToRoom(io, room.code, "game/end", msg);
 	}
 
-	room.endGame();
+	// technically still "playing" although just choosing the tree
+	// room.endGame();
+	room.endMatch();
+
+	for (const player of room.gameState.players) {
+		player.endMatch();
+
+		// console.log(player);
+	}
+
+	// this works correctly
+	// console.log("End Game data:");
+	// for (const player of room.gameState.players) {
+	// 	console.log(player);
+	// }
+
+	// broadcast player data to all players
+	Serializer.emitToRoom(io, room.code, "game/player-all-data", room.gameState.players, "Player[]");
 
 	if (wasWaiting) {
 		broadcastLobbiesList(io);
@@ -102,7 +141,7 @@ export class Game {
 				const damageData: DamageData = {
 					playerId: player.id,
 					health: player.health,
-					maxHealth: player.maxHealth,
+					maxHealth: player.stats.maxHealth,
 					damage: prevHealth - player.health,
 					timestamp: currentTime,
 				};

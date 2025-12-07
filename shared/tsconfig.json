@@ -8,6 +8,6 @@
       "lib": ["ES2020"],
       "composite": true
    },
-   "include": ["./**/*.ts"],
+   "include": ["./**/*.ts", "./**/*.json"],
    "exclude": ["dist", "node_modules"]
 }

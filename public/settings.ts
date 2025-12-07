@@ -1,14 +1,16 @@
 export class Settings {
    highQuality: boolean;
    resScale: number;
-   debugMode: boolean;
+   logSocket: boolean;
+   showFPS: boolean;
 
    clientInterpolation: boolean = true;
 
    constructor() {
       this.highQuality = false;
       this.resScale = 2.0;
-      this.debugMode = false;
+      this.logSocket = true;
+      this.showFPS = false;
    }
 }
 

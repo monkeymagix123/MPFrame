@@ -76,7 +76,7 @@ export function renderGame(): void {
    }
 
    // Draw FPS counter if debug mode is on
-   if (session.settings.debugMode) {
+   if (session.settings.showFPS) {
       drawFPS(ctx);
    }
 }
@@ -89,7 +89,7 @@ function drawPlayer(player: Player, ctx: CanvasRenderingContext2D): void {
       drawDashArrow(session.mousePos, ctx);
    }
 
-   const healthRatio = player.health / player.maxHealth;
+   const healthRatio = player.health / player.stats.maxHealth;
    const isRed = player.team === TeamColor.red;
 
    // Batch shadow settings
@@ -157,7 +157,7 @@ function drawDashArrow(mousePos: Vec2, ctx: CanvasRenderingContext2D): void {
    const length = v2.length(direction);
 
    // Using the same 100 unit distance for the arrow display
-   const arrowDistance = config.dashSpeed * config.dashDuration;
+   const arrowDistance = session.player.stats.dashDistance;
 
    const arrowVec = v2.mul(v2.div(direction, length), arrowDistance);
    const targetPos = clampPos(v2.add(session.player.pos, arrowVec));
@@ -171,11 +171,13 @@ function drawArrow(from: Vec2, to: Vec2, ctx: CanvasRenderingContext2D): void {
    const angle = Math.atan2(direction.y, direction.x);
    const length = v2.length(direction);
 
+   const player = session.player!;
+
    // Calculate charge ratio once
-   const chargedRatio = Math.max(0, Math.min(1, session.player!.dashProgress / config.dashCooldown));
+   const chargedRatio = Math.max(0, Math.min(1, player.dashProgress / player.stats.dashCooldown));
    const chargedLength = length * chargedRatio;
    const arrowBaseDistance = headLength * Math.cos(Math.PI / 6);
-   const isFullyCharged = session.player!.dashProgress >= config.dashCooldown;
+   const isFullyCharged = player.dashProgress >= player.stats.dashCooldown;
 
    // Pre-calculate common values
    const cosAngle = Math.cos(angle);

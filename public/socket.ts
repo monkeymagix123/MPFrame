@@ -9,6 +9,7 @@ import { Player } from "../shared/player";
 import { Room } from "../shared/room";
 import { Serializer } from "../shared/serializer";
 import { Deserializer } from "../shared/deserializer";
+import * as tree from "./tree";
 
 export function initSocket(): void {
    session.socket.on("menu/lobbies-list", (lobbies: Lobby[]) => {
@@ -46,6 +47,16 @@ export function initSocket(): void {
       })
    );
 
+   session.socket.on(
+      "game/start-match",
+      Deserializer.createHandler<Map<string, Player>>("Map<string, Player>", (players) => {
+         updatePlayerList(players);
+         startGameLoop();
+         ui.showGame();
+         tree.hideUI();
+      })
+   );
+
    session.socket.on("game/player-moved", (id: string, data: MoveData) => {
       if (id === session.socket.id) return;
       const player = session.room?.gameState.players.find((p) => p.id === id);
@@ -57,7 +68,7 @@ export function initSocket(): void {
 
       if (!player) return;
 
-      player.health = Math.max(0, player.health - damage.damage);
+      player.takeDamage(damage.damage);
    });
 
    session.socket.on(
@@ -67,6 +78,29 @@ export function initSocket(): void {
          ui.updateChatDisplay();
       })
    );
+
+   // receive player buy upgrade
+   session.socket.on(
+      "game/player-bought-upgrade",
+      (data: { id: string; upgrade: string }) => {
+         const id = data.id;
+         const upgrade = data.upgrade;
+
+         const player = session.room?.gameState.players.find((p) => p.id === id);
+
+         if (!player) return;
+
+         player.buyUpgrade(upgrade); // updating already handled by tree update loop
+      }
+   )
+
+   // receive match player data
+   session.socket.on(
+      "game/player-all-data",
+      Deserializer.createHandler<Map<string, Player>>("Player[]", (players) => {
+         updatePlayerList(players);
+      })
+   )
 
    session.socket.on(
       "game/end",

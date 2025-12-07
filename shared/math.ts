@@ -2,6 +2,10 @@ import { config } from "../shared/config";
 import { PlayerSegment } from "./state";
 import { v2, Vec2 } from "./v2";
 
+export function rand(min: number, max: number): number {
+   return Math.random() * (max - min) + min;
+}
+
 export function clamp(n: number, min: number, max: number): number {
    return Math.min(Math.max(n, min), max);
 }

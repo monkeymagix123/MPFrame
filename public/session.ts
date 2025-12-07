@@ -8,6 +8,7 @@ import { colorSettings, Settings } from "./settings";
 import { MoveData } from "../shared/moveData";
 import { drawEndScreen } from "./canvas";
 import { stopGameLoop } from "./input";
+import * as tree from "./tree";
 
 export class Session {
    socket: Socket;
@@ -32,6 +33,28 @@ export class Session {
       this.ctx = ctx ?? canvas.getContext("2d") as CanvasRenderingContext2D;
       this.gameLoop = null;
       this.mousePos = new Vec2();
+
+      if (this.settings.logSocket) {
+         // Log all incoming socket events
+         this.socket.onAny((event, ...args) => {
+            console.log(
+               `%c⬇ [RECEIVE] ${event}`,
+               "color: #2196F3; font-weight: bold",
+               args
+            );
+         });
+
+         // Log all outgoing socket events
+         const originalEmit = this.socket.emit.bind(this.socket);
+         this.socket.emit = function (event: string, ...args: any[]) {
+            console.log(
+               `%c⬆ [EMIT] ${event}`,
+               "color: #4CAF50; font-weight: bold",
+               args
+            );
+            return originalEmit(event, ...args);
+         } as any;
+      }
    }
 
    resetSession(): void {
@@ -90,6 +113,12 @@ export class Session {
             drawEndScreen(this.ctx, "Game Over", colorSettings.neutral);
             break;
       }
+
+      // hide the canvas
+      this.canvas.classList.add("hidden");
+      tree.drawUI();
+
+      console.log(this.player);
    }
 }
 

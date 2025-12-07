@@ -1,6 +1,8 @@
 import { config } from "./config";
 import { clampPos } from "./math";
 import { MoveData } from "./moveData";
+import { PlayerStats } from "./playerStats";
+import { Effect, skillData, treeUtil } from "./skillTree";
 import { PlayerSegment } from "./state";
 import { TeamColor } from "./types";
 import { v2, Vec2 } from "./v2";
@@ -11,6 +13,8 @@ export class Player {
    team: TeamColor; // red or blue
    ready: boolean;
 
+   skillReady: boolean = false;
+
    pos: Vec2;
 
    moveVel: Vec2;
@@ -19,8 +23,16 @@ export class Player {
    dashProgress: number;
    dashVel: Vec2;
 
-   health: number;
-   maxHealth: number;
+   health: number = config.maxHealth;
+
+   // Stats
+   stats: PlayerStats = new PlayerStats();
+
+   unlockedSkills: string[] = [];
+   skillPoints: number = 0;
+
+   killCount: number = 0;
+   deathCount: number = 0;
 
    constructor(id: string, team: TeamColor, pos: Vec2, name: string = "Player", ready: boolean = false) {
       this.id = id;
@@ -32,33 +44,57 @@ export class Player {
       this.moveVel = new Vec2(0, 0);
 
       this.dashing = false;
-      this.dashProgress = config.dashCooldown;
+      this.dashProgress = this.stats.dashCooldown;
       this.dashVel = new Vec2(0, 0);
-
-      this.health = config.maxHealth;
-      this.maxHealth = config.maxHealth;
    }
 
    attemptDash(v: Vec2): boolean {
-      if (this.dashProgress < config.dashCooldown) {
+      if (!this.isAlive()) return false;
+
+      if (this.dashProgress < this.stats.dashCooldown) {
          return false; // Dash is on cooldown
       }
 
       this.dashing = true;
       this.dashProgress = 0;
-      this.dashVel = v2.mul(v2.normalize(v2.sub(v, this.pos)), config.dashSpeed);
+      this.dashVel = v2.mul(v2.normalize(v2.sub(v, this.pos)), this.stats.dashSpeed);
 
       return true;
+   }
+
+   takeDamage(amount: number, source?: Player): void {
+      if (!this.isAlive()) return;
+      if (this.isInvulnerable()) return;
+
+      this.health -= amount;
+      if (this.health <= 0) {
+         // update round stats
+         this.deathCount++;
+         if (source) source.killCount++;
+
+         this.health = 0;
+      }
+   }
+
+   isInvulnerable(): boolean {
+      if (!this.dashing) return false;
+
+      return this.stats.dashInvulnerable;
    }
 
    /**
     * Heals the player for a given amount of health.
     * If the player's health exceeds their maximum health, caps their health at their maximum health.
     * @param {number} amount - The amount of health to heal by.
+    * @returns {boolean} True if the player has healed, false otherwise.
     */
-   heal(amount: number): void {
+   heal(amount: number): boolean {
+      if (!this.isAlive()) return false;
+
       this.health += amount;
-      if (this.health > this.maxHealth) this.health = this.maxHealth;
+      if (this.health > this.stats.maxHealth) this.health = this.stats.maxHealth;
+
+      return true;
    }
 
    /**
@@ -95,7 +131,7 @@ export class Player {
    }
 
    update(dt: number): PlayerSegment[] {
-      this.dashProgress = Math.min(this.dashProgress + dt, config.dashCooldown);
+      this.dashProgress = Math.min(this.dashProgress + dt, this.stats.dashCooldown);
       
       let vel = this.moveVel;
 
@@ -157,5 +193,93 @@ export class Player {
             endTime: dt,
          },
       ];
+   }
+
+   endMatch(): void {
+      // calculate how many skill points gained
+      this.skillPoints += config.points.base
+         + this.killCount * config.points.perKill
+         + this.deathCount * config.points.perDeath;
+   }
+
+   buyUpgrade(skillId: string): boolean {
+      // Can't afford
+      if (this.skillPoints < skillData[skillId].cost) {
+         return false;
+      }
+
+      // Already unlocked
+      if (this.unlockedSkills.includes(skillId)) {
+         return false;
+      }
+
+      // No prerequisites
+      if (!treeUtil.hasPrereqs(skillId, this.unlockedSkills)) {
+         return false;
+      }
+
+      // process upgrade
+      const skill = skillData[skillId];
+
+      // buy the upgrades
+      this.skillPoints -= skill.cost;
+      this.unlockedSkills.push(skillId);
+
+      console.log(skill);
+
+      // actually do the upgrade
+      if (skill.effects !== undefined) {
+         this.applyEffects(skill.effects);
+      }
+
+      return true;
+   }
+
+   applyEffects(effect: Effect): void {
+      const statData = effect.stats;
+
+      console.log(statData);
+
+      if (statData) {
+         for (const stat in statData) {
+            switch (stat) {
+               case 'damage':
+                  this.stats.damage += statData[stat];
+                  break;
+
+               case 'health':
+                  this.stats.maxHealth += statData[stat];
+                  break;
+               
+               case 'speed':
+                  this.stats.moveSpeed += statData[stat];
+                  break;
+               
+               case 'dashCooldown':
+                  this.stats.dashCooldown += statData[stat];
+                  break;
+            }
+         }
+      }
+
+      console.log(this);
+   }
+
+   // match utilities
+   
+   /**
+    * Resets the player's state at the start of a match.
+    * This will reset the player's position, health, dash progress, and skill ready state.
+    */
+   resetForMatch(): void {
+      // reset skill ready
+		this.skillReady = false;
+
+		this.ready = true;
+		this.pos.x = Math.random() * config.mapWidth;
+		this.pos.y = Math.random() * config.mapHeight;
+		this.health = this.stats.maxHealth;
+		this.dashProgress = this.stats.dashCooldown;
+		this.dashing = false;
    }
 }
