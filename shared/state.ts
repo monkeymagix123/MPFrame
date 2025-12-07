@@ -45,16 +45,28 @@ export class State {
                const s1 = segments[i];
                const s2 = segments[j];
 
-               if (s1.player.team === s2.player.team || !s1.player.isAlive() || !s2.player.isAlive() || s1.dashing === s2.dashing) {
+               // If the players are on the same team or are dead, continue
+               if (s1.player.team === s2.player.team || !s1.player.isAlive() || !s2.player.isAlive()) {
                   continue;
                }
 
-               // Now we know only one of the players is dashing and the other is not, so we check collision
+               // If neither dashing, continue
+               if (!s1.dashing && !s2.dashing) {
+                  continue;
+               }
+
+               // If both invulnerable, continue
+               if (s1.player.isInvulnerable() && s2.player.isInvulnerable()) {
+                  continue;
+               }
+
+               // Now we check collision
                if (checkMovingSquareCollision(s1, s2, config.playerLength)) {
                   if (s1.dashing) {
                      // Player 1 is dashing
                      s2.player.takeDamage(s1.player.stats.damage, s1.player);
-                  } else {
+                  }
+                  if (s2.dashing) {
                      // Player 2 is dashing
                      s1.player.takeDamage(s2.player.stats.damage, s2.player);
                   }
