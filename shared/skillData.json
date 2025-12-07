@@ -95,5 +95,18 @@
                 "speed": 50
             }
         }
+    },
+    "dash-invulnerability": {
+        "name": "Dash Invulnerability",
+        "cost": 5,
+        "prereq": [
+            "speed1", "dashCooldown1", "dashDmg1", "health1"
+        ],
+        "desc": "Become invulnerable while dashing.",
+        "effects": {
+            "stats": {
+                "dashInvulnerability": true
+            }
+        }
     }
 }

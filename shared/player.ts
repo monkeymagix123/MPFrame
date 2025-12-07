@@ -49,6 +49,8 @@ export class Player {
    }
 
    attemptDash(v: Vec2): boolean {
+      if (!this.isAlive()) return false;
+
       if (this.dashProgress < this.stats.dashCooldown) {
          return false; // Dash is on cooldown
       }
@@ -61,6 +63,9 @@ export class Player {
    }
 
    takeDamage(amount: number, source?: Player): void {
+      if (!this.isAlive()) return;
+      if (this.isInvulnerable()) return;
+
       this.health -= amount;
       if (this.health <= 0) {
          // update round stats
@@ -71,14 +76,25 @@ export class Player {
       }
    }
 
+   isInvulnerable(): boolean {
+      if (!this.dashing) return false;
+
+      return this.stats.dashInvulnerable;
+   }
+
    /**
     * Heals the player for a given amount of health.
     * If the player's health exceeds their maximum health, caps their health at their maximum health.
     * @param {number} amount - The amount of health to heal by.
+    * @returns {boolean} True if the player has healed, false otherwise.
     */
-   heal(amount: number): void {
+   heal(amount: number): boolean {
+      if (!this.isAlive()) return false;
+
       this.health += amount;
       if (this.health > this.stats.maxHealth) this.health = this.stats.maxHealth;
+
+      return true;
    }
 
    /**
