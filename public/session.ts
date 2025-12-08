@@ -21,8 +21,6 @@ export class Session {
    gameLoop: number | null;
    mousePos: Vec2;
 
-   recentInput: Map<number, MoveData> = new Map();
-
    constructor(canvas: HTMLCanvasElement, ctx?: CanvasRenderingContext2D) {
       this.socket = io();
       this.room = null;
