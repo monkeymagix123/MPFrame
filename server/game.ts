@@ -8,6 +8,8 @@ import { config } from "../shared/config";
 import { Serializer } from "../shared/serializer";
 import { EndGameMsg, EndGameResult, TeamColor, type WinColor } from "../shared/types";
 
+import { io } from "./server";
+
 const gameLoops = new Map<string, NodeJS.Timeout>();
 
 // map room code to game object
@@ -17,9 +19,8 @@ const games = new Map<string, Game>();
  * Starts the game for the first time, when the room first enters the "playing" state.
  * Will broadcast "game/start" to all clients in the room with the updated player objects.
  * @param room The room corresponding to this game
- * @param io The socket.io server instance to send updates from
  */
-export function startGame(room: Room, io: Server): void {
+export function startGame(room: Room): void {
 	const wasWaiting = room.roomState === "waiting";
 
 	room.players.forEach((player) => {
@@ -35,7 +36,7 @@ export function startGame(room: Room, io: Server): void {
 
 	// Start game loop
 	if (room.roomState === "playing" && !gameLoops.has(room.code)) {
-		const game = new Game(room, io);
+		const game = new Game(room);
 		// games.set(room.code, game);
 
 		const interval = game.startUpdateLoop();
@@ -115,15 +116,13 @@ function endGame(room: Room, io: Server, msg: EndGameMsg): void {
 
 export class Game {
 	room: Room;
-	io: Server;
 
 	interval?: NodeJS.Timeout;
 
 	lastTime: number;
 
-	constructor(room: Room, io: Server) {
+	constructor(room: Room) {
 		this.room = room;
-		this.io = io;
 
 		this.lastTime = performance.now();
 
@@ -156,7 +155,7 @@ export class Game {
 					timestamp: currentTime,
 				};
 
-				this.io.to(this.room.code).emit("game/player-damage", damageData);
+				io.to(this.room.code).emit("game/player-damage", damageData);
 			}
 		}
 
@@ -217,7 +216,6 @@ export class Game {
 	endMatch(msg: EndGameMsg): void {
 		// Set variables for easier access
 		const room = this.room;
-		const io = this.io;
 
 		// Stop game loop
 		const interval = gameLoops.get(room.code);

@@ -3,10 +3,6 @@ import { renderGame, resizeCanvas } from "./canvas";
 import { config } from "../shared/config";
 import { emitPlayerMove } from "./socket";
 
-// Global variable to store the timestamp of the last frame
-let lastTime = 0;
-let lastDrawTime = 0;
-
 export function initGame(): void {
    const canvas = document.getElementById("game-canvas") as HTMLCanvasElement;
    if (!canvas) return;
@@ -44,40 +40,8 @@ function setupGameControls(): void {
    });
 
    document.addEventListener("mousemove", (e: MouseEvent) => {
-      if (performance.now() - lastDrawTime < 20) return;
-      lastDrawTime = performance.now();
-
-      // Converts raw mouse coordinates to game coordinates
       session.saveMouseCoords(e.clientX, e.clientY);
    });
-}
-
-// The main game loop function using requestAnimationFrame
-function gameLoop(currentTime: number): void {
-   const dt = (currentTime - lastTime) / 1000;
-   lastTime = currentTime;
-
-   if (session.player) {
-      session.room?.gameState.updateAll(dt, false);
-   }
-   renderGame();
-
-   // Request the next frame
-   session.gameLoop = requestAnimationFrame(gameLoop);
-}
-
-export function startGameLoop(): void {
-   if (session.gameLoop === null) {
-      lastTime = performance.now();
-      session.gameLoop = requestAnimationFrame(gameLoop);
-   }
-}
-
-export function stopGameLoop(): void {
-   if (session.gameLoop !== null) {
-      cancelAnimationFrame(session.gameLoop);
-      session.gameLoop = null;
-   }
 }
 
 function moveUpdate(): void {

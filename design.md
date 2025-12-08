@@ -1,7 +1,13 @@
 # Design
 
 ## Server
+
+One IO instance (entire server does everything for multiple games)
+
 ### Game (stored in games)
+- **What is a Game?**
+    - Controller for one room
+    - So, when multiple rooms are running simultaneously, there is an array of games
 - Room
     - Code
     - Players: Map id -> player
@@ -9,7 +15,6 @@
     - roomState: waiting / playing / etc
     - gameState: state of every player
     - chat
-- IO
 - Interval
     - Update interval starts when roomState becomes playing from lobby
         - Intervals stored in gameLoops
@@ -20,6 +25,7 @@
             - player.update(dt) gives player segments
             - Calc damage from player segments
     - When match ends, update interval canceled
+    - TODO: make 1 single big interval for entire server
 - Functions
     - startGame(): starts game for first time, when room becomes playing state, usually from lobby
     - startMatch(): not first time, after skill selection
@@ -41,6 +47,9 @@ Receive
 ## Client
 ### Session
 - room
+- Instance Functions
+- keysPressed
+- settings
 
 ## Socket
 - Has a lot of the handlers, does most of coordinating

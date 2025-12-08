@@ -1,7 +1,7 @@
 import { session } from "./session";
 import { ChatMessage } from "../shared/chat";
 import * as ui from "./ui";
-import { startGameLoop } from "./input";
+import { startGameLoop } from "./gameLoop";
 import { updateURL } from "./url";
 import { EndGameMsg, Lobby } from "../shared/types";
 import { DamageData, MoveData } from "../shared/moveData";

@@ -8,7 +8,7 @@ import { serverConfig } from "serverConfig";
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+export const io = new Server(server);
 
 export const rooms = new Map<string, Room>();
 export const playerNames = new Map<string, string>();

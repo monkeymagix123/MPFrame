@@ -37,7 +37,7 @@ export function setupLobbyHandlers(socket: GameSocket, io: Server): void {
       const blueCount = room.getTeamCount(TeamColor.blue);
 
       if (room.allPlayersReady() && room.players.size >= 2 && redCount > 0 && blueCount > 0) {
-         startGame(room, io);
+         startGame(room);
       }
    });
 }
