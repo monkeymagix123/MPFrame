@@ -27,6 +27,9 @@
 - Functions
     - startGame(): starts game for first time, when room becomes playing state, usually from lobby
     - startMatch(): not first time, after skill selection
+    - this.endMatch(): ends match, makes skill selection
+    - endGame(): ends game
+        - TODO: we have not done this yet
 
 ### Socket
 Receive

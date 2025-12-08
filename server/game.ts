@@ -73,6 +73,46 @@ export function startMatch(room: Room, io: Server): void {
 	}
 }
 
+// TODO: CURRENTLY UNUSED
+function endGame(room: Room, io: Server, msg: EndGameMsg): void {
+	const wasWaiting = room.roomState === "waiting";
+
+	// Stop game loop
+	const interval = gameLoops.get(room.code);
+	if (interval) {
+		clearInterval(interval);
+		gameLoops.delete(room.code);
+	}
+
+	// if was playing, broadcast end message
+	if (room.roomState === "playing") {
+		Serializer.emitToRoom(io, room.code, "game/end", msg);
+	}
+
+	// technically still "playing" although just choosing the tree
+	// room.endGame();
+	room.endMatch();
+
+	for (const player of room.gameState.players) {
+		player.endMatch();
+
+		// console.log(player);
+	}
+
+	// this works correctly
+	// console.log("End Game data:");
+	// for (const player of room.gameState.players) {
+	// 	console.log(player);
+	// }
+
+	// broadcast player data to all players
+	Serializer.emitToRoom(io, room.code, "game/player-all-data", room.gameState.players, "Player[]");
+
+	if (wasWaiting) {
+		broadcastLobbiesList(io);
+	}
+}
+
 export class Game {
 	room: Room;
 	io: Server;
