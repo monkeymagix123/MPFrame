@@ -28,8 +28,10 @@
     - startGame(): starts game for first time, when room becomes playing state, usually from lobby
     - startMatch(): not first time, after skill selection
     - this.endMatch(): ends match, makes skill selection
+        - This is an instance function because game must have been initialized
     - endGame(): ends game
         - TODO: we have not done this yet
+        - This is not an instance function because maybe we haven't even started playing yet
 
 ### Socket
 Receive
