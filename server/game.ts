@@ -13,6 +13,12 @@ const gameLoops = new Map<string, NodeJS.Timeout>();
 // map room code to game object
 const games = new Map<string, Game>();
 
+/**
+ * Starts the game for the first time, when the room first enters the "playing" state.
+ * Will broadcast "game/start" to all clients in the room with the updated player objects.
+ * @param room The room corresponding to this game
+ * @param io The socket.io server instance to send updates from
+ */
 export function startGame(room: Room, io: Server): void {
 	const wasWaiting = room.roomState === "waiting";
 

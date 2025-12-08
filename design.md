@@ -24,6 +24,9 @@
             - player.update(dt) gives player segments
             - Calc damage from player segments
     - When match ends, update interval canceled
+- Functions
+    - startGame(): starts game for first time, when room becomes playing state, usually from lobby
+    - startMatch(): not first time, after skill selection
 
 ### Socket
 Receive
