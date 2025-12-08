@@ -117,18 +117,17 @@ export class Game {
 		this.room = room;
 
 		this.lastTime = performance.now();
-
-		// this.startUpdateLoop();
-		// this.interval = setTimeout(() => this.update(), 1000 / serverConfig.simulationRate);
 	}
 
 	update() {
+		// Get time data
 		const currentTime = performance.now();
 		const dt = (currentTime - this.lastTime) / 1000;
 		this.lastTime = currentTime;
 
 		const players = this.room.gameState.players;
 
+		// Track previous healths
 		const previousHealths = new Map<string, number>();
 		for (const player of players) {
 			previousHealths.set(player.id, player.health);
@@ -136,6 +135,7 @@ export class Game {
 
 		this.room.gameState.updateAll(dt, true);
 
+		// Send damage data if health of player has changed
 		for (const player of players) {
 			const prevHealth = previousHealths.get(player.id)!;
 			if (player.health < prevHealth) {
@@ -174,9 +174,11 @@ export class Game {
 			// check if player still alive
 			if (!player.isAlive()) continue;
 
+			// there is an alive player on that team
 			teamStatus[player.team] = false;
 		}
 
+		// Get end game message
 		let msg: EndGameMsg | null = null;
 		if (teamStatus[TeamColor.red]) {
 			if (teamStatus[TeamColor.blue]) {
