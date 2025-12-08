@@ -73,45 +73,6 @@ export function startMatch(room: Room, io: Server): void {
 	}
 }
 
-function endMatch(room: Room, io: Server, msg: EndGameMsg): void {
-	const wasWaiting = room.roomState === "waiting";
-
-	// Stop game loop
-	const interval = gameLoops.get(room.code);
-	if (interval) {
-		clearInterval(interval);
-		gameLoops.delete(room.code);
-	}
-
-	// if was playing, broadcast end message
-	if (room.roomState === "playing") {
-		Serializer.emitToRoom(io, room.code, "game/end", msg);
-	}
-
-	// technically still "playing" although just choosing the tree
-	// room.endGame();
-	room.endMatch();
-
-	for (const player of room.gameState.players) {
-		player.endMatch();
-
-		// console.log(player);
-	}
-
-	// this works correctly
-	// console.log("End Game data:");
-	// for (const player of room.gameState.players) {
-	// 	console.log(player);
-	// }
-
-	// broadcast player data to all players
-	Serializer.emitToRoom(io, room.code, "game/player-all-data", room.gameState.players, "Player[]");
-
-	if (wasWaiting) {
-		broadcastLobbiesList(io);
-	}
-}
-
 export class Game {
 	room: Room;
 	io: Server;
@@ -185,33 +146,72 @@ export class Game {
 			teamStatus[player.team] = false;
 		}
 
+		let msg: EndGameMsg | null = null;
 		if (teamStatus[TeamColor.red]) {
 			if (teamStatus[TeamColor.blue]) {
 				// Draw
-				const msg: EndGameMsg = { reason: EndGameResult.draw, winColor: "None" };
-				endMatch(this.room, this.io, msg);
+				msg = { reason: EndGameResult.draw, winColor: "None" };
 			} else {
 				// Blue wins
-				const msg: EndGameMsg = { reason: EndGameResult.win, winColor: TeamColor.blue };
-				endMatch(this.room, this.io, msg);
+				msg = { reason: EndGameResult.win, winColor: TeamColor.blue };
 			}
 		} else if (teamStatus[TeamColor.blue]) {
 			// Red wins
-			const msg: EndGameMsg = { reason: EndGameResult.win, winColor: TeamColor.red };
-			endMatch(this.room, this.io, msg);
+			msg = { reason: EndGameResult.win, winColor: TeamColor.red };
+		}
+
+		// If game was ended (message not null), we end the match
+		if (msg !== null) {
+			this.endMatch(msg)
 		}
 	}
-
-	// async startUpdateLoop(): Promise<void> {
-	//     while (true) {
-	//         await this.update();
-	//         await new Promise(r => this.interval = setTimeout(r, 1000 / serverConfig.simulationRate));
-	//     }
-	// }
 
 	startUpdateLoop(): NodeJS.Timeout {
 		this.interval = setInterval(() => this.update(), 1000 / serverConfig.simulationRate);
 
 		return this.interval;
+	}
+
+	endMatch(msg: EndGameMsg): void {
+		// Set variables for easier access
+		const room = this.room;
+		const io = this.io;
+
+		const wasWaiting = room.roomState === "waiting";
+
+		// Stop game loop
+		const interval = gameLoops.get(room.code);
+		if (interval) {
+			clearInterval(interval);
+			gameLoops.delete(room.code);
+		}
+
+		// if was playing, broadcast end message
+		if (room.roomState === "playing") {
+			Serializer.emitToRoom(io, room.code, "game/end", msg);
+		}
+
+		// technically still "playing" although just choosing the tree
+		// room.endGame();
+		room.endMatch();
+
+		for (const player of room.gameState.players) {
+			player.endMatch();
+
+			// console.log(player);
+		}
+
+		// this works correctly
+		// console.log("End Game data:");
+		// for (const player of room.gameState.players) {
+		// 	console.log(player);
+		// }
+
+		// broadcast player data to all players
+		Serializer.emitToRoom(io, room.code, "game/player-all-data", room.gameState.players, "Player[]");
+
+		if (wasWaiting) {
+			broadcastLobbiesList(io);
+		}
 	}
 }
