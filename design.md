@@ -1,9 +1,5 @@
 # Design
 
-## Client
-
-
-
 ## Server
 ### Game (stored in games)
 - Room
