@@ -224,7 +224,6 @@ export class Game {
 			gameLoops.delete(room.code);
 		}
 
-		// Broadcast end match message
 		if (room.roomState !== "playing") {
 			// THIS SHOULD NEVER OCCUR
 			throw new Error("Room is not in playing state!");
