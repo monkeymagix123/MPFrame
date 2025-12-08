@@ -40,9 +40,16 @@ export function startGame(room: Room, io: Server): void {
 	}
 }
 
-export function startMatch(room: Room, io: Server): void {
-	const wasWaiting = room.roomState === "waiting";
 
+/**
+ * Resets all players in the room and starts a new match.
+ * Called when a new match is started (NOT when room first enters playing state)
+ * Will broadcast "game/start-match" to all clients in the room with the updated player objects.
+ * Will start the game loop if not already started.
+ * @param {Room} room - The room to start the match in.
+ * @param {Server} io - The socket.io server instance.
+ */
+export function startMatch(room: Room, io: Server): void {
 	room.players.forEach((player) => {
 		player.resetForMatch();
 	});
@@ -51,10 +58,6 @@ export function startMatch(room: Room, io: Server): void {
 	
 	// update everything
 	Serializer.emitToRoom(io, room.code, "game/start-match", room.players, "Map<string, Player>");
-
-	if (wasWaiting) {
-		broadcastLobbiesList(io);
-	}
 
 	// Start game loop
 	if (room.roomState === "playing" && !gameLoops.has(room.code)) {
