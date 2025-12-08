@@ -7,6 +7,9 @@ One IO instance (entire server does everything for multiple games)
 
 One massive interval, fps simulationSpeed
 - activeGames[] stores games that are currently running loops
+    - Add when roomState becomes playing from lobby
+    - When match ends, remove game from activeGames
+- For each game, calls update()
 
 ### Game (stored in games)
 - **What is a Game?**
@@ -19,20 +22,14 @@ One massive interval, fps simulationSpeed
     - roomState: waiting / playing / etc
     - gameState: state of every player
     - chat
-- Interval
-    - Update interval starts when roomState becomes playing from lobby
-        - Intervals stored in gameLoops
-            - TODO: consolidate this & games array
-    - Calls update(), fps simulationSpeed
+- Functions
+    - startGame(): starts game for first time, when room becomes playing state, usually from lobby
+    - startMatch(): not first time, after skill selection
+    - update()
         - Stores previous healths
         - room.gameState updates all players by dt
             - player.update(dt) gives player segments
             - Calc damage from player segments
-    - When match ends, update interval canceled
-    - TODO: make 1 single big interval for entire server
-- Functions
-    - startGame(): starts game for first time, when room becomes playing state, usually from lobby
-    - startMatch(): not first time, after skill selection
     - this.endMatch(): ends match, makes skill selection
         - This is an instance function because game must have been initialized
     - endGame(): ends game
