@@ -3,6 +3,7 @@
 ## Server
 
 One IO instance (entire server does everything for multiple games)
+- Exported
 
 ### Game (stored in games)
 - **What is a Game?**
