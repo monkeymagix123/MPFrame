@@ -8,12 +8,18 @@ import { config } from "../shared/config";
 import { Serializer } from "../shared/serializer";
 import { EndGameMsg, EndGameResult, TeamColor, type WinColor } from "../shared/types";
 
-const gameLoops = new Map<string, NodeJS.Timeout>();
+import { io } from "./server";
+import * as gameLoops from "serverLoop";
 
 // map room code to game object
 const games = new Map<string, Game>();
 
-export function startGame(room: Room, io: Server): void {
+/**
+ * Starts the game for the first time, when the room first enters the "playing" state.
+ * Will broadcast "game/start" to all clients in the room with the updated player objects.
+ * @param room The room corresponding to this game
+ */
+export function startGame(room: Room): void {
 	const wasWaiting = room.roomState === "waiting";
 
 	room.players.forEach((player) => {
@@ -28,21 +34,25 @@ export function startGame(room: Room, io: Server): void {
 	}
 
 	// Start game loop
-	if (room.roomState === "playing" && !gameLoops.has(room.code)) {
-		const game = new Game(room, io);
-		// games.set(room.code, game);
-
-		const interval = game.startUpdateLoop();
+	if (room.roomState === "playing" && !gameLoops.hasGame(room.code)) {
+		const game = new Game(room);
 
 		games.set(room.code, game);
 
-		gameLoops.set(room.code, interval);
+		gameLoops.addGame(game);
 	}
 }
 
-export function startMatch(room: Room, io: Server): void {
-	const wasWaiting = room.roomState === "waiting";
 
+/**
+ * Resets all players in the room and starts a new match.
+ * Called when a new match is started (NOT when room first enters playing state)
+ * Will broadcast "game/start-match" to all clients in the room with the updated player objects.
+ * Will start the game loop if not already started.
+ * @param {Room} room - The room to start the match in.
+ * @param {Server} io - The socket.io server instance.
+ */
+export function startMatch(room: Room, io: Server): void {
 	room.players.forEach((player) => {
 		player.resetForMatch();
 	});
@@ -52,27 +62,20 @@ export function startMatch(room: Room, io: Server): void {
 	// update everything
 	Serializer.emitToRoom(io, room.code, "game/start-match", room.players, "Map<string, Player>");
 
-	if (wasWaiting) {
-		broadcastLobbiesList(io);
-	}
-
 	// Start game loop
-	if (room.roomState === "playing" && !gameLoops.has(room.code)) {
-		const interval = games.get(room.code)!.startUpdateLoop(); // call startGame before startMatch so already initialized
+	if (room.roomState === "playing" && !gameLoops.hasGame(room.code)) {
+		const game = games.get(room.code)!;
 
-		gameLoops.set(room.code, interval);
+		gameLoops.addGame(game);
 	}
 }
 
+// TODO: CURRENTLY UNUSED
 function endGame(room: Room, io: Server, msg: EndGameMsg): void {
 	const wasWaiting = room.roomState === "waiting";
 
 	// Stop game loop
-	const interval = gameLoops.get(room.code);
-	if (interval) {
-		clearInterval(interval);
-		gameLoops.delete(room.code);
-	}
+	gameLoops.removeGame(room.code);
 
 	// if was playing, broadcast end message
 	if (room.roomState === "playing") {
@@ -105,29 +108,26 @@ function endGame(room: Room, io: Server, msg: EndGameMsg): void {
 
 export class Game {
 	room: Room;
-	io: Server;
 
 	interval?: NodeJS.Timeout;
 
 	lastTime: number;
 
-	constructor(room: Room, io: Server) {
+	constructor(room: Room) {
 		this.room = room;
-		this.io = io;
 
 		this.lastTime = performance.now();
-
-		// this.startUpdateLoop();
-		// this.interval = setTimeout(() => this.update(), 1000 / serverConfig.simulationRate);
 	}
 
 	update() {
+		// Get time data
 		const currentTime = performance.now();
 		const dt = (currentTime - this.lastTime) / 1000;
 		this.lastTime = currentTime;
 
 		const players = this.room.gameState.players;
 
+		// Track previous healths
 		const previousHealths = new Map<string, number>();
 		for (const player of players) {
 			previousHealths.set(player.id, player.health);
@@ -135,6 +135,7 @@ export class Game {
 
 		this.room.gameState.updateAll(dt, true);
 
+		// Send damage data if health of player has changed
 		for (const player of players) {
 			const prevHealth = previousHealths.get(player.id)!;
 			if (player.health < prevHealth) {
@@ -146,7 +147,7 @@ export class Game {
 					timestamp: currentTime,
 				};
 
-				this.io.to(this.room.code).emit("game/player-damage", damageData);
+				io.to(this.room.code).emit("game/player-damage", damageData);
 			}
 		}
 
@@ -173,36 +174,63 @@ export class Game {
 			// check if player still alive
 			if (!player.isAlive()) continue;
 
+			// there is an alive player on that team
 			teamStatus[player.team] = false;
 		}
 
+		// Get end game message
+		let msg: EndGameMsg | null = null;
 		if (teamStatus[TeamColor.red]) {
 			if (teamStatus[TeamColor.blue]) {
 				// Draw
-				const msg: EndGameMsg = { reason: EndGameResult.draw, winColor: "None" };
-				endGame(this.room, this.io, msg);
+				msg = { reason: EndGameResult.draw, winColor: "None" };
 			} else {
 				// Blue wins
-				const msg: EndGameMsg = { reason: EndGameResult.win, winColor: TeamColor.blue };
-				endGame(this.room, this.io, msg);
+				msg = { reason: EndGameResult.win, winColor: TeamColor.blue };
 			}
 		} else if (teamStatus[TeamColor.blue]) {
 			// Red wins
-			const msg: EndGameMsg = { reason: EndGameResult.win, winColor: TeamColor.red };
-			endGame(this.room, this.io, msg);
+			msg = { reason: EndGameResult.win, winColor: TeamColor.red };
+		}
+
+		// If game was ended (message not null), we end the match
+		if (msg !== null) {
+			// console.log("Game Over!");
+
+			this.endMatch(msg);
 		}
 	}
 
-	// async startUpdateLoop(): Promise<void> {
-	//     while (true) {
-	//         await this.update();
-	//         await new Promise(r => this.interval = setTimeout(r, 1000 / serverConfig.simulationRate));
-	//     }
-	// }
+	endMatch(msg: EndGameMsg): void {
+		// Set variables for easier access
+		const room = this.room;
 
-	startUpdateLoop(): NodeJS.Timeout {
-		this.interval = setInterval(() => this.update(), 1000 / serverConfig.simulationRate);
+		// Stop game loop
+		gameLoops.removeGame(room.code);
 
-		return this.interval;
+		if (room.roomState !== "playing") {
+			// THIS SHOULD NEVER OCCUR
+			throw new Error("Room is not in playing state!");
+		}
+
+		// Broadcast end match message
+		Serializer.emitToRoom(io, room.code, "game/end-match", msg);
+
+		room.endMatch();
+
+		for (const player of room.gameState.players) {
+			player.endMatch();
+
+			// console.log(player);
+		}
+
+		// Debug info
+		// console.log("End Match data:");
+		// for (const player of room.gameState.players) {
+		// 	console.log(player);
+		// }
+
+		// broadcast player data to all players
+		Serializer.emitToRoom(io, room.code, "game/player-all-data", room.gameState.players, "Player[]");
 	}
 }

@@ -1,11 +1,20 @@
 # Design
 
-## Client
-
-
-
 ## Server
+
+One IO instance (entire server does everything for multiple games)
+- Exported from server.ts
+
+One massive interval, fps simulationSpeed
+- activeGames[] stores games that are currently running loops
+    - Add when roomState becomes playing from lobby
+    - When match ends, remove game from activeGames
+- For each game, calls update()
+
 ### Game (stored in games)
+- **What is a Game?**
+    - Controller for one room
+    - So, when multiple rooms are running simultaneously, there is an array of games
 - Room
     - Code
     - Players: Map id -> player
@@ -13,17 +22,19 @@
     - roomState: waiting / playing / etc
     - gameState: state of every player
     - chat
-- IO
-- Interval
-    - Update interval starts when roomState becomes playing from lobby
-        - Intervals stored in gameLoops
-            - TODO: consolidate this & games array
-    - Calls update(), fps simulationSpeed
+- Functions
+    - startGame(): starts game for first time, when room becomes playing state, usually from lobby
+    - startMatch(): not first time, after skill selection
+    - update()
         - Stores previous healths
         - room.gameState updates all players by dt
             - player.update(dt) gives player segments
             - Calc damage from player segments
-    - When match ends, update interval canceled
+    - this.endMatch(): ends match, makes skill selection
+        - This is an instance function because game must have been initialized
+    - endGame(): ends game
+        - TODO: we have not done this yet
+        - This is not an instance function because maybe we haven't even started playing yet
 
 ### Socket
 Receive
@@ -37,6 +48,9 @@ Receive
 ## Client
 ### Session
 - room
+- Instance Functions
+- keysPressed
+- settings
 
 ## Socket
 - Has a lot of the handlers, does most of coordinating

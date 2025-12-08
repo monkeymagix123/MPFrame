@@ -1,6 +1,7 @@
 import { session } from "./session";
 import { Lobby, TeamColor } from "../shared/types";
-import { initGame, stopGameLoop } from "./input";
+import { initGame } from "./input";
+import { stopGameLoop } from "./gameLoop";
 
 export function initUI(): void {
    // Page close/refresh handler

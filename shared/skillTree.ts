@@ -12,6 +12,7 @@ export type Skill = {
 
 export type Effect = {
     stats?: Record<string, number>
+    flags?: Record<string, boolean>
 }
 
 export const treeUtil = {

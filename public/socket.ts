@@ -1,7 +1,7 @@
 import { session } from "./session";
 import { ChatMessage } from "../shared/chat";
 import * as ui from "./ui";
-import { startGameLoop } from "./input";
+import { startGameLoop } from "./gameLoop";
 import { updateURL } from "./url";
 import { EndGameMsg, Lobby } from "../shared/types";
 import { DamageData, MoveData } from "../shared/moveData";
@@ -100,6 +100,15 @@ export function initSocket(): void {
       Deserializer.createHandler<Map<string, Player>>("Player[]", (players) => {
          updatePlayerList(players);
       })
+   )
+
+   session.socket.on(
+      "game/end-match",
+      (data: EndGameMsg) => {
+         // draw end game ui
+         console.log("Match ended", data);
+         session.endGame(data);
+      }
    )
 
    session.socket.on(

@@ -7,7 +7,7 @@ import { Room } from "../shared/room";
 import { colorSettings, Settings } from "./settings";
 import { MoveData } from "../shared/moveData";
 import { drawEndScreen } from "./canvas";
-import { stopGameLoop } from "./input";
+import { stopGameLoop } from "./gameLoop";
 import * as tree from "./tree";
 
 export class Session {

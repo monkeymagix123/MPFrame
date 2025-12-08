@@ -91,19 +91,26 @@ function drawPlayer(player: Player, ctx: CanvasRenderingContext2D): void {
 
    const healthRatio = player.health / player.stats.maxHealth;
    const isRed = player.team === TeamColor.red;
+   const isDashing = player.dashing;
+
+   // Define colors based on team and dashing state
+   const baseColor = isRed ? "#ff6b9d" : "#7d9bff";
+   const brightColor = isRed ? "#ffb3d1" : "#c5d4ff"; // Lighter/whiter versions
+   const shadowBaseColor = isRed ? "#ea4179" : "#5075f9";
+   const shadowBrightColor = isRed ? "#ff9ec0" : "#a8bcff"; // Lighter shadow versions
 
    // Batch shadow settings
    if (session.settings.highQuality) {
-      ctx.shadowBlur = isCurrentPlayer ? 20 : 15;
-      ctx.shadowColor = isRed ? "#ea4179" : "#5075f9";
+      ctx.shadowBlur = isDashing ? (isCurrentPlayer ? 25 : 20) : (isCurrentPlayer ? 20 : 15);
+      ctx.shadowColor = isDashing ? shadowBrightColor : shadowBaseColor;
    }
 
-   // Draw main player square
-   ctx.strokeStyle = isRed ? "#ff6b9d" : "#7d9bff";
+   // Draw main player square - use brighter color when dashing
+   ctx.strokeStyle = isDashing ? brightColor : baseColor;
 
    if (session.settings.highQuality && isCurrentPlayer) {
-      ctx.shadowBlur = 8;
-      ctx.shadowColor = isRed ? "#ff6b9d" : "#7d9bff";
+      ctx.shadowBlur = isDashing ? 12 : 8;
+      ctx.shadowColor = isDashing ? brightColor : baseColor;
    }
 
    const halfPlayer = config.playerLength / 2;

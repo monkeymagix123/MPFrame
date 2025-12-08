@@ -1,7 +1,7 @@
 import { config } from "./config";
 import { clampPos } from "./math";
 import { MoveData } from "./moveData";
-import { PlayerStats } from "./playerStats";
+import { PlayerFlags, PlayerStats } from "./playerStats";
 import { Effect, skillData, treeUtil } from "./skillTree";
 import { PlayerSegment } from "./state";
 import { TeamColor } from "./types";
@@ -27,6 +27,7 @@ export class Player {
 
    // Stats
    stats: PlayerStats = new PlayerStats();
+   flags: PlayerFlags = new PlayerFlags();
 
    unlockedSkills: string[] = [];
    skillPoints: number = 0;
@@ -79,7 +80,7 @@ export class Player {
    isInvulnerable(): boolean {
       if (!this.dashing) return false;
 
-      return this.stats.dashInvulnerable;
+      return this.flags.dashInvulnerable;
    }
 
    /**
@@ -236,29 +237,25 @@ export class Player {
    }
 
    applyEffects(effect: Effect): void {
-      const statData = effect.stats;
+      const statData = effect.stats as Partial<PlayerStats>;
+      const flagData = effect.flags as Partial<PlayerFlags>;
 
-      console.log(statData);
+      // console.log(statData);
+      // console.log(flagData);
 
       if (statData) {
-         for (const stat in statData) {
-            switch (stat) {
-               case 'damage':
-                  this.stats.damage += statData[stat];
-                  break;
+         for (const [stat, value] of Object.entries(statData)) {
+            const key = stat as keyof PlayerStats;
 
-               case 'health':
-                  this.stats.maxHealth += statData[stat];
-                  break;
-               
-               case 'speed':
-                  this.stats.moveSpeed += statData[stat];
-                  break;
-               
-               case 'dashCooldown':
-                  this.stats.dashCooldown += statData[stat];
-                  break;
-            }
+            this.stats[key] += value;
+         }
+      }
+
+      if (flagData) {
+         for (const [flag, value] of Object.entries(flagData)) {
+            const key = flag as keyof PlayerFlags;
+
+            this.flags[key] = value;
          }
       }
 
