@@ -3,7 +3,10 @@
 ## Server
 
 One IO instance (entire server does everything for multiple games)
-- Exported
+- Exported from server.ts
+
+One massive interval, fps simulationSpeed
+- activeGames[] stores games that are currently running loops
 
 ### Game (stored in games)
 - **What is a Game?**

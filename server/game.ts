@@ -9,8 +9,7 @@ import { Serializer } from "../shared/serializer";
 import { EndGameMsg, EndGameResult, TeamColor, type WinColor } from "../shared/types";
 
 import { io } from "./server";
-
-const gameLoops = new Map<string, NodeJS.Timeout>();
+import * as gameLoops from "serverLoop";
 
 // map room code to game object
 const games = new Map<string, Game>();
@@ -35,15 +34,12 @@ export function startGame(room: Room): void {
 	}
 
 	// Start game loop
-	if (room.roomState === "playing" && !gameLoops.has(room.code)) {
+	if (room.roomState === "playing" && !gameLoops.hasGame(room.code)) {
 		const game = new Game(room);
-		// games.set(room.code, game);
-
-		const interval = game.startUpdateLoop();
 
 		games.set(room.code, game);
 
-		gameLoops.set(room.code, interval);
+		gameLoops.addGame(game);
 	}
 }
 
@@ -67,10 +63,10 @@ export function startMatch(room: Room, io: Server): void {
 	Serializer.emitToRoom(io, room.code, "game/start-match", room.players, "Map<string, Player>");
 
 	// Start game loop
-	if (room.roomState === "playing" && !gameLoops.has(room.code)) {
-		const interval = games.get(room.code)!.startUpdateLoop(); // call startGame before startMatch so already initialized
+	if (room.roomState === "playing" && !gameLoops.hasGame(room.code)) {
+		const game = games.get(room.code)!;
 
-		gameLoops.set(room.code, interval);
+		gameLoops.addGame(game);
 	}
 }
 
@@ -79,11 +75,7 @@ function endGame(room: Room, io: Server, msg: EndGameMsg): void {
 	const wasWaiting = room.roomState === "waiting";
 
 	// Stop game loop
-	const interval = gameLoops.get(room.code);
-	if (interval) {
-		clearInterval(interval);
-		gameLoops.delete(room.code);
-	}
+	gameLoops.removeGame(room.code);
 
 	// if was playing, broadcast end message
 	if (room.roomState === "playing") {
@@ -207,22 +199,12 @@ export class Game {
 		}
 	}
 
-	startUpdateLoop(): NodeJS.Timeout {
-		this.interval = setInterval(() => this.update(), 1000 / serverConfig.simulationRate);
-
-		return this.interval;
-	}
-
 	endMatch(msg: EndGameMsg): void {
 		// Set variables for easier access
 		const room = this.room;
 
 		// Stop game loop
-		const interval = gameLoops.get(room.code);
-		if (interval) {
-			clearInterval(interval);
-			gameLoops.delete(room.code);
-		}
+		gameLoops.removeGame(room.code);
 
 		if (room.roomState !== "playing") {
 			// THIS SHOULD NEVER OCCUR
