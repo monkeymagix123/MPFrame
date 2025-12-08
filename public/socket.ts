@@ -117,9 +117,7 @@ export function emitPlayerMove(): void {
 
    const moveData = session.player.getMoveData();
    
-   session.recentInput.set(moveData.time, moveData);
-
-   Serializer.emit(session.socket, "game/player-move", session.player.getMoveData(), "MoveData");
+   Serializer.emit(session.socket, "game/player-move", moveData, "MoveData");
 }
 
 // Method to update which players are in lobby/playerList
