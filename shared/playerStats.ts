@@ -1,6 +1,7 @@
 import { config } from "./config";
 
 // does not need serializing because constructor auto-creates it
+// Numbers only
 export class PlayerStats {
     // Dash-related stats
     // Movement
@@ -9,7 +10,6 @@ export class PlayerStats {
     dashCooldown: number = config.dashCooldown;
 
     // Effects
-    dashInvulnerable: boolean = false;
 
     // Damage
     damage: number = config.dashDamage;
@@ -19,6 +19,14 @@ export class PlayerStats {
 
     // Movement stats
     moveSpeed: number = config.moveSpeed;
+
+    constructor() {}
+}
+
+// Boolean only
+export class PlayerFlags {
+    // Effects
+    dashInvulnerable: boolean = false;
 
     constructor() {}
 }

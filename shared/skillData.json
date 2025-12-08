@@ -104,8 +104,8 @@
         ],
         "desc": "Become invulnerable while dashing.",
         "effects": {
-            "stats": {
-                "dashInvulnerability": true
+            "flags": {
+                "dashInvulnerable": true
             }
         }
     }

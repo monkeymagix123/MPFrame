@@ -103,6 +103,15 @@ export function initSocket(): void {
    )
 
    session.socket.on(
+      "game/end-match",
+      (data: EndGameMsg) => {
+         // draw end game ui
+         console.log("Match ended", data);
+         session.endGame(data);
+      }
+   )
+
+   session.socket.on(
       "game/end",
       (data: EndGameMsg) => {
          // draw end game ui

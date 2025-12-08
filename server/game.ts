@@ -202,7 +202,9 @@ export class Game {
 
 		// If game was ended (message not null), we end the match
 		if (msg !== null) {
-			this.endMatch(msg)
+			// console.log("Game Over!");
+
+			this.endMatch(msg);
 		}
 	}
 
