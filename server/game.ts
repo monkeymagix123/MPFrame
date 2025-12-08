@@ -73,7 +73,7 @@ export function startMatch(room: Room, io: Server): void {
 	}
 }
 
-function endGame(room: Room, io: Server, msg: EndGameMsg): void {
+function endMatch(room: Room, io: Server, msg: EndGameMsg): void {
 	const wasWaiting = room.roomState === "waiting";
 
 	// Stop game loop
@@ -189,16 +189,16 @@ export class Game {
 			if (teamStatus[TeamColor.blue]) {
 				// Draw
 				const msg: EndGameMsg = { reason: EndGameResult.draw, winColor: "None" };
-				endGame(this.room, this.io, msg);
+				endMatch(this.room, this.io, msg);
 			} else {
 				// Blue wins
 				const msg: EndGameMsg = { reason: EndGameResult.win, winColor: TeamColor.blue };
-				endGame(this.room, this.io, msg);
+				endMatch(this.room, this.io, msg);
 			}
 		} else if (teamStatus[TeamColor.blue]) {
 			// Red wins
 			const msg: EndGameMsg = { reason: EndGameResult.win, winColor: TeamColor.red };
-			endGame(this.room, this.io, msg);
+			endMatch(this.room, this.io, msg);
 		}
 	}
 
