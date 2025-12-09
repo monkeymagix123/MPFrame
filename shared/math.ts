@@ -91,3 +91,82 @@ export function checkMovingSquareCollision(seg1: PlayerSegment, seg2: PlayerSegm
 
    return collisionTime;
 }
+
+interface SquareSeg {
+   startPos: Vec2;
+   velocity: Vec2;
+   startTime: number;
+   endTime: number;
+}
+
+interface Circle {
+   pos: Vec2;
+   vel: Vec2;
+   radius: number;
+}
+
+export function checkSquareCircle(seg: SquareSeg, object: Circle, side = config.playerLength): number | null {
+   // Calculate relative position and velocity
+   const relPos = v2.sub(seg.startPos, object.pos);
+   const relVel = v2.sub(seg.velocity, object.vel);
+   // Now it is as if the square is moving by relVel while the circle is stationary
+   // Approximate circle as square, doing minkowski sum we get a larger squrare
+   const side2 = side + 2 * object.radius;
+
+   const dt = seg.endTime - seg.startTime;
+   // We now have segment (0, 0) to relVel * dt,
+   // and we want it to intersect a square with side length side2 at relPos
+
+   const finalPos = v2.mul(relVel, dt);
+
+   // Top left to bottom right
+   const c1 = v2.add(relPos, v2.create(-side2 / 2, side2 / 2));
+   const c2 = v2.add(relPos, v2.create(side2 / 2, side2 / 2));
+   const c3 = v2.add(relPos, v2.create(side2 / 2, -side2 / 2));
+   const c4 = v2.add(relPos, v2.create(-side2 / 2, -side2 / 2));
+
+   const t1 = checkSegSeg(finalPos, c1, c2);
+   const t2 = checkSegSeg(finalPos, c2, c3);
+   const t3 = checkSegSeg(finalPos, c3, c4);
+   const t4 = checkSegSeg(finalPos, c4, c1);
+
+   const times = [t1, t2, t3, t4].filter((t) => t !== null) as number[];
+
+   if (times.length === 0) {
+      return null;
+   }
+
+   const t = Math.min(...times);
+
+   // scale to time from startTime to endTime
+   return (seg.startTime + t * dt);
+}
+
+/**
+ * Checks if a segment from (0, 0) to end intersects segment a to b
+ * Returns a number 0 to 1, where 0 is (0, 0) and 1 is end
+ */
+function checkSegSeg(vec1: Vec2, a: Vec2, b: Vec2): number | null {
+   const vec2 = v2.sub(b, a);
+
+   // Cramer's rule
+   const d = cross(vec1, vec2);
+
+   if (Math.abs(d) < 1e-6) {
+      return null;
+   }
+
+   const t = cross(a, vec2) / d;
+   const u = cross(vec1, a) / d;
+
+   // Check if intersection is on both segments
+   if (t < 0 || t > 1 || u < 0 || u > 1) {
+      return null;
+   }
+
+   return t;
+}
+
+function cross(v: Vec2, w: Vec2) {
+   return v.x * w.y - v.y * w.x;
+}
