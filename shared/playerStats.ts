@@ -16,6 +16,7 @@ export class PlayerStats {
 
     // Health-related stats
     maxHealth: number = config.maxHealth;
+    damageOverTime: number = config.damageOverTime;
 
     // Movement stats
     moveSpeed: number = config.moveSpeed;

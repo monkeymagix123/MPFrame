@@ -34,7 +34,7 @@ export class State {
       return player.update(dt);
    }
 
-   updateAll(dt: number, damage?: boolean): void {
+   updateAll(dt: number, collisions?: boolean): void {
       let segments: PlayerSegment[] = [];
 
       for (const player of this.players) {
@@ -67,7 +67,7 @@ export class State {
       }
 
       // Check damage
-      if (damage) {
+      if (collisions) {
          for (let i = 0; i < segments.length; i++) {
             for (let j = i + 1; j < segments.length; j++) {
                const s1 = segments[i];

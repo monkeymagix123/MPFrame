@@ -217,6 +217,11 @@ export class Player {
       const startPos: Vec2 = this.pos;
       this.pos = clampPos(v2.add(this.pos, v2.mul(vel, dt)));
 
+      // Damage Over Time
+      if (this.isAlive()) {
+         this.damageOverTime(dt);
+      }
+
       return [
          {
             player: this,
@@ -227,6 +232,9 @@ export class Player {
             endTime: dt,
          },
       ];
+   }
+   damageOverTime(dt: number) {
+      this.health -= this.stats.damageOverTime * dt;
    }
 
    // Skill Tree
