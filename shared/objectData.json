@@ -1,0 +1,12 @@
+{
+    "orb": {
+        "baseMax": 1,
+        "baseSpawnTime": 5,
+
+        "radius": 5,
+        
+        "playerEffects": {
+            "baseHeal": 25
+        }
+    }
+}

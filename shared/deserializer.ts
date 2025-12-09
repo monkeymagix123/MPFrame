@@ -5,6 +5,7 @@ import { State } from "../shared/state";
 import { ChatMessage } from "../shared/chat";
 import { Vec2 } from "../shared/v2";
 import { networkUtil } from "./networkHelper";
+import { GameObject } from "./gameObjects";
 
 // Deserialize array back to Map
 export function deserializePlayerMap(data: unknown): Map<string, Player> {
@@ -25,6 +26,24 @@ export function deserializePlayerMap(data: unknown): Map<string, Player> {
    return map;
 }
 
+function deserializeGameObjectArray(data: unknown): GameObject[] {
+   const gameObjects: GameObject[] = [];
+
+   if (Array.isArray(data)) {
+      for (const gameObjectData of data) {
+         gameObjects.push(networkUtil.deserializeGameObject(gameObjectData));
+      }
+   } else if (data && typeof data === "object") {
+      for (const gameObjectData of Object.values(data)) {
+         gameObjects.push(networkUtil.deserializeGameObject(gameObjectData));
+      }
+   } else {
+      console.warn("Unexpected game object array data format:", typeof data);
+   }
+
+   return gameObjects;
+}
+
 // Helper function to create Player from data
 function createPlayerFromData(playerData: any): Player {
    const player = new Player(
@@ -36,12 +55,7 @@ function createPlayerFromData(playerData: any): Player {
    );
 
    // Restore additional state
-   player.moveVel = new Vec2(playerData.moveVel.x, playerData.moveVel.y);
-   player.dashing = playerData.dashing;
-   player.dashProgress = playerData.dashProgress;
-   player.dashVel = new Vec2(playerData.dashVel.x, playerData.dashVel.y);
-   player.health = playerData.health;
-   player.maxHealth = playerData.maxHealth;
+   Object.assign(player, playerData);
 
    return player;
 }
@@ -132,6 +146,9 @@ export class Deserializer {
             case "Map<string, Player>":
             case "Player[]":
                return deserializePlayerMap(data);
+            
+            case "GameObject[]":
+               return deserializeGameObjectArray(data);
 
             case "State":
                return deserializeState(data);

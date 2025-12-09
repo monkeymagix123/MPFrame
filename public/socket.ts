@@ -10,6 +10,7 @@ import { Room } from "../shared/room";
 import { Serializer } from "../shared/serializer";
 import { Deserializer } from "../shared/deserializer";
 import * as tree from "./tree";
+import { GameObject } from "../shared/gameObjects";
 
 export function initSocket(): void {
    session.socket.on("menu/lobbies-list", (lobbies: Lobby[]) => {
@@ -78,6 +79,13 @@ export function initSocket(): void {
          ui.updateChatDisplay();
       })
    );
+
+   session.socket.on(
+      "game/game-objects",
+      Deserializer.createHandler<GameObject[]>("GameObject[]", (data) => {
+         session.room!.gameState.gameObjects = data;
+      })
+   )
 
    // receive player buy upgrade
    session.socket.on(

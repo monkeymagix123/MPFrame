@@ -1,4 +1,5 @@
 import { config } from "../shared/config";
+import { GameObject } from "../shared/gameObjects";
 import { clampPos } from "../shared/math";
 import { Player } from "../shared/player";
 import { TeamColor } from "../shared/types";
@@ -78,6 +79,10 @@ export function renderGame(): void {
    // Draw FPS counter if debug mode is on
    if (session.settings.showFPS) {
       drawFPS(ctx);
+   }
+
+   for (const object of session.room.gameState.gameObjects) {
+      drawObject(object, ctx);
    }
 }
 
@@ -274,6 +279,24 @@ function drawFPS(ctx: CanvasRenderingContext2D): void {
    // Draw FPS text
    ctx.fillStyle = "#00ff00";
    ctx.fillText(text, config.mapWidth - 10, 28);
+
+   // Restore context state
+   ctx.restore();
+}
+
+function drawObject(object: GameObject, ctx: CanvasRenderingContext2D): void {
+   // Save context state
+   ctx.save();
+
+   // Extract relevant object stuff
+   const pos = object.pos;
+   const radius = object.radius;
+
+   // Draw object
+   ctx.fillStyle = "blue";
+   ctx.beginPath();
+   ctx.arc(pos.x, pos.y, radius, 0, Math.PI * 2); // full circle
+   ctx.fill();
 
    // Restore context state
    ctx.restore();

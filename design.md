@@ -20,8 +20,12 @@ One massive interval, fps simulationSpeed
     - Players: Map id -> player
         - TODO: Should consolidate this & roomState's player array
     - roomState: waiting / playing / etc
-    - gameState: state of every player
+    - gameState
+        - State of every player
+        - State of game objects (array, using object pooling)
     - chat
+- Game objects
+    - Stores object generation variables (spawn time, max count, which are in generation, *etc.*)
 - Functions
     - startGame(): starts game for first time, when room becomes playing state, usually from lobby
     - startMatch(): not first time, after skill selection
@@ -43,6 +47,10 @@ Receive
         - TODO: maybe leave up to game to do this?
     - Sends move data in 'game/player-moved' to all players
 - GOAL: Should have very basic functionality: mostly coordinate game, etc to do stuff
+
+### GameObjects
+- Multiple static vars & methods
+    - Help with game object related calculations
 
 
 ## Client

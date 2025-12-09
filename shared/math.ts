@@ -1,4 +1,5 @@
 import { config } from "../shared/config";
+import { GameObject } from "./gameObjects";
 import { PlayerSegment } from "./state";
 import { v2, Vec2 } from "./v2";
 
@@ -15,7 +16,7 @@ export function clampPos(v: Vec2): Vec2 {
 }
 
 // Check if two moving squares (AABB) collide and return collision time
-export function checkMovingSquareCollision(seg1: PlayerSegment, seg2: PlayerSegment, length: number): number | null {
+export function checkMovingSquareCollision(seg1: SquareSeg, seg2: SquareSeg, length: number): number | null {
    // Determine the overlapping time range
    const startTime = Math.max(seg1.startTime, seg2.startTime);
    const endTime = Math.min(seg1.endTime, seg2.endTime);
@@ -90,4 +91,54 @@ export function checkMovingSquareCollision(seg1: PlayerSegment, seg2: PlayerSegm
    }
 
    return collisionTime;
+}
+
+interface SquareSeg extends Partial<PlayerSegment> {
+   startPos: Vec2;
+   velocity: Vec2;
+   startTime: number;
+   endTime: number;
+}
+
+interface Circle extends Partial<GameObject>{
+   pos: Vec2;
+   vel: Vec2;
+   radius: number;
+}
+
+export function checkSquareCircle(
+   seg: SquareSeg,
+   object: Circle,
+   sideLength: number = config.playerLength
+): number | null {
+   return checkMovingSquareCollision(seg, { startPos: object.pos, velocity: object.vel, startTime: 0, endTime: Number.MAX_VALUE }, (sideLength / 2) + object.radius);
+}
+
+/**
+ * Checks if a segment from (0, 0) to end intersects segment a to b
+ * Returns a number 0 to 1, where 0 is (0, 0) and 1 is end
+ */
+function checkSegSeg(vec1: Vec2, a: Vec2, b: Vec2): number | null {
+   const vec2 = v2.sub(b, a);
+
+   // Cramer's rule
+   const d = cross(vec1, vec2);
+
+   if (Math.abs(d) < 1e-6) {
+      return null;
+   }
+
+   const t = cross(a, vec2) / d;
+   const u = cross(vec1, a) / d;
+
+   // Check if intersection is on both segments
+   if (t < 0 || t > 1 || u < 0 || u > 1) {
+      return null;
+   }
+
+   return t;
+}
+
+function cross(v: Vec2, w: Vec2) {
+   return v.x * w.y - v.y * w.x;
 }

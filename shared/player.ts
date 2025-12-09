@@ -1,4 +1,5 @@
 import { config } from "./config";
+import { GameObject } from "./gameObjects";
 import { clampPos } from "./math";
 import { MoveData } from "./moveData";
 import { PlayerFlags, PlayerStats } from "./playerStats";
@@ -77,12 +78,6 @@ export class Player {
       }
    }
 
-   isInvulnerable(): boolean {
-      if (!this.dashing) return false;
-
-      return this.flags.dashInvulnerable;
-   }
-
    /**
     * Heals the player for a given amount of health.
     * If the player's health exceeds their maximum health, caps their health at their maximum health.
@@ -98,6 +93,32 @@ export class Player {
       return true;
    }
 
+   interact(object: GameObject): void {
+      const effects = object.effects;
+
+      if (effects === undefined) return;
+
+      if (effects.baseDamage !== undefined) {
+         this.takeDamage(effects.baseDamage);
+      }
+
+      if (effects.baseHeal !== undefined) {
+         this.heal(effects.baseHeal);
+      }
+   }
+
+   // Status getters
+   /**
+    * Check if the player is invulnerable to damage.
+    * A player is invulnerable if they are currently dashing and the dashInvulnerable flag is true.
+    * @returns {boolean} True if the player is invulnerable to damage, false otherwise.
+    */
+   isInvulnerable(): boolean {
+      if (!this.dashing) return false;
+
+      return this.flags.dashInvulnerable;
+   }
+
    /**
     * Check if the player is alive.
     * @returns {boolean} True if player is alive, false otherwise.
@@ -107,6 +128,7 @@ export class Player {
       // TODO: also add check for if disconnected
    }
 
+   // Move Data (network utilities)
    /**
     * Returns the current move data of the player.
     * This data contains information about the player's position, velocity, dashing status, dashing progress, and dashing velocity.
@@ -131,6 +153,17 @@ export class Player {
       this.dashVel = move.dashVel;
    }
 
+   // Update
+   
+   /**
+    * Updates the player's state based on the given delta time.
+    * If the player is currently dashing, it will check if the dash should end during this frame.
+    * If the dash should end, it will split the movement into two segments: one for the dash and one for the normal movement.
+    * If the dash should not end, it will simply update the player's position based on the dash velocity.
+    * If the player is not dashing, it will simply update the player's position based on the normal velocity.
+    * @param {number} dt - The delta time to update the player by.
+    * @returns {PlayerSegment[]} An array of player segments, each representing a portion of the player's movement over the given delta time.
+    */
    update(dt: number): PlayerSegment[] {
       this.dashProgress = Math.min(this.dashProgress + dt, this.stats.dashCooldown);
       
@@ -184,6 +217,11 @@ export class Player {
       const startPos: Vec2 = this.pos;
       this.pos = clampPos(v2.add(this.pos, v2.mul(vel, dt)));
 
+      // Damage Over Time
+      if (this.isAlive()) {
+         this.damageOverTime(dt);
+      }
+
       return [
          {
             player: this,
@@ -195,14 +233,11 @@ export class Player {
          },
       ];
    }
-
-   endMatch(): void {
-      // calculate how many skill points gained
-      this.skillPoints += config.points.base
-         + this.killCount * config.points.perKill
-         + this.deathCount * config.points.perDeath;
+   damageOverTime(dt: number) {
+      this.health -= this.stats.damageOverTime * dt;
    }
 
+   // Skill Tree
    buyUpgrade(skillId: string): boolean {
       // Can't afford
       if (this.skillPoints < skillData[skillId].cost) {
@@ -263,6 +298,13 @@ export class Player {
    }
 
    // match utilities
+
+   endMatch(): void {
+      // calculate how many skill points gained
+      this.skillPoints += config.points.base
+         + this.killCount * config.points.perKill
+         + this.deathCount * config.points.perDeath;
+   }
    
    /**
     * Resets the player's state at the start of a match.
