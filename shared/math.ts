@@ -1,4 +1,5 @@
 import { config } from "../shared/config";
+import { GameObject } from "./gameObjects";
 import { PlayerSegment } from "./state";
 import { v2, Vec2 } from "./v2";
 
@@ -15,7 +16,7 @@ export function clampPos(v: Vec2): Vec2 {
 }
 
 // Check if two moving squares (AABB) collide and return collision time
-export function checkMovingSquareCollision(seg1: PlayerSegment, seg2: PlayerSegment, length: number): number | null {
+export function checkMovingSquareCollision(seg1: SquareSeg, seg2: SquareSeg, length: number): number | null {
    // Determine the overlapping time range
    const startTime = Math.max(seg1.startTime, seg2.startTime);
    const endTime = Math.min(seg1.endTime, seg2.endTime);
@@ -92,14 +93,14 @@ export function checkMovingSquareCollision(seg1: PlayerSegment, seg2: PlayerSegm
    return collisionTime;
 }
 
-interface SquareSeg {
+interface SquareSeg extends Partial<PlayerSegment> {
    startPos: Vec2;
    velocity: Vec2;
    startTime: number;
    endTime: number;
 }
 
-interface Circle {
+interface Circle extends Partial<GameObject>{
    pos: Vec2;
    vel: Vec2;
    radius: number;
@@ -108,70 +109,9 @@ interface Circle {
 export function checkSquareCircle(
    seg: SquareSeg,
    object: Circle,
-   side = config.playerLength
+   sideLength: number = config.playerLength
 ): number | null {
-   // relative motion: treat circle as stationary at origin
-   const relPos = v2.sub(seg.startPos, object.pos); // square center relative to circle center
-   const relVel = v2.sub(seg.velocity, object.vel); // square velocity relative to circle velocity
-
-   const dt = seg.endTime - seg.startTime;
-   if (dt <= 0) return null;
-
-   // inflate square by circle radius (Minkowski sum)
-   const side2 = side + 2 * object.radius;
-   const half = side2 / 2;
-
-   // If point already inside the inflated square at t = 0 => immediate collision
-   if (Math.abs(relPos.x) <= half && Math.abs(relPos.y) <= half) {
-      return seg.startTime;
-   }
-
-   // We'll compute t in [0,1] representing fraction of the motion (0..dt)
-   let tEnter = -Infinity;
-   let tExit = Infinity;
-   const EPS = 1e-9; // a very small number
-
-   // Helper to handle each axis
-   function slabAxis(p: number, v: number, halfExtent: number) {
-      if (Math.abs(v) < EPS) {
-         // No motion along this axis
-         if (Math.abs(p) > halfExtent) {
-            // Always outside this slab -> no intersection
-            return null;
-         } else {
-            // Always inside this slab for all t
-            return { enter: -Infinity, exit: Infinity };
-         }
-      } else {
-         const t1 = (-halfExtent - p) / v;
-         const t2 = (halfExtent - p) / v;
-         return { enter: Math.min(t1, t2), exit: Math.max(t1, t2) };
-      }
-   }
-
-   const sx = slabAxis(relPos.x, relVel.x, half);
-   if (sx === null) return null;
-   tEnter = Math.max(tEnter, sx.enter);
-   tExit = Math.min(tExit, sx.exit);
-
-   const sy = slabAxis(relPos.y, relVel.y, half);
-   if (sy === null) return null;
-   tEnter = Math.max(tEnter, sy.enter);
-   tExit = Math.min(tExit, sy.exit);
-
-   // We need the ranges to overlap and intersect [0,1]
-   // intersection interval is [tEnter, tExit]
-   const intervalStart = Math.max(tEnter, 0);
-   const intervalEnd = Math.min(tExit, 1);
-
-   if (intervalStart <= intervalEnd) {
-      // earliest collision time fraction
-      const tFrac = intervalStart;
-      // convert to absolute time
-      return seg.startTime + tFrac * dt;
-   }
-
-   return null;
+   return checkMovingSquareCollision(seg, { startPos: object.pos, velocity: object.vel, startTime: 0, endTime: Number.MAX_VALUE }, (sideLength / 2) + object.radius);
 }
 
 /**

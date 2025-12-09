@@ -1,3 +1,4 @@
+import { GameObject } from "./gameObjects";
 import { Player } from "./player";
 import { TeamColor } from "./types";
 import { Vec2 } from "./v2";
@@ -29,4 +30,17 @@ export const networkUtil = {
 
         return player;
     },
+
+    deserializeGameObject(data: Record<string, unknown>): GameObject {
+        const type = data.type as string;
+        const posData = data.pos as Record<string, number>;
+        const pos = new Vec2(posData.x, posData.y);
+        const radius = data.radius as number;
+
+        const object = new GameObject(type, pos, radius);
+
+        Object.assign(object, data);
+
+        return object;
+    }
 }

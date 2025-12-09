@@ -5,6 +5,8 @@
 
         "radius": 5,
         
-        "baseHeal": 25
+        "playerEffects": {
+            "baseHeal": 25
+        }
     }
 }

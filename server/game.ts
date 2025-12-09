@@ -130,7 +130,7 @@ export class Game {
 	update() {
 		// Get time data
 		const currentTime = performance.now();
-		const dt = (currentTime - this.lastTime) / 1000;
+		const dt = (currentTime - this.lastTime) / 1000; // in seconds
 		this.lastTime = currentTime;
 
 		const players = this.room.gameState.players;
@@ -161,7 +161,11 @@ export class Game {
 
 		// Generate game objects
 		this.generateGameObjects();
-		io.to(this.room.code).emit("game/game-objects", this.room.gameState.gameObjects);
+		io.to(this.room.code).emit(
+			"game/game-objects",
+			GameObject.getActiveObjects(this.room.gameState.gameObjects),
+			"GameObject[]",
+		);
 
 		// Determine whether game is over
 		this.checkGameOver();
@@ -186,7 +190,7 @@ export class Game {
 
 			// Mark object as in creation
 			this.gameObjectCreation.add(type);
-			
+
 			// Add object after a delay
 			setTimeout(() => {
 				this.room.gameState.gameObjects.push(object);

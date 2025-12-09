@@ -1,6 +1,6 @@
 import { config } from "./config";
 import { GameObject } from "./gameObjects";
-import { checkMovingSquareCollision, clampPos } from "./math";
+import { checkMovingSquareCollision, checkSquareCircle, clampPos } from "./math";
 import { Player } from "./player";
 import { v2, Vec2 } from "./v2";
 
@@ -15,12 +15,10 @@ export interface PlayerSegment {
 }
 
 export class State {
-   players: Player[];
+   players: Player[] = [];
    gameObjects: GameObject[] = [];
 
-   constructor() {
-      this.players = [];
-   }
+   constructor() {}
 
    changeState(newState: State): void {
       this.players = newState.players;
@@ -43,6 +41,32 @@ export class State {
          segments.push(...this.updatePlayer(player, dt));
       }
 
+      // Check game object collisions
+      for (const seg of segments) {
+         for (const object of this.gameObjects) {
+            if (!object.isActive) {
+               continue;
+            }
+
+            if (!object.hasEffects()) {
+               continue;
+            }
+
+            if (checkSquareCircle(seg, object)) {
+               console.log("Collided with object");
+               console.log("Object pos:", object.pos);
+               console.log("Player velocity:", seg.velocity);
+               console.log("Player pos:", seg.startPos);
+
+               // Interact
+               seg.player.interact(object);
+               console.log("Interacted with object");
+               object.isActive = false;
+            }
+         }
+      }
+
+      // Check damage
       if (damage) {
          for (let i = 0; i < segments.length; i++) {
             for (let j = i + 1; j < segments.length; j++) {
@@ -77,6 +101,11 @@ export class State {
                }
             }
          }
+      }
+
+      // Move objects
+      for (const object of this.gameObjects) {
+         object.update(dt);
       }
    }
 }

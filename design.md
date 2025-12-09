@@ -22,7 +22,7 @@ One massive interval, fps simulationSpeed
     - roomState: waiting / playing / etc
     - gameState
         - State of every player
-        - State of game objects
+        - State of game objects (array, using object pooling)
     - chat
 - Game objects
     - Stores object generation variables (spawn time, max count, which are in generation, *etc.*)
