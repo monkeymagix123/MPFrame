@@ -79,6 +79,13 @@ export function initSocket(): void {
       })
    );
 
+   session.socket.on(
+      "game/game-objects",
+      (data) => {
+         session.room!.gameState.gameObjects = data;
+      }
+   )
+
    // receive player buy upgrade
    session.socket.on(
       "game/player-bought-upgrade",

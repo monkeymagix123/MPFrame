@@ -11,6 +11,8 @@ import { EndGameMsg, EndGameResult, TeamColor, type WinColor } from "../shared/t
 import { io } from "./server";
 import * as gameLoops from "serverLoop";
 
+import { GameObject, objectTypes } from "../shared/gameObjects";
+
 // map room code to game object
 const games = new Map<string, Game>();
 
@@ -109,6 +111,12 @@ function endGame(room: Room, io: Server, msg: EndGameMsg): void {
 export class Game {
 	room: Room;
 
+	// Game Object related
+	gameObjectMaxCount: Record<string, number> = GameObject.baseMaxCount;
+	gameObjectSpawnTime: Record<string, number> = GameObject.baseSpawnTime;
+
+	gameObjectCreation: Set<string> = new Set(); // store which game objects are in creation
+
 	interval?: NodeJS.Timeout;
 
 	lastTime: number;
@@ -151,8 +159,40 @@ export class Game {
 			}
 		}
 
+		// Generate game objects
+		this.generateGameObjects();
+		io.to(this.room.code).emit("game/game-objects", this.room.gameState.gameObjects);
+
 		// Determine whether game is over
 		this.checkGameOver();
+	}
+
+	generateGameObjects(): void {
+		// Generate orbs
+		const counts = GameObject.countAll(this.room.gameState.gameObjects);
+
+		for (const type of objectTypes) {
+			// Enough objects
+			if (counts[type] >= this.gameObjectMaxCount[type]) {
+				continue;
+			}
+			
+			// Already creating object
+			if (this.gameObjectCreation.has(type)) {
+				continue;
+			}
+
+			const object = GameObject.create(type);
+
+			// Mark object as in creation
+			this.gameObjectCreation.add(type);
+			
+			// Add object after a delay
+			setTimeout(() => {
+				this.room.gameState.gameObjects.push(object);
+				this.gameObjectCreation.delete(type);
+			}, this.gameObjectSpawnTime[type] * 1000);
+		}
 	}
 	
 	/**
@@ -207,6 +247,8 @@ export class Game {
 
 		// Stop game loop
 		gameLoops.removeGame(room.code);
+
+		// Reset object creation status
 
 		if (room.roomState !== "playing") {
 			// THIS SHOULD NEVER OCCUR

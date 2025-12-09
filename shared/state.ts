@@ -1,4 +1,5 @@
 import { config } from "./config";
+import { GameObject } from "./gameObjects";
 import { checkMovingSquareCollision, clampPos } from "./math";
 import { Player } from "./player";
 import { v2, Vec2 } from "./v2";
@@ -15,6 +16,7 @@ export interface PlayerSegment {
 
 export class State {
    players: Player[];
+   gameObjects: GameObject[] = [];
 
    constructor() {
       this.players = [];
@@ -22,10 +24,12 @@ export class State {
 
    changeState(newState: State): void {
       this.players = newState.players;
+      this.gameObjects = newState.gameObjects;
    }
 
    resetState(): void {
       this.players = [];
+      this.gameObjects = [];
    }
 
    updatePlayer(player: Player, dt: number): PlayerSegment[] {
