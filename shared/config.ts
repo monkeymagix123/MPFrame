@@ -22,7 +22,7 @@ export const config = {
    maxHealth: 100,
 
    damageOverTimeBase: 1,
-   damageOverTimeScaling: 0.3,
+   damageOverTimeScaling: 0.1,
 
    points: {
       base: 1,
