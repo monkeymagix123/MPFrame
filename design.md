@@ -21,6 +21,7 @@ One massive interval, fps simulationSpeed
         - TODO: Should consolidate this & roomState's player array
     - roomState: waiting / playing / etc
     - gameState
+        - Time of match start
         - State of every player
         - State of game objects (array, using object pooling)
     - chat
@@ -32,7 +33,8 @@ One massive interval, fps simulationSpeed
     - update()
         - Stores previous healths
         - room.gameState updates all players by dt
-            - player.update(dt) gives player segments
+            - player.update(dt, time since game start) gives player segments
+                - Also calculates energy over time
             - Calc damage from player segments
     - this.endMatch(): ends match, makes skill selection
         - This is an instance function because game must have been initialized
@@ -80,3 +82,10 @@ Receive
 
 
 Tree (uses session player)
+
+
+## Game Design
+Constant damage
+- damageOverTimeBase, damageOverTimeScaling
+- ddmg/dt = damageOverTime + damageOverTimeScaling * t
+- damageOverTime * t + damageOverTimeScaling * t^2 / 2 | ti to tf

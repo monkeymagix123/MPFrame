@@ -170,7 +170,7 @@ export class Player {
     * @param {number} dt - The delta time to update the player by.
     * @returns {PlayerSegment[]} An array of player segments, each representing a portion of the player's movement over the given delta time.
     */
-   update(dt: number): PlayerSegment[] {
+   update(dt: number, startTime: number): PlayerSegment[] {
       this.dashProgress = Math.min(this.dashProgress + dt, this.stats.dashCooldown);
       
       let vel = this.moveVel;
@@ -225,7 +225,8 @@ export class Player {
 
       // Damage Over Time
       if (this.isAlive()) {
-         this.damageOverTime(dt);
+         // Do at end of the loop
+         this.damageOverTime(startTime - dt, startTime);
       }
 
       return [
@@ -239,8 +240,13 @@ export class Player {
          },
       ];
    }
-   damageOverTime(dt: number) {
-      this.health -= this.stats.damageOverTime * dt;
+   damageOverTime(startTime: number, endTime: number) {
+      const dmg = this.totalDmg(endTime) - this.totalDmg(startTime);
+      this.takeDamage(dmg);
+   }
+
+   private totalDmg(t: number) {
+      return this.stats.damageOverTimeBase * t + 0.5 * this.stats.damageOverTimeScaling * t * t;
    }
 
    // Skill Tree
@@ -304,7 +310,6 @@ export class Player {
    }
 
    // match utilities
-
    endMatch(): void {
       // calculate how many skill points gained
       this.skillPoints += config.points.base

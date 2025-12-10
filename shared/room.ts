@@ -52,6 +52,7 @@ export class Room {
 
    startGame(): void {
       this.roomState = "playing";
+      this.gameState.startMatch();
    }
 
    endGame(): void {

@@ -15,6 +15,9 @@ export interface PlayerSegment {
 }
 
 export class State {
+   // Time since start of game
+   startTime: number = 0;
+
    players: Player[] = [];
    gameObjects: GameObject[] = [];
 
@@ -30,15 +33,19 @@ export class State {
       this.gameObjects = [];
    }
 
-   updatePlayer(player: Player, dt: number): PlayerSegment[] {
-      return player.update(dt);
+   updatePlayer(player: Player, dt: number, startTime: number): PlayerSegment[] {
+      return player.update(dt, startTime);
    }
 
    updateAll(dt: number, collisions?: boolean): void {
       let segments: PlayerSegment[] = [];
 
+      // calculate time since match start, in seconds
+      // we assume intervals are [curTime - dt, curTime]
+      const timeSinceStart = (performance.now() - this.startTime) / 1000;
+
       for (const player of this.players) {
-         segments.push(...this.updatePlayer(player, dt));
+         segments.push(...this.updatePlayer(player, dt, timeSinceStart));
       }
 
       // Check game object collisions
@@ -107,5 +114,9 @@ export class State {
       for (const object of this.gameObjects) {
          object.update(dt);
       }
+   }
+
+   startMatch(): void {
+      this.startTime = performance.now();
    }
 }

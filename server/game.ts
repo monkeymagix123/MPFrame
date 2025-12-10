@@ -148,7 +148,7 @@ export class Game {
 					health: player.health,
 					time: currentTime,
 				};
-				console.log("sent damage data", damageData);
+				// console.log("sent damage data", damageData);
 				io.to(this.room.code).emit("game/player-delta", damageData);
 			}
 		}
