@@ -9,7 +9,7 @@ export class Settings {
    constructor() {
       this.highQuality = false;
       this.resScale = 2.0;
-      this.logSocket = true;
+      this.logSocket = false;
       this.showFPS = false;
    }
 }

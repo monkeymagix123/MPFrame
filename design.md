@@ -45,7 +45,7 @@ Receive
 - Receive 'game/player-move'
     - Feeds moveData into corresponding player
         - TODO: maybe leave up to game to do this?
-    - Sends move data in 'game/player-moved' to all players
+    - Sends move data in 'game/player-delta' to all players
 - GOAL: Should have very basic functionality: mostly coordinate game, etc to do stuff
 
 ### GameObjects

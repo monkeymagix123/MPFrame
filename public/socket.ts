@@ -4,7 +4,7 @@ import * as ui from "./ui";
 import { startGameLoop } from "./gameLoop";
 import { updateURL } from "./url";
 import { EndGameMsg, Lobby } from "../shared/types";
-import { DamageData, MoveData } from "../shared/moveData";
+import { PlayerDelta } from "../shared/player";
 import { Player } from "../shared/player";
 import { Room } from "../shared/room";
 import { Serializer } from "../shared/serializer";
@@ -58,20 +58,12 @@ export function initSocket(): void {
       })
    );
 
-   session.socket.on("game/player-moved", (id: string, data: MoveData) => {
-      if (id === session.socket.id) return;
-      const player = session.room?.gameState.players.find((p) => p.id === id);
-      player?.applyMoveData(data);
+   session.socket.on("game/player-delta", (data: PlayerDelta) => {
+      // if (id === session.socket.id) return;
+      const player = session.room?.gameState.players.find((p) => p.id === data.id);
+      player?.applyPlayerDelta(data);
    });
-
-   session.socket.on("game/player-damage", (damage: DamageData) => {
-      const player = session.room?.gameState.players.find((p) => p.id === damage.playerId);
-
-      if (!player) return;
-
-      player.takeDamage(damage.damage);
-   });
-
+   
    session.socket.on(
       "game/chat-message",
       Deserializer.createHandler<ChatMessage>("ChatMessage", (data) => {

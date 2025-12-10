@@ -5,7 +5,7 @@ import { Vec2 } from "../shared/v2";
 import { config } from "../shared/config";
 import { Room } from "../shared/room";
 import { colorSettings, Settings } from "./settings";
-import { MoveData } from "../shared/moveData";
+import { PlayerDelta } from "../shared/player";
 import { drawEndScreen } from "./canvas";
 import { stopGameLoop } from "./gameLoop";
 import * as tree from "./tree";

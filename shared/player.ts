@@ -1,13 +1,16 @@
 import { config } from "./config";
 import { GameObject } from "./gameObjects";
 import { clampPos } from "./math";
-import { MoveData } from "./moveData";
 import { PlayerFlags, PlayerStats } from "./playerStats";
 import { Effect, skillData, treeUtil } from "./skillTree";
 import { PlayerSegment } from "./state";
 import { TeamColor } from "./types";
 import { v2, Vec2 } from "./v2";
 
+/**
+ * Represents a player instance in the game.
+ * Used for both the server and the client.
+ */
 export class Player {
    id: string;
    name: string;
@@ -26,7 +29,7 @@ export class Player {
 
    health: number = config.maxHealth;
 
-   // Stats
+   // Stats, fully refreshed at the start and end of each match
    stats: PlayerStats = new PlayerStats();
    flags: PlayerFlags = new PlayerFlags();
 
@@ -132,9 +135,9 @@ export class Player {
    /**
     * Returns the current move data of the player.
     * This data contains information about the player's position, velocity, dashing status, dashing progress, and dashing velocity.
-    * @return {MoveData} The current move data of the player.
+    * @return {PlayerDelta} The current move data of the player.
     */
-   getMoveData(): MoveData {
+   getMoveData(): PlayerDelta {
       return {
          time: performance.now(), // TODO: Maybe return time since start of game
          pos: this.pos,
@@ -145,12 +148,15 @@ export class Player {
       };
    }
 
-   applyMoveData(move: MoveData): void {
-      this.pos = move.pos;
-      this.moveVel = move.moveVel;
-      this.dashing = move.dashing;
-      this.dashProgress = move.dashProgress;
-      this.dashVel = move.dashVel;
+   applyPlayerDelta(move: PlayerDelta): void {
+      // Movement
+      this.pos = move.pos ?? this.pos;
+      this.moveVel = move.moveVel ?? this.moveVel;
+      this.dashing = move.dashing ?? this.dashing;
+      this.dashProgress = move.dashProgress ?? this.dashProgress;
+      this.dashVel = move.dashVel ?? this.dashVel;
+      console.log(move.health);
+      this.health = (move.health ?? this.health) /*- this.stats.damageOverTime * (performance.now() - move.time)*/;
    }
 
    // Update
@@ -321,4 +327,8 @@ export class Player {
 		this.dashProgress = this.stats.dashCooldown;
 		this.dashing = false;
    }
+}
+
+export interface PlayerDelta extends Partial<Player> {
+   time: number;
 }

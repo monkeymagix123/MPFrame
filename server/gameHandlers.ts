@@ -1,17 +1,12 @@
 import { Server } from "socket.io";
 import { GameSocket } from "./types";
-import { MoveData } from "../shared/moveData";
+import { PlayerDelta } from "../shared/player";
 import { rooms } from "./server";
-import { Serializer, validateMoveData } from "../shared/serializer";
+import { Serializer } from "../shared/serializer";
 import { startGame, startMatch } from "game";
 
 export function setupGameHandlers(socket: GameSocket, io: Server): void {
-   socket.on("game/player-move", (data: MoveData) => {
-      if (!validateMoveData(data)) {
-         console.warn("Invalid move data received");
-         return;
-      }
-
+   socket.on("game/player-move", (data: PlayerDelta) => {
       if (!socket.roomCode || !rooms.has(socket.roomCode)) return;
 
       const room = rooms.get(socket.roomCode)!;
@@ -19,9 +14,12 @@ export function setupGameHandlers(socket: GameSocket, io: Server): void {
 
       if (!player || room.roomState !== "playing") return;
 
-      player.applyMoveData(data);
+      player.applyPlayerDelta(data);
 
-      socket.to(socket.roomCode).emit("game/player-moved", socket.id, data);
+      socket.to(socket.roomCode).emit("game/player-delta", {
+         id: socket.id,
+         ...data,
+      });
    });
 
    socket.on("game/player-buy-upgrade", (upgrade: string) => {
