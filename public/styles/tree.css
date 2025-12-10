@@ -70,7 +70,7 @@
 /* Tooltip text */
 .tooltiptext {
   visibility: hidden; /* Hidden by default */
-  width: 130px;
+  width: 100%;
   background-color: black;
   color: #ffffff;
   text-align: center;
@@ -80,7 +80,7 @@
   z-index: 1; /* Ensure tooltip is displayed above content */
   bottom: 100%;
   left: 50%;
-  margin-left: -65px;
+  margin-left: -50%;
 }
 
 /* Show the tooltip text when you hover over the tooltip container */
