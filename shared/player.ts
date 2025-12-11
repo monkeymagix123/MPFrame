@@ -292,7 +292,7 @@ export class Player {
 
       if (statData) {
          for (const [stat, value] of Object.entries(statData)) {
-            const key = stat as keyof PlayerStats;
+            const key = treeUtil.parseEffectKey(stat) as keyof PlayerStats;
 
             this.stats[key] += value;
          }
@@ -307,6 +307,25 @@ export class Player {
       }
 
       console.log(this);
+   }
+
+   previewEffects(effect: Effect): Partial<PlayerStats>[] {
+      // TODO
+      const oldStats = {} as Partial<PlayerStats>;
+      const newStats = {} as Partial<PlayerStats>;
+
+      const statData = effect.stats as Partial<PlayerStats>;
+
+      if (statData) {
+         for (const [stat, value] of Object.entries(statData)) {
+            const key = treeUtil.parseEffectKey(stat) as keyof PlayerStats;
+
+            oldStats[key] = this.stats[key];
+            newStats[key] = oldStats[key] + value;
+         }
+      }
+      
+      return [oldStats, newStats];
    }
 
    // match utilities

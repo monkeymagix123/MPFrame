@@ -1,6 +1,6 @@
 // --- 1. Player State ---
 import { session } from "./session";
-import { skillData, treeUtil } from "../shared/skillTree";
+import { Effect, skillData, treeUtil } from "../shared/skillTree";
 import { Player } from "../shared/player";
 
 let player: Player;
@@ -28,6 +28,22 @@ export function drawUI() {
 
     // start loop
     startUpdateLoop();
+}
+
+function effectsString(skillEffects?: Effect): string {
+    if (!skillEffects) {
+        return "";
+    }
+
+    if (!player) {
+        return "";
+    }
+
+    let s = `<br> Effects: <br>
+        ${treeUtil.getEffectsString(player.previewEffects(skillEffects))}
+    `
+
+    return s;
 }
 
 /**
@@ -72,6 +88,7 @@ export function initTreeUI() {
             ${skill.desc} <br>
             Cost: ${skill.cost} <br>
             Prereq: ${skill.prereq.map(prereq => skillData[prereq].name).join(', ')}
+            ${ effectsString(skill.effects) }
         `;
         buttonElement.appendChild(tooltipElement);
     }
