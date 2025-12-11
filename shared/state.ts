@@ -60,14 +60,14 @@ export class State {
             }
 
             if (checkSquareCircle(seg, object)) {
-               console.log("Collided with object");
-               console.log("Object pos:", object.pos);
-               console.log("Player velocity:", seg.velocity);
-               console.log("Player pos:", seg.startPos);
+               // console.log("Collided with object");
+               // console.log("Object pos:", object.pos);
+               // console.log("Player velocity:", seg.velocity);
+               // console.log("Player pos:", seg.startPos);
 
                // Interact
                seg.player.interact(object);
-               console.log("Interacted with object");
+               // console.log("Interacted with object");
                object.isActive = false;
             }
          }

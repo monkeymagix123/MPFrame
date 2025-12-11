@@ -155,7 +155,7 @@ export class Player {
       this.dashing = move.dashing ?? this.dashing;
       this.dashProgress = move.dashProgress ?? this.dashProgress;
       this.dashVel = move.dashVel ?? this.dashVel;
-      console.log(move.health);
+      // console.log(move.health);
       this.health = (move.health ?? this.health) /*- this.stats.damageOverTime * (performance.now() - move.time)*/;
    }
 
@@ -272,8 +272,6 @@ export class Player {
       // buy the upgrades
       this.skillPoints -= skill.cost;
       this.unlockedSkills.push(skillId);
-
-      console.log(skill);
 
       // actually do the upgrade
       if (skill.effects !== undefined) {

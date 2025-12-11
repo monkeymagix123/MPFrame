@@ -44,9 +44,9 @@ export function setupGameHandlers(socket: GameSocket, io: Server): void {
       const player = room.gameState.players.find((p) => p.id === socket.id);
 
 
-      console.log("recieved")
+      // console.log("recieved")
       if (!player || room.roomState !== "skill-selection") return;
-      console.log("toggled")
+      // console.log("toggled")
 
       player.skillReady = !player.skillReady;
 
