@@ -73,7 +73,7 @@ export function startMatch(room: Room, io: Server): void {
 }
 
 // TODO: CURRENTLY UNUSED
-function endGame(room: Room, io: Server, msg: EndGameMsg): void {
+export function endGame(room: Room, msg: EndGameMsg): void {
 	const wasWaiting = room.roomState === "waiting";
 
 	// Stop game loop

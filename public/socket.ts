@@ -107,7 +107,7 @@ export function initSocket(): void {
       (data: EndGameMsg) => {
          // draw end game ui
          console.log("Match ended", data);
-         session.endGame(data);
+         session.endMatch(data);
       }
    )
 
