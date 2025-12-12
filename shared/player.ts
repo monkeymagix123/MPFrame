@@ -198,9 +198,11 @@ export class Player {
          const dashTimeRemaining = this.getDashDuration() - (this.dashProgress - dt);
 
          if (dashTimeRemaining <= 0) {
+            // dash has ended
             this.dashing = false;
             vel = this.moveVel;
          } else if (dashTimeRemaining < dt) {
+            // dash for a portion then move for the rest
             const dashPortion = dashTimeRemaining;
             const movePortion = dt - dashTimeRemaining;
 
