@@ -16,6 +16,8 @@ export class PlayerStats {
     // Movement
     dashSpeed: number = config.dashSpeed;
     dashDistance: number = config.dashDistance;
+
+    // Cooldown
     dashCooldown: number = config.dashCooldown;
 
     // Effects
