@@ -3,7 +3,8 @@ import { GameSocket } from "./types";
 import { rooms, playerNames } from "./server";
 import { broadcastLobbiesList } from "./misc";
 import { Serializer } from "../shared/serializer";
-import { TeamColor } from "../shared/types";
+import { EndGameResult, TeamColor } from "../shared/types";
+import { endGame } from "game";
 
 export function setupDisconnectHandler(socket: GameSocket, io: Server): void {
    socket.on("disconnect", () => {
@@ -15,7 +16,11 @@ export function setupDisconnectHandler(socket: GameSocket, io: Server): void {
          const room = rooms.get(socket.roomCode)!;
          const wasLobby = room.roomState === "waiting";
 
+         // delete the disconnected player
          room.players.delete(socket.id);
+         room.gameState.players.splice(
+            room.gameState.players.findIndex((p) => p.id === socket.id)
+         );
 
          if (room.players.size === 0) {
             rooms.delete(socket.roomCode);
@@ -28,7 +33,7 @@ export function setupDisconnectHandler(socket: GameSocket, io: Server): void {
 
             if (teamsRemaining === 1) {
                console.log(`Game ${socket.roomCode} Finished`);
-               Serializer.emitToRoom(io, socket.roomCode, "game/game-ended", room.players, "Map<string, Player>");
+               endGame(room, { winColor: redCount > 0 ? TeamColor.red : TeamColor.blue, reason: EndGameResult.disconnect});
             } else {
                Serializer.emitToRoom(io, socket.roomCode, "room/player-list", room.players, "Map<string, Player>");
                if (wasLobby) {

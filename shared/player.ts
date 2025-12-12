@@ -1,13 +1,16 @@
 import { config } from "./config";
 import { GameObject } from "./gameObjects";
 import { clampPos } from "./math";
-import { MoveData } from "./moveData";
 import { PlayerFlags, PlayerStats } from "./playerStats";
 import { Effect, skillData, treeUtil } from "./skillTree";
 import { PlayerSegment } from "./state";
 import { TeamColor } from "./types";
 import { v2, Vec2 } from "./v2";
 
+/**
+ * Represents a player instance in the game.
+ * Used for both the server and the client.
+ */
 export class Player {
    id: string;
    name: string;
@@ -26,7 +29,7 @@ export class Player {
 
    health: number = config.maxHealth;
 
-   // Stats
+   // Stats, fully refreshed at the start and end of each match
    stats: PlayerStats = new PlayerStats();
    flags: PlayerFlags = new PlayerFlags();
 
@@ -132,9 +135,9 @@ export class Player {
    /**
     * Returns the current move data of the player.
     * This data contains information about the player's position, velocity, dashing status, dashing progress, and dashing velocity.
-    * @return {MoveData} The current move data of the player.
+    * @return {PlayerDelta} The current move data of the player.
     */
-   getMoveData(): MoveData {
+   getMoveData(): PlayerDelta {
       return {
          time: performance.now(), // TODO: Maybe return time since start of game
          pos: this.pos,
@@ -145,12 +148,15 @@ export class Player {
       };
    }
 
-   applyMoveData(move: MoveData): void {
-      this.pos = move.pos;
-      this.moveVel = move.moveVel;
-      this.dashing = move.dashing;
-      this.dashProgress = move.dashProgress;
-      this.dashVel = move.dashVel;
+   applyPlayerDelta(move: PlayerDelta): void {
+      // Movement
+      this.pos = move.pos ?? this.pos;
+      this.moveVel = move.moveVel ?? this.moveVel;
+      this.dashing = move.dashing ?? this.dashing;
+      this.dashProgress = move.dashProgress ?? this.dashProgress;
+      this.dashVel = move.dashVel ?? this.dashVel;
+      // console.log(move.health);
+      this.health = (move.health ?? this.health) /*- this.stats.damageOverTime * (performance.now() - move.time)*/;
    }
 
    // Update
@@ -164,7 +170,7 @@ export class Player {
     * @param {number} dt - The delta time to update the player by.
     * @returns {PlayerSegment[]} An array of player segments, each representing a portion of the player's movement over the given delta time.
     */
-   update(dt: number): PlayerSegment[] {
+   update(dt: number, startTime: number): PlayerSegment[] {
       this.dashProgress = Math.min(this.dashProgress + dt, this.stats.dashCooldown);
       
       let vel = this.moveVel;
@@ -219,7 +225,8 @@ export class Player {
 
       // Damage Over Time
       if (this.isAlive()) {
-         this.damageOverTime(dt);
+         // Do at end of the loop
+         this.damageOverTime(startTime - dt, startTime);
       }
 
       return [
@@ -233,8 +240,13 @@ export class Player {
          },
       ];
    }
-   damageOverTime(dt: number) {
-      this.health -= this.stats.damageOverTime * dt;
+   damageOverTime(startTime: number, endTime: number) {
+      const dmg = this.totalDmg(endTime) - this.totalDmg(startTime);
+      this.takeDamage(dmg);
+   }
+
+   private totalDmg(t: number) {
+      return this.stats.damageOverTimeBase * t + 0.5 * this.stats.damageOverTimeScaling * t * t;
    }
 
    // Skill Tree
@@ -261,8 +273,6 @@ export class Player {
       this.skillPoints -= skill.cost;
       this.unlockedSkills.push(skillId);
 
-      console.log(skill);
-
       // actually do the upgrade
       if (skill.effects !== undefined) {
          this.applyEffects(skill.effects);
@@ -280,7 +290,7 @@ export class Player {
 
       if (statData) {
          for (const [stat, value] of Object.entries(statData)) {
-            const key = stat as keyof PlayerStats;
+            const key = treeUtil.parseEffectKey(stat) as keyof PlayerStats;
 
             this.stats[key] += value;
          }
@@ -297,8 +307,26 @@ export class Player {
       console.log(this);
    }
 
-   // match utilities
+   previewEffects(effect: Effect): Partial<PlayerStats>[] {
+      // TODO
+      const oldStats = {} as Partial<PlayerStats>;
+      const newStats = {} as Partial<PlayerStats>;
 
+      const statData = effect.stats as Partial<PlayerStats>;
+
+      if (statData) {
+         for (const [stat, value] of Object.entries(statData)) {
+            const key = treeUtil.parseEffectKey(stat) as keyof PlayerStats;
+
+            oldStats[key] = this.stats[key];
+            newStats[key] = oldStats[key] + value;
+         }
+      }
+      
+      return [oldStats, newStats];
+   }
+
+   // match utilities
    endMatch(): void {
       // calculate how many skill points gained
       this.skillPoints += config.points.base
@@ -320,5 +348,13 @@ export class Player {
 		this.health = this.stats.maxHealth;
 		this.dashProgress = this.stats.dashCooldown;
 		this.dashing = false;
+
+      // reset match stats
+      this.killCount = 0;
+      this.deathCount = 0;
    }
+}
+
+export interface PlayerDelta extends Partial<Player> {
+   time: number;
 }

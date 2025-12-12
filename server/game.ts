@@ -1,6 +1,6 @@
 import { Server } from "socket.io";
 import { Room } from "../shared/room";
-import { DamageData } from "../shared/moveData";
+import { PlayerDelta } from "../shared/player";
 import { serverConfig } from "serverConfig";
 
 import { broadcastLobbiesList } from "./misc";
@@ -73,7 +73,7 @@ export function startMatch(room: Room, io: Server): void {
 }
 
 // TODO: CURRENTLY UNUSED
-function endGame(room: Room, io: Server, msg: EndGameMsg): void {
+export function endGame(room: Room, msg: EndGameMsg): void {
 	const wasWaiting = room.roomState === "waiting";
 
 	// Stop game loop
@@ -84,14 +84,10 @@ function endGame(room: Room, io: Server, msg: EndGameMsg): void {
 		Serializer.emitToRoom(io, room.code, "game/end", msg);
 	}
 
-	// technically still "playing" although just choosing the tree
-	// room.endGame();
-	room.endMatch();
+	room.endGame();
 
 	for (const player of room.gameState.players) {
 		player.endMatch();
-
-		// console.log(player);
 	}
 
 	// this works correctly
@@ -146,16 +142,14 @@ export class Game {
 		// Send damage data if health of player has changed
 		for (const player of players) {
 			const prevHealth = previousHealths.get(player.id)!;
-			if (player.health < prevHealth) {
-				const damageData: DamageData = {
-					playerId: player.id,
+			if (player.health !== prevHealth) {
+				const damageData: PlayerDelta = {
+					id: player.id,
 					health: player.health,
-					maxHealth: player.stats.maxHealth,
-					damage: prevHealth - player.health,
-					timestamp: currentTime,
+					time: currentTime,
 				};
-
-				io.to(this.room.code).emit("game/player-damage", damageData);
+				// console.log("sent damage data", damageData);
+				io.to(this.room.code).emit("game/player-delta", damageData);
 			}
 		}
 

@@ -5,7 +5,7 @@ import { Vec2 } from "../shared/v2";
 import { config } from "../shared/config";
 import { Room } from "../shared/room";
 import { colorSettings, Settings } from "./settings";
-import { MoveData } from "../shared/moveData";
+import { PlayerDelta } from "../shared/player";
 import { drawEndScreen } from "./canvas";
 import { stopGameLoop } from "./gameLoop";
 import * as tree from "./tree";
@@ -72,6 +72,45 @@ export class Session {
       this.mousePos.y = (mouseY - rect.top) * scaleY;
    }
 
+   endMatch(msg: EndGameMsg): void {
+      stopGameLoop();
+
+      const result = msg.reason;
+
+      switch (result) {
+         case EndGameResult.win:
+            // check if team color is same as win color
+            if (msg.winColor === this.player?.team) {
+               // alert("You win!");
+               drawEndScreen(this.ctx, "You win!", colorSettings.good);
+               // TODO: show better win screen
+            } else {
+               // alert("You lose!");
+               drawEndScreen(this.ctx, "You lost.", colorSettings.bad);
+            }
+            break;
+         case EndGameResult.draw:
+            // alert("Draw!");
+            drawEndScreen(this.ctx, "Draw", colorSettings.neutral);
+            break;
+         case EndGameResult.disconnect:
+            // alert("Disconnected / Game Over");
+            drawEndScreen(this.ctx, msg.winColor === this.player?.team ? "Win by disconnect" : "Disconnected", colorSettings.neutral);
+            break;
+         default:
+            drawEndScreen(this.ctx, "Game Over", colorSettings.neutral);
+            break;
+      }
+
+      // hide the canvas
+      this.canvas.classList.add("hidden");
+
+      // draw the tree
+      tree.drawUI();
+
+      console.log(this.player);
+   }
+
    /**
     * Ends the current game session and displays a message based on the end result
     * @param {EndGameResult} result - the result of the game, either red win, blue win, draw or disconnect
@@ -105,18 +144,12 @@ export class Session {
             break;
          case EndGameResult.disconnect:
             // alert("Disconnected / Game Over");
-            drawEndScreen(this.ctx, "Disconnected", colorSettings.neutral);
+            drawEndScreen(this.ctx, msg.winColor === this.player?.team ? "Win by disconnect" : "Disconnected", colorSettings.neutral);
             break;
          default:
             drawEndScreen(this.ctx, "Game Over", colorSettings.neutral);
             break;
       }
-
-      // hide the canvas
-      this.canvas.classList.add("hidden");
-      tree.drawUI();
-
-      console.log(this.player);
    }
 }
 

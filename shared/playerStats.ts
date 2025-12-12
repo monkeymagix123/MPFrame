@@ -1,7 +1,16 @@
 import { config } from "./config";
 
 // does not need serializing because constructor auto-creates it
-// Numbers only
+/**
+ * Represents the numerical stats of a player.  
+ * Should only be changed with unlocked skills.  
+ * Constants should not appear here (they should be in config).
+ * 
+ * Includes:
+ * - Dash-related stats (speed, distance, cooldown, damage)
+ * - Health-related stats (max health, damage over time)
+ * - Movement stats (speed)
+ */
 export class PlayerStats {
     // Dash-related stats
     // Movement
@@ -16,7 +25,8 @@ export class PlayerStats {
 
     // Health-related stats
     maxHealth: number = config.maxHealth;
-    damageOverTime: number = config.damageOverTime;
+    damageOverTimeBase: number = config.damageOverTimeBase;
+    damageOverTimeScaling: number = config.damageOverTimeScaling;
 
     // Movement stats
     moveSpeed: number = config.moveSpeed;
@@ -24,7 +34,14 @@ export class PlayerStats {
     constructor() {}
 }
 
-// Boolean only
+/**
+ * Represents the flags (booleans) of a player.  
+ * Should only be changed with unlocked skills.  
+ * Constants should not appear here (they should be in config)
+ * 
+ * Includes:
+ * - Dash-related flags (invulnerability)
+ */
 export class PlayerFlags {
     // Effects
     dashInvulnerable: boolean = false;

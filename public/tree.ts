@@ -1,6 +1,6 @@
 // --- 1. Player State ---
 import { session } from "./session";
-import { skillData, treeUtil } from "../shared/skillTree";
+import { Effect, skillData, treeUtil } from "../shared/skillTree";
 import { Player } from "../shared/player";
 
 let player: Player;
@@ -28,6 +28,22 @@ export function drawUI() {
 
     // start loop
     startUpdateLoop();
+}
+
+function effectsString(skillEffects?: Effect): string {
+    if (!skillEffects) {
+        return "";
+    }
+
+    if (!player) {
+        return "";
+    }
+
+    let s = `<br> Effects: <br>
+        ${treeUtil.getEffectsString(player.previewEffects(skillEffects))}
+    `
+
+    return s;
 }
 
 /**
@@ -68,10 +84,12 @@ export function initTreeUI() {
 
         const tooltipElement = document.createElement('span');
         tooltipElement.className = 'tooltiptext';
+        tooltipElement.id = `tooltip-${skillId}`;
         tooltipElement.innerHTML = `
             ${skill.desc} <br>
             Cost: ${skill.cost} <br>
             Prereq: ${skill.prereq.map(prereq => skillData[prereq].name).join(', ')}
+            ${ effectsString(skill.effects) }
         `;
         buttonElement.appendChild(tooltipElement);
     }
@@ -142,6 +160,19 @@ export function redrawUI() {
         classList.remove(...classList);
         classList.add('skill', 'tooltip');
         classList.add(...getClass(skillId));
+
+        // update tooltip only if its not bought (so effects change)
+        if (player.unlockedSkills.includes(skillId)) {
+            continue;
+        }
+        
+        const tooltipElement = document.getElementById(`tooltip-${skillId}`)! as HTMLSpanElement;
+        tooltipElement.innerHTML = `
+            ${skill.desc} <br>
+            Cost: ${skill.cost} <br>
+            Prereq: ${skill.prereq.map(prereq => skillData[prereq].name).join(', ')}
+            ${ effectsString(skill.effects) }
+        `;
     }
 }
 

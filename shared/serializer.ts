@@ -1,8 +1,7 @@
-import { Player } from "./player";
+import { Player, PlayerDelta } from "./player";
 import { Room } from "./room";
 import { Chat } from "./chat";
 import { State } from "./state";
-import { MoveData, DamageData } from "./moveData";
 import { ChatMessage } from "./chat";
 import { Vec2 } from "./v2";
 import { networkUtil } from "./networkHelper";
@@ -89,8 +88,7 @@ export class Serializer {
                serialized = serializeChat(data);
                break;
             // Types that can be auto-serialized
-            case "MoveData":
-            case "DamageData":
+            case "PlayerDelta":
             case "ChatMessage":
             case "string":
             case "number":
@@ -98,7 +96,7 @@ export class Serializer {
                // These serialize correctly as-is
                break;
             default:
-               console.log(`Auto-serializing type '${dataType}'`);
+               // console.log(`Auto-serializing type '${dataType}'`);
          }
       }
 
@@ -131,46 +129,4 @@ export class Serializer {
 
       io.to(room).emit(event, serialized);
    }
-}
-
-// Validation helpers
-export function validateMoveData(data: any): data is MoveData {
-   return (
-      data &&
-      typeof data === "object" &&
-      typeof data.time === "number" &&
-      data.pos &&
-      typeof data.pos.x === "number" &&
-      typeof data.pos.y === "number" &&
-      data.moveVel &&
-      typeof data.moveVel.x === "number" &&
-      typeof data.moveVel.y === "number" &&
-      typeof data.dashing === "boolean" &&
-      typeof data.dashProgress === "number" &&
-      data.dashVel &&
-      typeof data.dashVel.x === "number" &&
-      typeof data.dashVel.y === "number"
-   );
-}
-
-export function validateDamageData(data: any): data is DamageData {
-   return (
-      data &&
-      typeof data === "object" &&
-      typeof data.playerId === "string" &&
-      typeof data.health === "number" &&
-      typeof data.maxHealth === "number" &&
-      typeof data.damage === "number" &&
-      typeof data.timestamp === "number"
-   );
-}
-
-export function validateChatMessage(data: any): data is ChatMessage {
-   return (
-      data &&
-      typeof data === "object" &&
-      typeof data.id === "string" &&
-      typeof data.name === "string" &&
-      typeof data.message === "string"
-   );
 }
