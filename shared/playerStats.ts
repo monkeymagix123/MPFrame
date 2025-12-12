@@ -14,7 +14,6 @@ import { config } from "./config";
 export class PlayerStats {
     // Dash-related stats
     // Movement
-    dashSpeed: number = config.dashSpeed;
     dashDistance: number = config.dashDistance;
 
     // Cooldown
