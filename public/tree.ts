@@ -9,6 +9,7 @@ let interval: number;
 // check if initialized UI
 let hasInitUI = false;
 
+const treeArea = document.getElementById('tree-area') as HTMLElement;
 const skillPointsContainer = document.getElementById('skill-points-container') as HTMLDivElement;
 const skillPointsElement = document.getElementById('skill-points') as HTMLSpanElement;
 const skillsElement = document.getElementById('skill-tree') as HTMLDivElement;
@@ -22,9 +23,7 @@ export function drawUI() {
     }
 
     // unhide everything
-    skillPointsContainer.classList.remove('hidden');
-    skillsElement.classList.remove('hidden');
-    skillReadyBtn.classList.remove('hidden');
+    treeArea.classList.remove('hidden');
 
     // start loop
     startUpdateLoop();
@@ -56,8 +55,8 @@ export function initTreeUI() {
     // set the player
     player = session.player!;
 
-    // unhide points container
-    skillPointsContainer.className = '';
+    // unhide everything
+    treeArea.classList.remove('hidden');
 
     // show points
     skillPointsElement.innerText = player.skillPoints.toString();
@@ -95,7 +94,6 @@ export function initTreeUI() {
     }
 
     // show ready button
-    skillReadyBtn.classList.remove('hidden');
     skillReadyBtn.addEventListener('click', () => {
         // Send to server
         session.socket.emit('game/player-skill-ready');
@@ -118,9 +116,7 @@ export function hideUI() {
     if (!hasInitUI) return;
 
     // Hide elements
-    skillPointsContainer.classList.add('hidden');
-    skillsElement.classList.add('hidden');
-    skillReadyBtn.classList.add('hidden');
+    treeArea.classList.add('hidden');
 
     // Reset button status
     skillReadyBtn.classList.remove('ready');

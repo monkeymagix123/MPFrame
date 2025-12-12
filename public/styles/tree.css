@@ -2,6 +2,12 @@
     display: none;
 }
 
+#tree-area {
+    all: inherit; /* extend game area */
+    width: 100%;
+    gap: 20px;
+}
+
 .skill-tree {
     /* Basic container styling */
     position: relative;
@@ -46,7 +52,7 @@
     /* Unlocked (but not yet purchased) state */
     background-color: darkgreen;
     color: white;
-    cursor: pointer;
+    cursor: default;
 }
 
 .cant-afford {
