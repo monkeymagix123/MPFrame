@@ -53,6 +53,15 @@ export class Player {
       this.dashVel = new Vec2(0, 0);
    }
 
+   // Dash related
+   private getDashSpeed(): number {
+      return this.stats.moveSpeed * config.dashSpeedMultiplier;
+   }
+
+   private getDashDuration(): number {
+      return this.stats.dashDistance / this.getDashSpeed();
+   }
+
    attemptDash(v: Vec2): boolean {
       if (!this.isAlive()) return false;
 
@@ -62,7 +71,7 @@ export class Player {
 
       this.dashing = true;
       this.dashProgress = 0;
-      this.dashVel = v2.mul(v2.normalize(v2.sub(v, this.pos)), this.stats.dashSpeed);
+      this.dashVel = v2.mul(v2.normalize(v2.sub(v, this.pos)), this.getDashSpeed());
 
       return true;
    }
@@ -148,6 +157,13 @@ export class Player {
       };
    }
 
+   /**
+    * Applies the given player delta to the player's state.
+    * This function is used to update the player's state based on the move data received from the server.
+    * It will update the player's position, velocity, dashing status, dashing progress, and dashing velocity.
+    * If any of the move data fields are undefined, it will use the current player state instead.
+    * @param {PlayerDelta} move - The move data to apply to the player.
+    */
    applyPlayerDelta(move: PlayerDelta): void {
       // Movement
       this.pos = move.pos ?? this.pos;
@@ -179,12 +195,14 @@ export class Player {
          vel = this.dashVel;
 
          // Check if dash should end during this frame
-         const dashTimeRemaining = config.dashDuration - (this.dashProgress - dt);
+         const dashTimeRemaining = this.getDashDuration() - (this.dashProgress - dt);
 
          if (dashTimeRemaining <= 0) {
+            // dash has ended
             this.dashing = false;
             vel = this.moveVel;
          } else if (dashTimeRemaining < dt) {
+            // dash for a portion then move for the rest
             const dashPortion = dashTimeRemaining;
             const movePortion = dt - dashTimeRemaining;
 
