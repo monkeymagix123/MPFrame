@@ -104,6 +104,8 @@ export class Session {
 
       // hide the canvas
       this.canvas.classList.add("hidden");
+
+      // draw the tree
       tree.drawUI();
 
       console.log(this.player);
