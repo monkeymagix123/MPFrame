@@ -348,6 +348,10 @@ export class Player {
 		this.health = this.stats.maxHealth;
 		this.dashProgress = this.stats.dashCooldown;
 		this.dashing = false;
+
+      // reset match stats
+      this.killCount = 0;
+      this.deathCount = 0;
    }
 }
 
