@@ -1,5 +1,24 @@
 # Design
 
+## Player
+- PlayerStats: only change when unlock upgrades
+    - moveSpeed: movement speed of player
+    - dashDistance: max distance you can dash
+    - ~~dashSpeedMultiplier: 5x movement~~ this is a constant currently
+- Computed properties:
+    - getDashDuration(): returns how long it takes to complete the dash
+    - getDashSpeed(): returns dash speed using dashSpeedMultiplier and moveSpeed
+
+- dashProgress - How far along the dash is (clamped from 0 to dashCooldown)
+    - When not dashing: increases 0 to dashCooldown
+    - When dashing: decreases dashProgress from dashCooldown to 0 in getDashDuration() time?
+        - surely it makes more sense if ur doing it this way to do [0, 1]
+        - yea that makes more sense ngl
+        - wait there is a bug
+        - dashDistance may change so duration may change cuz bounds exist
+- dashCooldown - How much your dashProgress needs to be at to trigger a dash
+- dashTime     - How long it takes for dashProgress to go back down to 0 after a dash
+
 ## Server
 
 One IO instance (entire server does everything for multiple games)

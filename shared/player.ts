@@ -157,6 +157,13 @@ export class Player {
       };
    }
 
+   /**
+    * Applies the given player delta to the player's state.
+    * This function is used to update the player's state based on the move data received from the server.
+    * It will update the player's position, velocity, dashing status, dashing progress, and dashing velocity.
+    * If any of the move data fields are undefined, it will use the current player state instead.
+    * @param {PlayerDelta} move - The move data to apply to the player.
+    */
    applyPlayerDelta(move: PlayerDelta): void {
       // Movement
       this.pos = move.pos ?? this.pos;
