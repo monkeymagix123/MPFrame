@@ -14,7 +14,7 @@ export const config = {
    get dashDuration() { // includes part of cooldown, use for computed property
       return this.dashDistance / (this.moveSpeed * this.dashSpeedMultiplier);
    },
-   dashSpeedMultiplier: 5, // 5x faster while dashing
+   dashSpeedMultiplier: 3.67, // 5x faster while dashing
    get dashDamage() { // dev mode makes 1 dash deal entire hp
       return this.devMode ? this.maxHealth : 25;
    },

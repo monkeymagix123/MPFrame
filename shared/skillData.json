@@ -108,5 +108,31 @@
                 "dashInvulnerable": true
             }
         }
+    },
+    "dash-distance-1": {
+        "name": "Dash Distance 1",
+        "cost": 3,
+        "prereq": [
+            "start"
+        ],
+        "desc": "Increase dash distance by 50.",
+        "effects": {
+            "stats": {
+                "dashDistance": 50
+            }
+        }
+    },
+    "dash-distance-2": {
+        "name": "Dash Distance 2",
+        "cost": 5,
+        "prereq": [
+            "dash-distance-1"
+        ],
+        "desc": "Increase dash distance again by 50.",
+        "effects": {
+            "stats": {
+                "dashDistance": 50
+            }
+        }
     }
 }
