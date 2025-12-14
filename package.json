@@ -22,7 +22,8 @@
       "socket.io": "^4.8.1",
       "socket.io-client": "^4.8.1",
       "pixi.js": "^8.14.3",
-      "pixi-filters": "^6.1.5"
+      "pixi-filters": "^6.1.5",
+      "pixi-viewport": "^6.0.3"
    },
    "devDependencies": {
       "@types/express": "^5.0.3",

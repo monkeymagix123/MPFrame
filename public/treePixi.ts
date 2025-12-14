@@ -3,8 +3,8 @@ import { Player } from "../shared/player";
 import { session } from "./session";
 import { Skill, skillData, treeUtil } from "../shared/skillTree";
 import { Vec2 } from "../shared/v2";
-import { start } from "repl";
 import { GlowFilter } from "pixi-filters";
+import { Viewport } from 'pixi-viewport';
 
 // Game elements
 let player: Player;
@@ -103,8 +103,42 @@ function initTreeUI(): void {
         createTooltip();
 
         // add nodes, ui
-        app.stage.addChild(upgrades);
         app.stage.addChild(ui);
+
+        const viewport = new Viewport({
+            screenWidth: app.renderer.width,
+            screenHeight: app.renderer.height,
+            worldWidth: 5000, // Define the size of your world/canvas content
+            worldHeight: 5000,
+            events: app.renderer.events,
+        });
+        viewport
+            .drag()
+            .pinch()          // mobile zoom
+            .wheel()          // mouse wheel zoom
+            .decelerate()     // inertia
+            .clampZoom({
+                minScale: 0.3,
+                maxScale: 2.5,
+            });
+        viewport.clamp({
+            left: -1000,
+            right: 1000,
+            top: -1000,
+            bottom: 1000,
+        });
+        viewport.on("pointerdown", (e) => {
+            if (e.target !== viewport) {
+                viewport.plugins.pause("drag");
+            }
+        });
+
+        viewport.on("pointerup", () => {
+            viewport.plugins.resume("drag");
+        });
+
+        viewport.addChild(upgrades);
+        app.stage.addChild(viewport);
 
         // initialize skill tree nodes
         for (const [skillId, skill] of Object.entries(skillData)) {
@@ -122,12 +156,12 @@ function initTreeUI(): void {
 
             // make tooltip
             node
-                .on('pointerdown', () => { requestUnlock(skillId); })
+                .on('pointerdown', (e) => { requestUnlock(skillId); e.stopPropagation(); })
                 .on('pointerover', () => { showSkillTooltip(skill, node.position); })
                 .on('pointerout', () => { hideTooltip(); });
 
             // 4. Add the sprite to the stage (the root container)
-            app.stage.addChild(node);
+            upgrades.addChild(node);
         }
 
         app.stage.addChild(ui);
