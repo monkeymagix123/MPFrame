@@ -1,3 +1,4 @@
+import { Player } from "./player";
 import { PlayerStats } from "./playerStats";
 import rawSkillData from "./skillData.json";
 
@@ -65,9 +66,31 @@ export const treeUtil = {
 
             if (newVal === undefined) continue;
 
-            s += `${this.translateEffectKey(key)}: ${oldVal} -> ${newVal} <br>`;
+            s += `${this.translateEffectKey(key)}: ${oldVal} -> ${newVal} \n`;
         }
 
         return s;
+    },
+
+    /**
+     * Returns a string representing the effects of a skill for the player.
+     * If the skill effects is undefined, it returns an empty string.
+     * If the player is undefined, it returns an empty string.
+     * Otherwise, it returns a string in the format of:
+     * 
+     * Effects:
+     * - Max Health: 100 -> 200
+     * - Move Speed: 5 -> 10
+     */
+    effectsString(player?: Player, skillEffects?: Effect): string {
+        if (!skillEffects) {
+            return "";
+        }
+
+        if (!player) {
+            return "";
+        }
+
+        return treeUtil.getEffectsString(player.previewEffects(skillEffects));
     }
 }
