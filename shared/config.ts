@@ -1,5 +1,7 @@
+const devMode = true;
+
 export const config = {
-   devMode: true,
+   devMode: devMode,
 
    mapWidth: 900,
    mapHeight: 600,
@@ -19,13 +21,13 @@ export const config = {
       return this.devMode ? this.maxHealth : 25;
    },
 
-   get maxHealth() { return this.devMode ? 0.1 : 100; },
+   maxHealth: devMode ? 0.1 : 100,
 
    damageOverTimeBase: 1,
    damageOverTimeScaling: 0.1,
 
    points: {
-      base: 1,
+      base: devMode ? 67 : 1,
       perKill: 2,
       perDeath: 1, // kinda helps ensure dont just sit there
    }

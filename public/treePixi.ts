@@ -34,17 +34,27 @@ let interval: number; // game loop
 let hasInitTree: boolean = false;
 
 // Basic graphics
+type NodeStatus = 'unlocked' | 'available' | 'locked' | 'hidden';
 function createNode(color: string): GraphicsContext {
-    return new GraphicsContext().circle(0, 0, 10).fill(color);
+    // return new GraphicsContext().circle(0, 0, 10).fill(color);
+    const size = 25;
+    return new GraphicsContext().rect(-size / 2, -size / 2, size, size).fill(color);
 }
 // const circle = new GraphicsContext().circle(0, 0, 10).fill('blue');
 const circle = createNode('blue');
-const circleStatus: Record<string, GraphicsContext> = {
+const circleStatus: Record<NodeStatus, GraphicsContext> = {
     unlocked: createNode('darkgreen'),
     available: createNode('blue'),
     locked: createNode('gray'),
     hidden: new GraphicsContext(),
 }
+
+const stateConfig: Record<NodeStatus, { scale: number, visible: boolean }> = {
+    unlocked: { scale: 0.9, visible: true },
+    available: { scale: 1.2, visible: true },
+    locked: { scale: 1, visible: true },
+    hidden: { scale: 1, visible: false },
+};
 
 export function drawTree(): void {
     treeArea.classList.remove('hidden');
@@ -137,30 +147,36 @@ function redrawUI(): void {
 
         const node = nodes.get(skillId)!;
 
-        node.context = getClass(skillId);
+        setClass(node, getClass(skillId));
 
         // tooltip automatically updates
     }
 }
 
 // Class utilities
-function getClass(skillId: string): GraphicsContext {
+function getClass(skillId: string): NodeStatus {
     // already unlocked
     if (player.unlockedSkills.includes(skillId)) {
-        return circleStatus.unlocked;
+        return 'unlocked';
     }
 
     // don't have all prereqs
     if (!treeUtil.hasPrereqs(skillId, player.unlockedSkills)) {
-        return circleStatus.hidden;
+        return 'hidden';
     }
     
     // have all prereqs, but can't buy it
     if (player.skillPoints < skillData[skillId].cost) {
-        return circleStatus.locked;
+        return 'locked';
     }
     
-    return circleStatus.available;
+    return 'available';
+}
+
+function setClass(node: Graphics, status: NodeStatus): void {
+    node.context = circleStatus[status];
+    node.scale.set(stateConfig[status].scale);
+    node.visible = stateConfig[status].visible;
 }
 
 // Tooltip Utilities
