@@ -36,17 +36,17 @@ let hasInitTree: boolean = false;
 
 // Basic graphics
 type NodeStatus = 'unlocked' | 'available' | 'locked' | 'hidden';
-function createNode(color: string): GraphicsContext {
+function createNodeType(color: string): GraphicsContext {
     // return new GraphicsContext().circle(0, 0, 10).fill(color);
     const size = 25;
     return new GraphicsContext().rect(-size / 2, -size / 2, size, size).fill(color);
 }
 // const circle = new GraphicsContext().circle(0, 0, 10).fill('blue');
-const circle = createNode('blue');
+const circle = createNodeType('blue');
 const circleStatus: Record<NodeStatus, GraphicsContext> = {
-    unlocked: createNode('darkgreen'),
-    available: createNode('blue'),
-    locked: createNode('gray'),
+    unlocked: createNodeType('darkgreen'),
+    available: createNodeType('blue'),
+    locked: createNodeType('gray'),
     hidden: new GraphicsContext(),
 }
 
@@ -112,23 +112,9 @@ function initTreeUI(): void {
 
         // initialize skill tree nodes
         for (const [skillId, skill] of Object.entries(skillData)) {
-            const node = new Graphics(circle);
+            const node = createNode(skillId, skill);
 
-            nodes.set(skillId, node);
-
-            // 3. Set properties (position, scale)
-            node.position.set(app.screen.width * Math.random(), app.screen.height * Math.random());
-            // pivot already at (0, 0)
-
-            // make it a button
-            node.eventMode = 'static';
-            node.cursor = 'pointer';
-
-            // make tooltip
-            node
-                .on('pointerdown', (e) => { requestUnlock(skillId); e.stopPropagation(); })
-                .on('pointerover', () => { showSkillTooltip(skill, node.position); })
-                .on('pointerout', () => { hideTooltip(); });
+            setClass(node, getClass(skillId));
 
             // 4. Add the sprite to the stage (the root container)
             upgrades.addChild(node);
@@ -194,6 +180,29 @@ function setClass(node: Graphics, status: NodeStatus): void {
     } else {
         node.filters = [];
     }
+}
+
+// Creator functions
+function createNode(skillId: string, skill: Skill): Graphics {
+    const node = new Graphics(circle);
+
+    nodes.set(skillId, node);
+
+    // 3. Set properties (position, scale)
+    node.position.set(app.screen.width * Math.random(), app.screen.height * Math.random());
+    // pivot already at (0, 0)
+
+    // make it a button
+    node.eventMode = 'static';
+    node.cursor = 'pointer';
+
+    // make tooltip
+    node
+        .on('pointerdown', (e) => { requestUnlock(skillId); e.stopPropagation(); })
+        .on('pointerover', () => { showSkillTooltip(skill, node.position); })
+        .on('pointerout', () => { hideTooltip(); });
+    
+    return node;
 }
 
 // Viewport
