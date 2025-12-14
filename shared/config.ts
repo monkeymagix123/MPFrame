@@ -1,5 +1,5 @@
 export const config = {
-   devMode: false,
+   devMode: true,
 
    mapWidth: 900,
    mapHeight: 600,
@@ -19,7 +19,7 @@ export const config = {
       return this.devMode ? this.maxHealth : 25;
    },
 
-   maxHealth: 100,
+   get maxHealth() { return this.devMode ? 0.1 : 100; },
 
    damageOverTimeBase: 1,
    damageOverTimeScaling: 0.1,

@@ -12,11 +12,13 @@
     /* Basic container styling */
     position: relative;
     padding: 20px;
+    margin: 4px;
     text-align: center;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    width: 100%;
+    /* display: flex; */
+    /* flex-wrap: wrap; */
+    /* justify-content: space-between; */
+    width: 90%;
+    height: 90%;
 }
 
 .skill {

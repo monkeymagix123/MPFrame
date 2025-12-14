@@ -9,6 +9,7 @@ import { PlayerDelta } from "../shared/player";
 import { drawEndScreen } from "./canvas";
 import { stopGameLoop } from "./gameLoop";
 import * as tree from "./tree";
+import { drawTree } from "./treePixi";
 
 export class Session {
    socket: Socket;
@@ -106,7 +107,9 @@ export class Session {
       this.canvas.classList.add("hidden");
 
       // draw the tree
-      tree.drawUI();
+      // tree.drawUI();
+      // document.getElementById('tree-area')!.classList.remove('hidden');
+      drawTree();
 
       console.log(this.player);
    }
