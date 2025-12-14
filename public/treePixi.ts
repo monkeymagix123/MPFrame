@@ -25,10 +25,7 @@ const nodes: Map<string, Graphics> = new Map();
 // UI Elements
 const treeArea = document.getElementById('tree-area') as HTMLElement;
 const treeElement = document.getElementById('skill-tree') as HTMLDivElement;
-const skillPointsContainer = document.getElementById('skill-points-container') as HTMLDivElement;
 const skillPointsElement = document.getElementById('skill-points') as HTMLSpanElement;
-const skillsElement = document.getElementById('skill-tree') as HTMLDivElement;
-const skillReadyBtn = document.getElementById('skill-ready-btn') as HTMLButtonElement;
 
 // Logic elements
 let interval: number; // game loop
@@ -140,10 +137,8 @@ function redrawUI(): void {
 
     // update skill tree
     for (const skillId in skillData) {
-        const skill = skillData[skillId];
-
+        // update node class
         const node = nodes.get(skillId)!;
-
         setClass(node, getClass(skillId));
 
         // tooltip automatically updates
