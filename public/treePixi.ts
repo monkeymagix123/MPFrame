@@ -89,7 +89,7 @@ function initTreeUI(): void {
             nodes.set(skillId, node);
 
             // 3. Set properties (position, scale)
-            node.position.set(app.screen.width / 2, app.screen.height / 2);
+            node.position.set(app.screen.width * Math.random(), app.screen.height * Math.random());
             // pivot already at (0, 0)
 
             // make it a button
@@ -185,7 +185,8 @@ function createTooltip(): void {
 function showSkillTooltip(skill: Skill, pos: Vec2): void {
     ui.visible = true;
 
-    tooltipContainer.position.set(pos.x + 10, pos.y + 10);
+    // position tooltip container
+    tooltipContainer.position.set(pos.x + 20 < app.screen.width ? pos.x + 10 : pos.x - 10, pos.y + 20 < app.screen.height ? pos.y + 10 : pos.y - 10);
 
     const text = [
         skill.desc,
@@ -199,6 +200,32 @@ function showSkillTooltip(skill: Skill, pos: Vec2): void {
     }
 
     setText(text.join('\n'));
+
+    // update tooltip position
+    updateTooltipPosition(pos, tooltipContainer);
+}
+
+function updateTooltipPosition(pos: Vec2, tooltip: Container): void {
+    const margin = 10; // space from cursor or edge
+    let x = pos.x + margin;
+    let y = pos.y + margin;
+
+    // Clamp right edge
+    if (x + tooltip.width > app.screen.width) {
+        x = pos.x - tooltip.width - margin;
+    }
+
+    // Clamp bottom edge
+    if (y + tooltip.height > app.screen.height) {
+        y = pos.y - tooltip.height - margin;
+    }
+
+    // Optional: clamp left/top (if cursor is near edges)
+    x = Math.max(margin, x);
+    y = Math.max(margin, y);
+
+    // Round to avoid blurry text
+    tooltip.position.set(Math.round(x), Math.round(y));
 }
 
 function hideTooltip(): void {
