@@ -108,8 +108,8 @@ function initTreeUI(): void {
         const viewport = new Viewport({
             screenWidth: app.renderer.width,
             screenHeight: app.renderer.height,
-            worldWidth: 5000, // Define the size of your world/canvas content
-            worldHeight: 5000,
+            worldWidth: 3000, // Define the size of your world/canvas content
+            worldHeight: 3000,
             events: app.renderer.events,
         });
         viewport
@@ -136,6 +136,21 @@ function initTreeUI(): void {
         viewport.on("pointerup", () => {
             viewport.plugins.resume("drag");
         });
+
+        viewport.on('drag-start', () => {
+            // Use 'grabbing' (closed hand) for active drag
+            app.canvas.style.cursor = 'grabbing';
+        });
+
+        // 3. Change the cursor back when dragging ends
+        viewport.on('drag-end', () => {
+            // Use 'grab' (open hand) when hovering and ready to drag
+            app.canvas.style.cursor = 'grab';
+        });
+
+        // 4. Initial setting for the 'ready to drag' cursor
+        // This makes the hand cursor visible when the mouse is over the viewport
+        viewport.on('pointerover', () => app.canvas.style.cursor = 'grab');
 
         viewport.addChild(upgrades);
         app.stage.addChild(viewport);
