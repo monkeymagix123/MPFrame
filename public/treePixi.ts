@@ -3,6 +3,7 @@ import { Player } from "../shared/player";
 import { session } from "./session";
 import { Skill, skillData, treeUtil } from "../shared/skillTree";
 import { Vec2 } from "../shared/v2";
+import { start } from "repl";
 
 // Game elements
 let player: Player;
@@ -33,10 +34,17 @@ let interval: number; // game loop
 let hasInitTree: boolean = false;
 
 // Basic graphics
-const circleUnlocked = new GraphicsContext().circle(0, 0, 10).fill('darkgreen');
-const circleAvailable = new GraphicsContext().circle(0, 0, 10).fill('blue');
-const circleLocked = new GraphicsContext().circle(0, 0, 10).fill('red');
-const circle = circleAvailable;
+function createNode(color: string): GraphicsContext {
+    return new GraphicsContext().circle(0, 0, 10).fill(color);
+}
+// const circle = new GraphicsContext().circle(0, 0, 10).fill('blue');
+const circle = createNode('blue');
+const circleStatus: Record<string, GraphicsContext> = {
+    unlocked: createNode('darkgreen'),
+    available: createNode('blue'),
+    locked: createNode('gray'),
+    hidden: new GraphicsContext(),
+}
 
 export function drawTree(): void {
     treeArea.classList.remove('hidden');
@@ -44,7 +52,6 @@ export function drawTree(): void {
     if (!hasInitTree) {
         initTreeUI();
         hasInitTree = true;
-        return;
     }
 
     startUpdateLoop();
@@ -113,6 +120,8 @@ function initTreeUI(): void {
         //     bunny.rotation += 0.1 * time.deltaTime; // Rotate the bunny
         // });
     })();
+
+    startUpdateLoop();
 }
 
 function redrawUI(): void {
@@ -138,20 +147,20 @@ function redrawUI(): void {
 function getClass(skillId: string): GraphicsContext {
     // already unlocked
     if (player.unlockedSkills.includes(skillId)) {
-        return circleUnlocked;
+        return circleStatus.unlocked;
     }
 
     // don't have all prereqs
     if (!treeUtil.hasPrereqs(skillId, player.unlockedSkills)) {
-        return circleLocked;
+        return circleStatus.hidden;
     }
     
     // have all prereqs, but can't buy it
     if (player.skillPoints < skillData[skillId].cost) {
-        return circleLocked;
+        return circleStatus.locked;
     }
     
-    return circleAvailable;
+    return circleStatus.available;
 }
 
 // Tooltip Utilities
