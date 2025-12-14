@@ -4,6 +4,7 @@ import { session } from "./session";
 import { Skill, skillData, treeUtil } from "../shared/skillTree";
 import { Vec2 } from "../shared/v2";
 import { start } from "repl";
+import { GlowFilter } from "pixi-filters";
 
 // Game elements
 let player: Player;
@@ -55,6 +56,12 @@ const stateConfig: Record<NodeStatus, { scale: number, visible: boolean }> = {
     locked: { scale: 1, visible: true },
     hidden: { scale: 1, visible: false },
 };
+
+const glow = new GlowFilter({
+    distance: 30,
+    outerStrength: 2,
+    color: '#3367d6',
+});
 
 export function drawTree(): void {
     treeArea.classList.remove('hidden');
@@ -177,6 +184,12 @@ function setClass(node: Graphics, status: NodeStatus): void {
     node.context = circleStatus[status];
     node.scale.set(stateConfig[status].scale);
     node.visible = stateConfig[status].visible;
+
+    if (status === 'available') {
+        node.filters = [glow];
+    } else {
+        node.filters = [];
+    }
 }
 
 // Tooltip Utilities
