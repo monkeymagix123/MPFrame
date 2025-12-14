@@ -85,8 +85,8 @@ function initTreeUI(): void {
     (async () => {
         // Intialize the application.
         await app.init({
-            // backgroundAlpha: 0,
-            backgroundColor: 'blue',
+            backgroundAlpha: 0.25,
+            backgroundColor: 0x999999,
             resizeTo: treeElement,
             resolution: window.devicePixelRatio || 1,
             autoDensity: true,
@@ -210,8 +210,8 @@ function createViewport(app: Application, size: Vec2 = treeUtil.getMaxPos()): Vi
     const viewport = new Viewport({
         screenWidth: app.renderer.width,
         screenHeight: app.renderer.height,
-        worldWidth: 2 * ratio * size.x, // Define the size of your world/canvas content
-        worldHeight: 2 * ratio * size.y,
+        worldWidth: 2 * size.x, // Define the size of your world/canvas content
+        worldHeight: 2 * size.y,
         events: app.renderer.events,
     });
     viewport
@@ -224,10 +224,10 @@ function createViewport(app: Application, size: Vec2 = treeUtil.getMaxPos()): Vi
             maxScale: 2.5,
         });
     viewport.clamp({
-        left: -ratio * size.x,
-        right: ratio * size.x,
-        top: -ratio * size.y,
-        bottom: ratio * size.y,
+        left: - size.x,
+        right: size.x,
+        top: -size.y,
+        bottom: size.y,
     });
     viewport.on("pointerdown", (e) => {
         if (e.target !== viewport) {
