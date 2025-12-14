@@ -16,7 +16,6 @@ const upgrades = new Container(); // nodes themselves
 
 const ui = new Container();
 const tooltipContainer = new Container();
-ui.addChild(tooltipContainer);
 let tooltipText: Text;
 let tooltipBg: Graphics;
 
@@ -86,7 +85,8 @@ function initTreeUI(): void {
     (async () => {
         // Intialize the application.
         await app.init({
-            backgroundAlpha: 0,
+            // backgroundAlpha: 0,
+            backgroundColor: 'blue',
             resizeTo: treeElement,
             resolution: window.devicePixelRatio || 1,
             autoDensity: true,
@@ -99,9 +99,11 @@ function initTreeUI(): void {
         // create tooltip
         createTooltip();
 
-        // add nodes, ui
+        // add ui
         app.stage.addChild(ui);
+        ui.addChild(tooltipContainer);
 
+        // add nodes
         const viewport = createViewport(app);
 
         viewport.addChild(upgrades);
@@ -184,7 +186,8 @@ function createNode(skillId: string, skill: Skill): Graphics {
     nodes.set(skillId, node);
 
     // 3. Set properties (position, scale)
-    node.position.set(app.screen.width * Math.random(), app.screen.height * Math.random());
+    const pos = skill.pos;
+    node.position.set(pos.x, -pos.y); // y is inverted
     // pivot already at (0, 0)
 
     // make it a button
@@ -201,12 +204,14 @@ function createNode(skillId: string, skill: Skill): Graphics {
 }
 
 // Viewport
-function createViewport(app: Application): Viewport {
+function createViewport(app: Application, size: Vec2 = treeUtil.getMaxPos()): Viewport {
+    const ratio = 1 / 0.3;
+    
     const viewport = new Viewport({
         screenWidth: app.renderer.width,
         screenHeight: app.renderer.height,
-        worldWidth: 3000, // Define the size of your world/canvas content
-        worldHeight: 3000,
+        worldWidth: 2 * ratio * size.x, // Define the size of your world/canvas content
+        worldHeight: 2 * ratio * size.y,
         events: app.renderer.events,
     });
     viewport
@@ -219,10 +224,10 @@ function createViewport(app: Application): Viewport {
             maxScale: 2.5,
         });
     viewport.clamp({
-        left: -1000,
-        right: 1000,
-        top: -1000,
-        bottom: 1000,
+        left: -ratio * size.x,
+        right: ratio * size.x,
+        top: -ratio * size.y,
+        bottom: ratio * size.y,
     });
     viewport.on("pointerdown", (e) => {
         if (e.target !== viewport) {

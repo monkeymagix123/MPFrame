@@ -3,7 +3,11 @@
         "name": "Start",
         "cost": 1,
         "prereq": [],
-        "desc": "Well, you gotta start somewhere. \n (Does nothing)"
+        "desc": "Well, you gotta start somewhere. \n (Does nothing)",
+        "pos": {
+            "x": 0,
+            "y": 0
+        }
     },
     "speed1": {
         "name": "Speed Boost 1",
@@ -16,6 +20,10 @@
             "stats": {
                 "speed": 50
             }
+        },
+        "pos": {
+            "x": 0,
+            "y": -100
         }
     },
     "dashDmg1": {
@@ -29,6 +37,10 @@
             "stats": {
                 "damage": 25
             }
+        },
+        "pos": {
+            "x": -30,
+            "y": 100
         }
     },
     "health1": {
@@ -42,6 +54,10 @@
             "stats": {
                 "health": 50
             }
+        },
+        "pos": {
+            "x": 100,
+            "y": 0
         }
     },
     "speed2": {
@@ -55,6 +71,10 @@
             "stats": {
                 "speed": 50
             }
+        },
+        "pos": {
+            "x": 0,
+            "y": -200
         }
     },
     "dashCooldown1": {
@@ -68,6 +88,10 @@
             "stats": {
                 "dashCooldown": -0.5
             }
+        },
+        "pos": {
+            "x": 30,
+            "y": 100
         }
     },
     "dashCooldown2": {
@@ -81,6 +105,10 @@
             "stats": {
                 "dashCooldown": -0.5
             }
+        },
+        "pos": {
+            "x": 30,
+            "y": 200
         }
     },
     "speed3": {
@@ -94,6 +122,10 @@
             "stats": {
                 "speed": 50
             }
+        },
+        "pos": {
+            "x": 0,
+            "y": -300
         }
     },
     "dash-invulnerability": {
@@ -107,6 +139,10 @@
             "flags": {
                 "dashInvulnerable": true
             }
+        },
+        "pos": {
+            "x": 0,
+            "y": 150
         }
     },
     "dash-distance-1": {
@@ -120,6 +156,10 @@
             "stats": {
                 "dashDistance": 50
             }
+        },
+        "pos": {
+            "x": 100,
+            "y": 100
         }
     },
     "dash-distance-2": {
@@ -133,6 +173,10 @@
             "stats": {
                 "dashDistance": 50
             }
+        },
+        "pos": {
+            "x": 100,
+            "y": 200
         }
     }
 }

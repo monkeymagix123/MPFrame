@@ -1,6 +1,7 @@
 import { Player } from "./player";
 import { PlayerStats } from "./playerStats";
 import rawSkillData from "./skillData.json";
+import { Vec2 } from "./v2";
 
 export const skillData = rawSkillData as Record<string, Skill>;
 
@@ -10,6 +11,7 @@ export type Skill = {
     prereq: string[],
     desc: string,
     effects?: Effect,
+    pos: Vec2,
 }
 
 export type Effect = {
@@ -92,5 +94,12 @@ export const treeUtil = {
         }
 
         return treeUtil.getEffectsString(player.previewEffects(skillEffects));
+    },
+
+    // positions
+    getMaxPos(): Vec2 {
+        const maxX = Math.max(...Object.values(skillData).map(skill => Math.abs(skill.pos.x)));
+        const maxY = Math.max(...Object.values(skillData).map(skill => Math.abs(skill.pos.y)));
+        return new Vec2(maxX, maxY);
     }
 }
