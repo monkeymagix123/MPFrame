@@ -15,10 +15,10 @@
         "prereq": [
             "start"
         ],
-        "desc": "Increase speed by +50.",
+        "desc": "Increase speed by +25.",
         "effects": {
             "stats": {
-                "speed": 50
+                "speed": 25
             }
         },
         "pos": {
@@ -83,10 +83,10 @@
         "prereq": [
             "speed1"
         ],
-        "desc": "Increase speed again by +50.",
+        "desc": "Increase speed again by +25.",
         "effects": {
             "stats": {
-                "speed": 50
+                "speed": 25
             }
         },
         "pos": {
@@ -100,10 +100,10 @@
         "prereq": [
             "start"
         ],
-        "desc": "Decrease dash cooldown by 0.5s.",
+        "desc": "Decrease dash cooldown by 1.0s.",
         "effects": {
             "stats": {
-                "dashCooldown": -0.5
+                "dashCooldown": -1.0
             }
         },
         "pos": {
@@ -117,10 +117,10 @@
         "prereq": [
             "dashCooldown1"
         ],
-        "desc": "Decrease dash cooldown again by 0.5s.",
+        "desc": "Decrease dash cooldown again by 1.0s.",
         "effects": {
             "stats": {
-                "dashCooldown": -0.5
+                "dashCooldown": -1.0
             }
         },
         "pos": {
@@ -134,10 +134,10 @@
         "prereq": [
             "speed2"
         ],
-        "desc": "Increase speed once again by +50.",
+        "desc": "Increase speed once again by +25.",
         "effects": {
             "stats": {
-                "speed": 50
+                "speed": 25
             }
         },
         "pos": {

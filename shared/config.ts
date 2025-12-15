@@ -10,7 +10,7 @@ export const config = {
    playerLength: 30,
    headLength: 30,
 
-   moveSpeed: 80,
+   moveSpeed: 120,
 
    dashCooldown: 5.0,
    dashDistance: 100,
