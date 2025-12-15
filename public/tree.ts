@@ -585,12 +585,14 @@ function hideTooltip(): void {
 
 function setText(value: string) {
     tooltipText.text = value;
-    tooltipText.position.set(10, 8);
+
+    // Padding for background
+    const padding = { x: 10, y: 8 };
+    tooltipText.position.set(padding.x, padding.y);
     
     tooltipBg.clear();
-    const padding = 20;
-    const width = tooltipText.getBounds().width + padding;
-    const height = tooltipText.getBounds().height + padding * 0.8;
+    const width = tooltipText.width + 2 * padding.x;
+    const height = tooltipText.height + 2 * padding.y;
     
     tooltipBg
         .rect(0, 0, width, height)
