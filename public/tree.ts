@@ -346,8 +346,8 @@ function createEdges(): void {
 
 function createViewport(app: Application, size: Vec2 = treeUtil.getMaxPos()): Viewport {
     const viewport = new Viewport({
-        screenWidth: app.renderer.width,
-        screenHeight: app.renderer.height,
+        screenWidth: app.screen.width,
+        screenHeight: app.screen.height,
         worldWidth: size.x * 3,
         worldHeight: size.y * 3,
         events: app.renderer.events,
@@ -356,8 +356,7 @@ function createViewport(app: Application, size: Vec2 = treeUtil.getMaxPos()): Vi
     viewport
         .drag({
             wheel: false,
-            mouseButtons: 'middle-right',
-            keyToPress: ['ShiftLeft', 'ShiftRight'],
+            mouseButtons: 'left-middle-right',
         })
         .pinch()
         .wheel({
@@ -377,6 +376,8 @@ function createViewport(app: Application, size: Vec2 = treeUtil.getMaxPos()): Vi
     
     // Dynamic clamp boundaries
     const updateClamp = () => {
+        viewport.plugins.remove('clamp');
+
         const scale = viewport.scale.x;
         const expandFactor = Math.max(1, 2 / scale);
         const padding = 800 * expandFactor;
@@ -414,20 +415,10 @@ function createViewport(app: Application, size: Vec2 = treeUtil.getMaxPos()): Vi
 
     viewport.on('drag-end', () => {
         isDragging = false;
-        app.canvas.style.cursor = 'default';
+        app.canvas.style.cursor = 'grab';
     });
 
-    window.addEventListener('keydown', (e) => {
-        if ((e.key === 'Shift') && !isDragging) {
-            app.canvas.style.cursor = 'grab';
-        }
-    });
-
-    window.addEventListener('keyup', (e) => {
-        if (e.key === 'Shift' && !isDragging) {
-            app.canvas.style.cursor = 'default';
-        }
-    });
+    viewport.cursor = 'grab';
 
     return viewport;
 }
