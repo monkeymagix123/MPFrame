@@ -57,6 +57,7 @@ One massive interval, fps simulationSpeed
             - Calc damage from player segments
     - this.endMatch(): ends match, makes skill selection
         - This is an instance function because game must have been initialized
+        - Clears local game creation array, tells room to endMatch(), room tells state to reset game object creation
     - endGame(): ends game
         - TODO: we have not done this yet
         - This is not an instance function because maybe we haven't even started playing yet

@@ -119,4 +119,9 @@ export class State {
    startMatch(): void {
       this.startTime = performance.now();
    }
+
+   endMatch(): void {
+      // reset game objects
+      this.gameObjects = [];
+   }
 }

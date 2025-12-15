@@ -11,7 +11,7 @@
     },
     "speed1": {
         "name": "Speed Boost 1",
-        "cost": 2,
+        "cost": 1,
         "prereq": [
             "start"
         ],
@@ -28,7 +28,7 @@
     },
     "dashDamage1": {
         "name": "Dash Damage 1",
-        "cost": 2,
+        "cost": 1,
         "prereq": [
             "dashDistance1"
         ],
@@ -62,7 +62,7 @@
     },
     "health1": {
         "name": "More Health 1",
-        "cost": 2,
+        "cost": 1,
         "prereq": [
             "start"
         ],
@@ -113,7 +113,7 @@
     },
     "dashCooldown2": {
         "name": "Dash Cooldown 2",
-        "cost": 5,
+        "cost": 4,
         "prereq": [
             "dashCooldown1"
         ],
@@ -147,7 +147,7 @@
     },
     "dashInvulnerability": {
         "name": "Dash Invulnerability",
-        "cost": 5,
+        "cost": 10,
         "prereq": [
             "speed1", "dashCooldown1", "dashDamage1", "health1"
         ],
@@ -164,7 +164,7 @@
     },
     "dashDistance1": {
         "name": "Dash Distance 1",
-        "cost": 3,
+        "cost": 2,
         "prereq": [
             "start"
         ],
@@ -175,13 +175,13 @@
             }
         },
         "pos": {
-            "x": -30,
+            "x": -50,
             "y": 100
         }
     },
     "dashDistance2": {
         "name": "Dash Distance 2",
-        "cost": 5,
+        "cost": 3,
         "prereq": [
             "dashDistance1"
         ],
@@ -192,7 +192,7 @@
             }
         },
         "pos": {
-            "x": -30,
+            "x": -50,
             "y": 200
         }
     }

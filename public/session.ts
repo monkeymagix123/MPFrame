@@ -102,6 +102,9 @@ export class Session {
             break;
       }
 
+      // reset game objects in room
+      this.room?.endMatch();
+
       // hide the canvas
       this.canvas.classList.add("hidden");
 

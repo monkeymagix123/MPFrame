@@ -29,7 +29,7 @@ export const config = {
 
    points: {
       base: devMode ? 67 : 2,
-      perKill: 2,
+      perKill: 1,
       perDeath: 0, // kinda helps ensure dont just sit there
       perWin: 1,
    }

@@ -256,6 +256,10 @@ export class Game {
 		// Broadcast end match message
 		Serializer.emitToRoom(io, room.code, "game/end-match", msg);
 
+		// Reset object timers
+		this.gameObjectCreation.clear();
+
+		// Tell room to end match
 		room.endMatch();
 
 		for (const player of room.gameState.players) {

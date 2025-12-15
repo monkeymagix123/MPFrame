@@ -75,6 +75,7 @@ export class Room {
    endMatch(): void {
       this.roomState = "skill-selection";
       // this.gameState.resetState();
+      this.gameState.endMatch();
    }
 
    resetGame(): void {
