@@ -32,10 +32,10 @@
         "prereq": [
             "dashDistance1"
         ],
-        "desc": "Increase damage by 25.",
+        "desc": "Increase damage by 10.",
         "effects": {
             "stats": {
-                "damage": 25
+                "damage": 10
             }
         },
         "pos": {
@@ -49,10 +49,10 @@
         "prereq": [
             "start"
         ],
-        "desc": "Increase max health by 50.",
+        "desc": "Increase max health by 25.",
         "effects": {
             "stats": {
-                "health": 50
+                "health": 25
             }
         },
         "pos": {
