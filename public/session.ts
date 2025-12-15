@@ -8,8 +8,7 @@ import { colorSettings, Settings } from "./settings";
 import { PlayerDelta } from "../shared/player";
 import { drawEndScreen } from "./canvas";
 import { stopGameLoop } from "./gameLoop";
-import * as tree from "./tree";
-import { drawTree } from "./treePixi";
+import { drawTree } from "./tree";
 
 export class Session {
    socket: Socket;

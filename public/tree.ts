@@ -1,217 +1,583 @@
-// --- 1. Player State ---
-import { session } from "./session";
-import { Effect, skillData, treeUtil } from "../shared/skillTree";
+import { Application, Graphics, GraphicsContext, Container, TextStyle, Text } from "pixi.js";
 import { Player } from "../shared/player";
+import { session } from "./session";
+import { Skill, skillData, treeUtil } from "../shared/skillTree";
+import { Vec2 } from "../shared/v2";
+import { Viewport } from 'pixi-viewport';
 
+const COLOR_CONFIG = {
+    background: '#11111b',
+    
+    nodes: {
+        unlocked: {
+            fill: '#22c55e',
+            border: '#16a34a'
+        },
+        available: {
+            fill: '#3b82f6',
+            border: '#2563eb'
+        },
+        locked: {
+            fill: '#6b7280',
+            border: '#4b5563'
+        }
+    },
+    
+    edges: {
+        bothUnlocked: { color: '#4a5568', alpha: 0.6, width: 4 },
+        startUnlocked: { color: '#3367d6', alpha: 0.8, width: 6 },
+        locked: { color: '#666666', alpha: 0.3, width: 3 }
+    },
+    
+    tooltip: {
+        background: '#1f2937',
+        backgroundAlpha: 0.95,
+        border: '#374151',
+        borderAlpha: 0.8,
+        text: '#f3f4f6'
+    },
+    
+    skillPoints: {
+        text: '#f3f4f6'
+    }
+};
+
+
+// Game elements
 let player: Player;
-let interval: number;
 
-// check if initialized UI
-let hasInitUI = false;
+// PIXI elements
+let app: Application;
+let viewport: Viewport;
 
+const upgrades = new Container(); // nodes themselves
+
+const ui = new Container();
+const tooltipContainer = new Container();
+let tooltipText: Text;
+let tooltipBg: Graphics;
+
+// Skill points display
+let skillPointsText: Text;
+
+const nodes: Map<string, Graphics> = new Map();
+type EdgeKey = `${string}-${string}`;
+const edges: Map<EdgeKey, Graphics> = new Map();
+
+// UI Elements
 const treeArea = document.getElementById('tree-area') as HTMLElement;
-const skillPointsContainer = document.getElementById('skill-points-container') as HTMLDivElement;
-const skillPointsElement = document.getElementById('skill-points') as HTMLSpanElement;
-const skillsElement = document.getElementById('skill-tree') as HTMLDivElement;
-const skillReadyBtn = document.getElementById('skill-ready-btn') as HTMLButtonElement;
+const treeElement = document.getElementById('skill-tree') as HTMLDivElement;
 
-export function drawUI() {
-    if (!hasInitUI) {
+// Logic elements
+let interval: number; // game loop
+let hasInitTree: boolean = false;
+let running = false;
+
+// Basic graphics
+type NodeStatus = 'unlocked' | 'available' | 'locked' | 'hidden';
+
+function createNodeType(color: string, borderColor?: string): GraphicsContext {
+    const size = 20; // Changed from 30 to 20
+    const ctx = new GraphicsContext()
+        .rect(-size / 2, -size / 2, size, size)
+        .fill(color);
+    
+    if (borderColor) {
+        ctx.rect(-size / 2, -size / 2, size, size)
+           .stroke({ width: 2, color: borderColor });
+    }
+    
+    return ctx;
+}
+
+const circleStatus: Record<NodeStatus, GraphicsContext> = {
+    unlocked: createNodeType(COLOR_CONFIG.nodes.unlocked.fill, COLOR_CONFIG.nodes.unlocked.border),
+    available: createNodeType(COLOR_CONFIG.nodes.available.fill, COLOR_CONFIG.nodes.available.border),
+    locked: createNodeType(COLOR_CONFIG.nodes.locked.fill, COLOR_CONFIG.nodes.locked.border),
+    hidden: new GraphicsContext(),
+};
+
+const stateConfig: Record<NodeStatus, { scale: number, visible: boolean }> = {
+    unlocked: { scale: 1, visible: true },
+    available: { scale: 1.15, visible: true },
+    locked: { scale: 0.95, visible: true },
+    hidden: { scale: 1, visible: false },
+};
+
+export function drawTree(): void {
+    treeArea.classList.remove('hidden');
+
+    if (!hasInitTree) {
         initTreeUI();
-        hasInitUI = true;
+        hasInitTree = true;
+    }
+
+    startUpdateLoop();
+}
+
+export function hideTree(): void {
+    cancelUpdateLoop();
+    treeArea.classList.add('hidden');
+}
+
+function initTreeUI(): void {
+    player = session.player!;
+
+    app = new Application();
+
+    (async () => {
+        await app.init({
+            backgroundAlpha: 1,
+            backgroundColor: COLOR_CONFIG.background,
+            resizeTo: treeElement,
+            resolution: window.devicePixelRatio || 1,
+            autoDensity: true,
+            antialias: true
+        });
+
+        treeElement.appendChild(app.canvas);
+
+        // create viewport
+        viewport = createViewport(app);
+        app.stage.addChild(viewport);
+
+        // add nodes container to viewport
+        viewport.addChild(upgrades);
+
+        // initialize skill tree nodes
+        for (const [skillId, skill] of Object.entries(skillData)) {
+            const node = createNode(skillId, skill);
+            upgrades.addChild(node);
+        }
+        
+        // add edges (must be added before nodes so they appear behind)
+        createEdges();
+
+        // create skill points display (added to stage, not viewport)
+        createSkillPointsDisplay();
+        app.stage.addChild(ui);
+        ui.addChild(skillPointsText);
+
+        // create tooltip (must be last to appear on top)
+        createTooltip();
+        ui.addChild(tooltipContainer);
+    })();
+}
+
+export function redrawUI(): void {
+    player = session.player!;
+
+    // update skill points display on canvas
+    updateSkillPointsDisplay();
+
+    // update skill tree
+    for (const skillId in skillData) {
+        const node = nodes.get(skillId)!;
+        setClass(node, getClass(skillId), skillId);
+    }
+
+    // update edges
+    for (const [key, value] of edges) {
+        setEdge(value, key);
+    }
+}
+
+// Class utilities
+function getClass(skillId: string): NodeStatus {
+    if (player.unlockedSkills.includes(skillId)) {
+        return 'unlocked';
+    }
+
+    if (!treeUtil.hasPrereqs(skillId, player.unlockedSkills)) {
+        return 'hidden';
+    }
+    
+    if (player.skillPoints < skillData[skillId].cost) {
+        return 'locked';
+    }
+    
+    return 'available';
+}
+
+function setClass(node: Graphics, status: NodeStatus, skillId: string): void {
+    node.context = circleStatus[status];
+    
+    // Smooth scale transition
+    const targetScale = stateConfig[status].scale;
+    node.scale.set(targetScale);
+    
+    node.visible = stateConfig[status].visible;
+
+    // Removed glow filter
+    node.filters = [];
+
+    node.eventMode = status === 'hidden' ? 'none' : 'static';
+}
+
+// sets style of the edge
+function setEdge(edge: Graphics, data: EdgeKey): void {
+    const ids = data.split('-');
+    const start = ids[0];
+    const end = ids[1];
+
+    const status1 = getClass(start);
+    const status2 = getClass(end);
+
+    const startNode = nodes.get(start)!;
+    const endNode = nodes.get(end)!;
+
+    // if one hidden, don't draw edge between
+    if (status1 === 'hidden' || status2 === 'hidden') {
+        edge.visible = false;
         return;
     }
 
-    // unhide everything
-    treeArea.classList.remove('hidden');
+    edge.visible = true;
+    edge.clear();
 
-    // start loop
-    startUpdateLoop();
+    // both unlocked --> subtle edge
+    if (status1 === 'unlocked' && status2 === 'unlocked') {
+        const cfg = COLOR_CONFIG.edges.bothUnlocked;
+        edge.setStrokeStyle({ width: cfg.width, color: cfg.color, alpha: cfg.alpha });
+        edge.moveTo(startNode.position.x, startNode.position.y);
+        edge.lineTo(endNode.position.x, endNode.position.y);
+        edge.stroke();
+        return;
+    }
+
+    // only start unlocked --> highlight edge
+    if (status1 === 'unlocked') {
+        const cfg = COLOR_CONFIG.edges.startUnlocked;
+        edge.setStrokeStyle({ width: cfg.width, color: cfg.color, alpha: cfg.alpha });
+        edge.moveTo(startNode.position.x, startNode.position.y);
+        edge.lineTo(endNode.position.x, endNode.position.y);
+        edge.stroke();
+        return;
+    }
+
+    // start not unlocked --> faint edge
+    const cfg = COLOR_CONFIG.edges.locked;
+    edge.setStrokeStyle({ width: cfg.width, color: cfg.color, alpha: cfg.alpha });
+    edge.moveTo(startNode.position.x, startNode.position.y);
+    edge.lineTo(endNode.position.x, endNode.position.y);
+    edge.stroke();
 }
 
-function effectsString(skillEffects?: Effect): string {
-    if (!skillEffects) {
-        return "";
-    }
+// Creator functions
+function createNode(skillId: string, skill: Skill): Graphics {
+    const node = new Graphics();
 
-    if (!player) {
-        return "";
-    }
+    nodes.set(skillId, node);
 
-    let s = `<br> Effects: <br>
-        ${treeUtil.getEffectsString(player.previewEffects(skillEffects))}
-    `
+    const pos = skill.pos;
+    node.position.set(pos.x, -pos.y);
 
-    return s;
+    node.eventMode = 'static';
+    node.cursor = 'pointer';
+
+    let isPointerDown = false;
+    let hasMoved = false;
+
+    node
+        .on('pointerdown', (e) => {
+            isPointerDown = true;
+            hasMoved = false;
+        })
+        .on('pointermove', (e) => {
+            if (isPointerDown) {
+                hasMoved = true;
+            }
+        })
+        .on('pointerup', (e) => {
+            if (isPointerDown && !hasMoved) {
+                requestUnlock(skillId);
+            }
+            isPointerDown = false;
+            hasMoved = false;
+        })
+        .on('pointerupoutside', () => {
+            isPointerDown = false;
+            hasMoved = false;
+        })
+        .on('pointerover', () => {
+            const status = getClass(skillId);
+            if (status !== 'hidden') {
+                const originalScale = stateConfig[status].scale;
+                node.scale.set(originalScale * 1.1);
+            }
+            const globalPos = node.getGlobalPosition();
+            showSkillTooltip(skill, globalPos);
+        })
+        .on('pointerout', () => {
+            const status = getClass(skillId);
+            node.scale.set(stateConfig[status].scale);
+            hideTooltip();
+        });
+    
+    return node;
 }
 
-/**
- * Draw the UI for the player's skill tree.
- * This function sets up the DOM elements for the skill tree,
- * and adds event listeners for the buttons.
- * It also starts the update loop, which updates the UI every frame.
- */
-export function initTreeUI() {
-    // set the player
-    player = session.player!;
+function createEdges(): void {
+    for (const [skillId1, skill1] of Object.entries(skillData)) {
+        const endNode = nodes.get(skillId1)!;
 
-    // unhide everything
-    treeArea.classList.remove('hidden');
+        if (skill1.prereq === undefined) {
+            continue;
+        }
 
-    // show points
-    skillPointsElement.innerText = player.skillPoints.toString();
+        for (const prereq of skill1.prereq) {
+            const bundle = `${prereq}-${skillId1}` as EdgeKey;
+            const startNode = nodes.get(prereq)!;
 
-    // show skill tree
-    skillsElement.className = 'skill-tree';
+            const edge = new Graphics();
+            edge.moveTo(startNode.position.x, startNode.position.y);
+            edge.lineTo(endNode.position.x, endNode.position.y);
 
-    for (const skillId in skillData) {
-        const skill = skillData[skillId];
+            // Add edges before nodes so they appear behind
+            upgrades.addChildAt(edge, 0);
 
-        const buttonElement = document.createElement('button');
-        buttonElement.textContent = skill.name;
-        buttonElement.id = skillId;
-        buttonElement.dataset.skillId = skillId;
-        buttonElement.dataset.cost = skill.cost.toString();
-        buttonElement.dataset.prereq = skill.prereq.join(',');
+            edges.set(bundle, edge);
+        }
+    }
+}
 
-        buttonElement.className = 'skill tooltip';
-        buttonElement.addEventListener('click', () => requestUnlock(skillId));
+// Viewport
+// Replace the existing createViewport function's zoom configuration
 
-        buttonElement.classList.add(...getClass(skillId));
+function createViewport(app: Application, size: Vec2 = treeUtil.getMaxPos()): Viewport {
+    const viewport = new Viewport({
+        screenWidth: app.renderer.width,
+        screenHeight: app.renderer.height,
+        worldWidth: size.x * 3,
+        worldHeight: size.y * 3,
+        events: app.renderer.events,
+    });
+    
+    viewport
+        .drag({
+            wheel: false,
+            mouseButtons: 'middle-right',
+            keyToPress: ['ShiftLeft', 'ShiftRight'],
+        })
+        .pinch()
+        .wheel({
+            smooth: 3,
+            percent: 0.1,
+            interrupt: true,
+        })
+        .decelerate({
+            friction: 0.9,
+            bounce: 0.5,
+            minSpeed: 0.01
+        })
+        .clampZoom({
+            minScale: 0.3,
+            maxScale: 2.5,
+        });
+    
+    // Dynamic clamp boundaries
+    const updateClamp = () => {
+        const scale = viewport.scale.x;
+        const expandFactor = Math.max(1, 2 / scale);
+        const padding = 800 * expandFactor;
+        
+        viewport.clamp({
+            left: -size.x * 1.5 - padding,
+            right: size.x * 1.5 + padding,
+            top: -size.y * 1.5 - padding,
+            bottom: size.y * 1.5 + padding,
+            underflow: 'center'
+        });
+    };
+    
+    viewport.on('zoomed', updateClamp);
+    viewport.on('drag-end', updateClamp);
+    updateClamp();
 
-        skillsElement.appendChild(buttonElement);
-
-        const tooltipElement = document.createElement('span');
-        tooltipElement.className = 'tooltiptext';
-        tooltipElement.id = `tooltip-${skillId}`;
-        tooltipElement.innerHTML = `
-            ${skill.desc} <br>
-            Cost: ${skill.cost} <br>
-            Prereq: ${skill.prereq.map(prereq => skillData[prereq].name).join(', ')}
-            ${ effectsString(skill.effects) }
-        `;
-        buttonElement.appendChild(tooltipElement);
+    // Center on the start node
+    const startNode = findStartNode();
+    if (startNode) {
+        viewport.moveCenter(startNode.x, -startNode.y);
+    } else {
+        // Fallback to center of world if no start node found
+        viewport.moveCenter(0, 0);
     }
 
-    // show ready button
-    skillReadyBtn.addEventListener('click', () => {
-        // Send to server
-        session.socket.emit('game/player-skill-ready');
+    // Enhanced cursor management
+    let isDragging = false;
 
-        // Update button
-        if (skillReadyBtn.classList.contains('ready')) {
-            skillReadyBtn.classList.remove('ready');
-            skillReadyBtn.innerText = 'Ready';
-        } else {
-            skillReadyBtn.classList.add('ready');
-            skillReadyBtn.innerText = 'Not Ready';
+    viewport.on('drag-start', () => {
+        isDragging = true;
+        app.canvas.style.cursor = 'grabbing';
+        hideTooltip();
+    });
+
+    viewport.on('drag-end', () => {
+        isDragging = false;
+        app.canvas.style.cursor = 'default';
+    });
+
+    window.addEventListener('keydown', (e) => {
+        if ((e.key === 'Shift') && !isDragging) {
+            app.canvas.style.cursor = 'grab';
         }
     });
 
-    startUpdateLoop();
+    window.addEventListener('keyup', (e) => {
+        if (e.key === 'Shift' && !isDragging) {
+            app.canvas.style.cursor = 'default';
+        }
+    });
+
+    return viewport;
 }
 
-export function hideUI() {
-    // If haven't initialized UI, don't do anything
-    if (!hasInitUI) return;
-
-    // Hide elements
-    treeArea.classList.add('hidden');
-
-    // Reset button status
-    skillReadyBtn.classList.remove('ready');
-    skillReadyBtn.innerText = 'Ready';
-
-    cancelUpdateLoop();
+// Helper function to find the start node (node with no prerequisites)
+function findStartNode(): Vec2 | null {
+    for (const [skillId, skill] of Object.entries(skillData)) {
+        if (!skill.prereq || skill.prereq.length === 0) {
+            return skill.pos;
+        }
+    }
+    return null;
 }
 
+// Skill Points Display
+function createSkillPointsDisplay(): void {
+    const style = new TextStyle({
+        fontSize: 24,
+        fill: COLOR_CONFIG.skillPoints.text,
+        fontFamily: 'system-ui, -apple-system, sans-serif',
+        fontWeight: 'bold',
+    });
+    
+    skillPointsText = new Text({
+        text: '0',
+        style: style
+    });
+    skillPointsText.resolution = window.devicePixelRatio || 1;
+    skillPointsText.anchor.set(0.5, 0);
+    
+    updateSkillPointsDisplay();
+}
+
+function updateSkillPointsDisplay(): void {
+    if (!skillPointsText || !player || !app) return;
+    
+    skillPointsText.text = player.skillPoints.toString();
+    
+    // Center the text at the top of the screen
+    skillPointsText.position.set(app.screen.width / 2, 20);
+}
+
+// Tooltip Utilities
+function createTooltip(): void {
+    tooltipBg = new Graphics();
+
+    const style = new TextStyle({
+        fontSize: 14,
+        fill: COLOR_CONFIG.tooltip.text,
+        fontFamily: 'system-ui, -apple-system, sans-serif',
+        wordWrap: true,
+        wordWrapWidth: 240,
+        lineHeight: 20,
+        leading: 2
+    });
+    
+    tooltipText = new Text({
+        text: 'Hello',
+        style: style
+    });
+    tooltipText.resolution = window.devicePixelRatio || 1;
+    tooltipText.position.set(10, 8);
+
+    tooltipContainer.addChild(tooltipBg, tooltipText);
+    tooltipContainer.visible = false;
+}
+
+function showSkillTooltip(skill: Skill, pos: Vec2): void {
+    tooltipContainer.visible = true;
+
+    const text = [
+        skill.desc,
+        'Cost: ' + skill.cost,
+    ];
+
+    if (skill.prereq !== undefined) {
+        text.push('Prereq: ' + skill.prereq.map(prereq => skillData[prereq].name).join(', '));
+    }
+
+    if (skill.effects !== undefined) {
+        text.push('Effects:');
+        text.push(treeUtil.effectsString(player, skill.effects));
+    }
+
+    setText(text.join('\n'));
+
+    updateTooltipPosition(pos, tooltipContainer);
+}
+
+function updateTooltipPosition(pos: Vec2, tooltip: Container): void {
+    const margin = 15;
+    let x = pos.x + margin;
+    let y = pos.y + margin;
+
+    // Clamp right edge
+    if (x + tooltip.width > app.screen.width) {
+        x = pos.x - tooltip.width - margin;
+    }
+
+    // Clamp bottom edge
+    if (y + tooltip.height > app.screen.height) {
+        y = pos.y - tooltip.height - margin;
+    }
+
+    // Clamp left/top
+    x = Math.max(margin, x);
+    y = Math.max(margin, y);
+
+    tooltip.position.set(Math.round(x), Math.round(y));
+}
+
+function hideTooltip(): void {
+    tooltipContainer.visible = false;
+}
+
+function setText(value: string) {
+    tooltipText.text = value;
+    tooltipText.position.set(10, 8);
+    
+    tooltipBg.clear();
+    const padding = 20;
+    const width = tooltipText.getBounds().width + padding;
+    const height = tooltipText.getBounds().height + padding * 0.8;
+    
+    tooltipBg
+        .rect(0, 0, width, height)
+        .fill({ color: COLOR_CONFIG.tooltip.background, alpha: COLOR_CONFIG.tooltip.backgroundAlpha })
+        .stroke({ width: 2, color: COLOR_CONFIG.tooltip.border, alpha: COLOR_CONFIG.tooltip.borderAlpha });
+}
+
+// Loops
 function startUpdateLoop() {
+    if (running) return;
+    running = true;
     interval = requestAnimationFrame(gameLoop);
 }
 
 function cancelUpdateLoop() {
+    if (!running) return;
+    running = false;
     cancelAnimationFrame(interval);
 }
 
 function gameLoop() {
+    if (!running) return;
     redrawUI();
     requestAnimationFrame(gameLoop);
 }
 
-export function redrawUI() {
-    // refresh player
-    player = session.player!;
-
-    // show points
-    skillPointsElement.innerText = player.skillPoints.toString();
-
-    // update skill tree
-    for (const skillId in skillData) {
-        const skill = skillData[skillId];
-
-        const buttonElement = document.getElementById(skillId)! as HTMLButtonElement;
-
-        const classList = buttonElement.classList;
-        // clear all classes
-        classList.remove(...classList);
-        classList.add('skill', 'tooltip');
-        classList.add(...getClass(skillId));
-
-        // update tooltip only if its not bought (so effects change)
-        if (player.unlockedSkills.includes(skillId)) {
-            continue;
-        }
-        
-        const tooltipElement = document.getElementById(`tooltip-${skillId}`)! as HTMLSpanElement;
-        tooltipElement.innerHTML = `
-            ${skill.desc} <br>
-            Cost: ${skill.cost} <br>
-            Prereq: ${skill.prereq.map(prereq => skillData[prereq].name).join(', ')}
-            ${ effectsString(skill.effects) }
-        `;
-    }
-}
-
-function getClass(skillId: string): string[] {
-    // already unlocked
-    if (player.unlockedSkills.includes(skillId)) {
-        return ['unlocked'];
-    }
-
-    // don't have all prereqs
-    if (!hasPrereqs(skillId)) {
-        return ['hidden'];
-    }
-    
-    // have all prereqs, but can't buy it
-    if (player.skillPoints < skillData[skillId].cost) {
-        return ['locked'];
-    }
-    
-    return ['available'];
-}
-
-// --- 2. Logic to Check/Unlock ---
-
-
-/**
- * Emits a socket event to the server to unlock a skill.
- * @param {string} skillId - The ID of the skill to unlock.
- */
+// server stuff
 export function requestUnlock(skillId: string): void {
     session.socket.emit('game/player-buy-upgrade', skillId);
 }
-
-function hasPrereqs(skillId: string): boolean {
-    return treeUtil.hasPrereqs(skillId, player.unlockedSkills);
-}
-
-// // --- 3. Event Listener Setup ---
-// document.querySelectorAll('.skill').forEach(button => {
-//     button.addEventListener('click', (event) => {
-//         attemptUnlock(event.target as HTMLButtonElement);
-//     });
-// });
-
-// Initial setup to show available points
-// console.log(`Initial Skill Points: ${player.skillPoints}`);
