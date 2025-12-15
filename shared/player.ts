@@ -355,6 +355,11 @@ export class Player {
       this.skillPoints += config.points.base
          + this.killCount * config.points.perKill
          + this.deathCount * config.points.perDeath;
+
+      // need to be alive to count as win
+      if (this.isAlive()) {
+         this.skillPoints += config.points.perWin;
+      }
    }
    
    /**

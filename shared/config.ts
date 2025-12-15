@@ -28,8 +28,9 @@ export const config = {
    damageOverTimeScaling: 0.1,
 
    points: {
-      base: devMode ? 67 : 1,
+      base: devMode ? 67 : 2,
       perKill: 2,
       perDeath: 0, // kinda helps ensure dont just sit there
+      perWin: 1,
    }
 };
