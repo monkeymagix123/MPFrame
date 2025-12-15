@@ -1,5 +1,5 @@
 import { Chat } from "./chat";
-import { config } from "./config";
+import { addBots, config } from "./config";
 import { Player } from "./player";
 import { State } from "./state";
 import { TeamColor } from "./types";
@@ -28,7 +28,9 @@ export class Room {
 
       if (config.devMode) {
          console.log("Added player to room:", player);
+      }
 
+      if (addBots) {
          // add another bot player
          const player2 = new Player("player67", TeamColor.blue, new Vec2(67, 667), "Player 2", true);
          this.players.set(player2.id, player2);

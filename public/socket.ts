@@ -54,8 +54,10 @@ export function initSocket(): void {
          updatePlayerList(players);
          startGameLoop();
          ui.showGame();
-         // tree.hideUI();
+
+         // hide skill tree and ready button
          tree.hideTree();
+         tree.resetReadyBtn();
       })
    );
 

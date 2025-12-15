@@ -1,4 +1,5 @@
 const devMode = false;
+export const addBots = false;
 
 export const config = {
    devMode: devMode,
