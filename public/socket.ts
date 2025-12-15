@@ -9,7 +9,8 @@ import { Player } from "../shared/player";
 import { Room } from "../shared/room";
 import { Serializer } from "../shared/serializer";
 import { Deserializer } from "../shared/deserializer";
-import * as tree from "./tree";
+// import * as tree from "./tree";
+import * as tree from "./treePixi";
 import { GameObject } from "../shared/gameObjects";
 
 export function initSocket(): void {
@@ -54,7 +55,8 @@ export function initSocket(): void {
          updatePlayerList(players);
          startGameLoop();
          ui.showGame();
-         tree.hideUI();
+         // tree.hideUI();
+         tree.hideTree();
       })
    );
 

@@ -2,7 +2,6 @@
     "start": {
         "name": "Start",
         "cost": 1,
-        "prereq": [],
         "desc": "Well, you gotta start somewhere. \n (Does nothing)",
         "pos": {
             "x": 0,

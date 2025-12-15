@@ -8,7 +8,7 @@ export const skillData = rawSkillData as Record<string, Skill>;
 export type Skill = {
     name: string,
     cost: number,
-    prereq: string[],
+    prereq?: string[],
     desc: string,
     effects?: Effect,
     pos: Vec2,
@@ -22,6 +22,11 @@ export type Effect = {
 export const treeUtil = {
     hasPrereqs(skillId: string, unlockedSkills: string[]): boolean {
         const prereqs = skillData[skillId].prereq;
+
+        if (prereqs === undefined) {
+            return true;
+        }
+
         return prereqs.every(prereq => unlockedSkills.includes(prereq));
     },
 

@@ -20,6 +20,8 @@ let tooltipText: Text;
 let tooltipBg: Graphics;
 
 const nodes: Map<string, Graphics> = new Map();
+type EdgeKey = `${string}-${string}`;
+const edges: Map<EdgeKey, Graphics> = new Map();
 
 // UI Elements
 const treeArea = document.getElementById('tree-area') as HTMLElement;
@@ -29,6 +31,7 @@ const skillPointsElement = document.getElementById('skill-points') as HTMLSpanEl
 // Logic elements
 let interval: number; // game loop
 let hasInitTree: boolean = false;
+let running = false;
 
 // Basic graphics
 type NodeStatus = 'unlocked' | 'available' | 'locked' | 'hidden';
@@ -67,6 +70,8 @@ export function drawTree(): void {
         hasInitTree = true;
     }
 
+    // redrawUI();
+
     startUpdateLoop();
 }
 
@@ -80,6 +85,7 @@ function initTreeUI(): void {
     // init the player
     player = session.player!;
 
+    // init canvas
     app = new Application();
 
     (async () => {
@@ -113,24 +119,21 @@ function initTreeUI(): void {
         for (const [skillId, skill] of Object.entries(skillData)) {
             const node = createNode(skillId, skill);
 
-            setClass(node, getClass(skillId));
-
             // 4. Add the sprite to the stage (the root container)
             upgrades.addChild(node);
         }
-
-        app.stage.addChild(ui);
+        
+        // add edges
+        createEdges();
         
         // // 5. You can even animate it using the PIXI ticker!
         // app.ticker.add((time) => {
         //     bunny.rotation += 0.1 * time.deltaTime; // Rotate the bunny
         // });
     })();
-
-    startUpdateLoop();
 }
 
-function redrawUI(): void {
+export function redrawUI(): void {
     // refresh player
     player = session.player!;
 
@@ -144,6 +147,11 @@ function redrawUI(): void {
         setClass(node, getClass(skillId));
 
         // tooltip automatically updates
+    }
+
+    // update edges
+    for (const [key, value] of edges) {
+        setEdge(value, key);
     }
 }
 
@@ -177,6 +185,59 @@ function setClass(node: Graphics, status: NodeStatus): void {
     } else {
         node.filters = [];
     }
+
+    // make it not accept events if hidden
+    node.eventMode = status === 'hidden' ? 'none' : 'static';
+}
+
+// sets style of the edge
+function setEdge(edge: Graphics, data: EdgeKey): void {
+    // parse key
+    const ids = data.split('-');
+
+    const start = ids[0];
+    const end = ids[1];
+
+    const status1 = getClass(start);
+    const status2 = getClass(end);
+
+    if (status1 === 'unlocked')
+    console.log("drawing unlocked one");
+
+    const startNode = nodes.get(start)!;
+    const endNode = nodes.get(end)!;
+
+    // if one hidden, don't draw edge between
+    if (status1 === 'hidden' || status2 === 'hidden') {
+        edge.visible = false;
+        return;
+    }
+
+    // both unlocked --> normal edge
+    if (status1 === 'unlocked' && status2 === 'unlocked') {
+        edge.visible = true;
+        edge.clear();
+        edge.setStrokeStyle({ width: 10, color: 0x999999 });
+        edge.moveTo(startNode.position.x, startNode.position.y);
+        edge.lineTo(endNode.position.x, endNode.position.y);
+        edge.filters = [];
+        return;
+    }
+
+    // only start unlocked --> highlight edge
+    if (status1 === 'unlocked') {
+        edge.visible = true;
+        edge.clear();
+        edge.setStrokeStyle({ width: 20, color: 0x000000 });
+        edge.moveTo(startNode.position.x, startNode.position.y);
+        edge.lineTo(endNode.position.x, endNode.position.y);
+        edge.filters = [glow];
+        return;
+    }
+
+    // start not unlocked --> hide edge
+    edge.visible = false;
+    return;
 }
 
 // Creator functions
@@ -197,10 +258,39 @@ function createNode(skillId: string, skill: Skill): Graphics {
     // make tooltip
     node
         .on('pointerdown', (e) => { requestUnlock(skillId); e.stopPropagation(); })
-        .on('pointerover', () => { showSkillTooltip(skill, node.position); })
+        .on('pointerover', () => {
+            const globalPos = node.getGlobalPosition();
+            showSkillTooltip(skill, globalPos);
+        })
         .on('pointerout', () => { hideTooltip(); });
     
     return node;
+}
+
+function createEdges(): void {
+    for (const [skillId1, skill1] of Object.entries(skillData)) {
+        const endNode = nodes.get(skillId1)!;
+
+        if (skill1.prereq === undefined) {
+            continue;
+        }
+
+        for (const prereq of skill1.prereq) {
+            // reversed because skill2 used to unlock skill1
+            const bundle = `${prereq}-${skillId1}` as EdgeKey;
+
+            const startNode = nodes.get(prereq)!;
+
+            const edge = new Graphics();
+            edge.moveTo(startNode.position.x, startNode.position.y);
+            edge.lineTo(endNode.position.x, endNode.position.y);
+
+            // setEdge(edge, bundle);
+            upgrades.addChild(edge);
+
+            edges.set(bundle, edge);
+        }
+    }
 }
 
 // Viewport
@@ -230,9 +320,7 @@ function createViewport(app: Application, size: Vec2 = treeUtil.getMaxPos()): Vi
         bottom: size.y,
     });
     viewport.on("pointerdown", (e) => {
-        if (e.target !== viewport) {
-            viewport.plugins.pause("drag");
-        }
+        viewport.plugins.resume("drag");
     });
 
     viewport.on("pointerup", () => {
@@ -294,8 +382,11 @@ function showSkillTooltip(skill: Skill, pos: Vec2): void {
     const text = [
         skill.desc,
         'Cost: ' + skill.cost,
-        'Prereq: ' + skill.prereq.map(prereq => skillData[prereq].name).join(', ')
     ]
+
+    if (skill.prereq !== undefined) {
+        text.push('Prereq: ' + skill.prereq.map(prereq => skillData[prereq].name).join(', '));
+    }
 
     if (skill.effects !== undefined) {
         text.push('Effects:');
@@ -343,21 +434,26 @@ function setText(value: string) {
     tooltipText.text = value;
     tooltipText.position.set(8, 6); // in the middle
     tooltipBg.clear();
-    tooltipBg.roundRect(0, 0, tooltipText.width + 16, tooltipText.height + 12, 6);
+    tooltipBg.roundRect(0, 0, tooltipText.getBounds().width + 16, tooltipText.getBounds().height + 12, 6);
     tooltipBg.fill({ color: 0x000000, alpha: 0.85 });
 }
 
 
 // Loops
 function startUpdateLoop() {
+    if (running) return;
+    running = true;
     interval = requestAnimationFrame(gameLoop);
 }
 
 function cancelUpdateLoop() {
+    if (!running) return;
+    running = false;
     cancelAnimationFrame(interval);
 }
 
 function gameLoop() {
+    if (!running) return;
     redrawUI();
     requestAnimationFrame(gameLoop);
 }
