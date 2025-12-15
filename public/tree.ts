@@ -517,7 +517,7 @@ function createTooltip(): void {
     const style = new TextStyle({
         fontSize: 14,
         fill: COLOR_CONFIG.tooltip.text,
-        fontFamily: 'system-ui, -apple-system, sans-serif',
+        fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
         wordWrap: true,
         wordWrapWidth: 240,
         lineHeight: 20,
