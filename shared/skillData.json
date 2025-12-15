@@ -26,7 +26,7 @@
             "y": -100
         }
     },
-    "dashDmg1": {
+    "dashDamage1": {
         "name": "Dash Damage 1",
         "cost": 2,
         "prereq": [
@@ -36,6 +36,23 @@
         "effects": {
             "stats": {
                 "damage": 10
+            }
+        },
+        "pos": {
+            "x": -100,
+            "y": 100
+        }
+    },
+    "dashDamage2": {
+        "name": "Dash Damage 2",
+        "cost": 3,
+        "prereq": [
+            "dashDamage1"
+        ],
+        "desc": "Increase damage again by 15.",
+        "effects": {
+            "stats": {
+                "damage": 15
             }
         },
         "pos": {
@@ -132,7 +149,7 @@
         "name": "Dash Invulnerability",
         "cost": 5,
         "prereq": [
-            "speed1", "dashCooldown1", "dashDmg1", "health1"
+            "speed1", "dashCooldown1", "dashDamage1", "health1"
         ],
         "desc": "Become invulnerable while dashing.",
         "effects": {
