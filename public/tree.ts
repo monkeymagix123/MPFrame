@@ -83,11 +83,11 @@ function createNodeType(color: string, borderColor?: string): GraphicsContext {
     const size = 20; // Changed from 30 to 20
     const ctx = new GraphicsContext()
         .rect(-size / 2, -size / 2, size, size)
+        // .circle(0, 0, size)
         .fill(color);
     
     if (borderColor) {
-        ctx.rect(-size / 2, -size / 2, size, size)
-           .stroke({ width: 2, color: borderColor });
+        ctx.stroke({ width: 2, color: borderColor });
     }
     
     return ctx;
