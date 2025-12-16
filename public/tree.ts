@@ -394,11 +394,13 @@ function createEdges(): void {
 // Replace the existing createViewport function's zoom configuration
 
 function createViewport(app: Application, size: Vec2 = treeUtil.getMaxPos()): Viewport {
+    const worldScale = 4;
+    
     const viewport = new Viewport({
         screenWidth: app.screen.width,
         screenHeight: app.screen.height,
-        worldWidth: size.x * 3,
-        worldHeight: size.y * 3,
+        worldWidth: size.x * worldScale,
+        worldHeight: size.y * worldScale,
         events: app.renderer.events,
     });
     
