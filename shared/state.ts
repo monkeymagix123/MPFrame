@@ -1,8 +1,8 @@
 import { config } from "./config";
 import { GameObject } from "./gameObjects";
-import { checkMovingSquareCollision, checkSquareCircle, clampPos } from "./math";
+import { checkMovingSquareCollision, checkSquareCircle } from "./math";
 import { Player } from "./player";
-import { v2, Vec2 } from "./v2";
+import { Vec2 } from "./v2";
 
 export interface PlayerSegment {
    player: Player;

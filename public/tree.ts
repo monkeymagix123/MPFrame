@@ -222,7 +222,7 @@ export function redrawUI(): void {
     // update skill tree
     for (const skillId in skillData) {
         const node = nodes.get(skillId)!;
-        setClass(node, getClass(skillId), skillId);
+        setClass(node, getClass(skillId));
     }
 
     // update edges
@@ -248,7 +248,7 @@ function getClass(skillId: string): NodeStatus {
     return 'available';
 }
 
-function setClass(node: Graphics, status: NodeStatus, skillId: string): void {
+function setClass(node: Graphics, status: NodeStatus): void {
     node.context = circleStatus[status];
     
     // Smooth scale transition
