@@ -214,7 +214,7 @@ export class Player {
             const dashMovement = v2.mul(this.dashVel, dashPortion);
             const normalMovement = v2.mul(this.moveVel, movePortion);
 
-            let segments: PlayerSegment[] = [];
+            const segments: PlayerSegment[] = [];
 
             segments.push({
                player: this,

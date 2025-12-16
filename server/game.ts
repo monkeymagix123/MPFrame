@@ -200,7 +200,7 @@ export class Game {
 		const players = this.room.gameState.players;
 
 		// Make a record of whether there is no alive player in each team
-		let teamStatus: Record<TeamColor, boolean> = Object.fromEntries(
+		const teamStatus: Record<TeamColor, boolean> = Object.fromEntries(
 			Object.values(TeamColor).map((color) => [color, true])
 		) as Record<TeamColor, boolean>;
 
