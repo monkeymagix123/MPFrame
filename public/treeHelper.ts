@@ -45,6 +45,7 @@ function calcTooltip(skillId: string, player: Player): string {
     const skill = skillData[skillId];
 
     const text = [
+        skill.name,
         skill.desc,
         'Cost: ' + skill.cost,
     ];
