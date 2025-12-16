@@ -63,9 +63,9 @@ let tooltipBg: Graphics;
 // Skill points display
 let skillPointsText: Text;
 
-const nodes: Map<string, Graphics> = new Map();
+const nodes = new Map<string, Graphics>();
 type EdgeKey = `${string}-${string}`;
-const edges: Map<EdgeKey, Graphics> = new Map();
+const edges = new Map<EdgeKey, Graphics>();
 
 // UI Elements
 const treeArea = document.getElementById('tree-area') as HTMLElement;
@@ -73,7 +73,7 @@ const treeElement = document.getElementById('skill-tree') as HTMLDivElement;
 
 // Logic elements
 let interval: number; // game loop
-let hasInitTree: boolean = false;
+let hasInitTree = false;
 let running = false;
 
 // Basic graphics
