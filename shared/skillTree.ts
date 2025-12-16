@@ -5,7 +5,7 @@ import { Vec2 } from "./v2";
 
 export const skillData = rawSkillData as Record<string, Skill>;
 
-export type Skill = {
+export interface Skill {
     name: string,
     cost: number,
     prereq: string[],
@@ -14,7 +14,7 @@ export type Skill = {
     pos: Vec2,
 }
 
-export type Effect = {
+export interface Effect {
     stats?: Record<string, number>
     flags?: Record<string, boolean>
 }
