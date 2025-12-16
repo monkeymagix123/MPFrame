@@ -398,7 +398,8 @@ function createEdges(): void {
 
 function createViewport(app: Application, size: Vec2 = treeUtil.getMaxPos()): Viewport {
     // Initialize viewport
-    const paddedSize = v2.mul(size, 1.1);
+    const padding = 800;
+    const paddedSize = v2.add(size, new Vec2(padding));
 
     const viewport = new Viewport({
         screenWidth: app.screen.width,
@@ -427,28 +428,11 @@ function createViewport(app: Application, size: Vec2 = treeUtil.getMaxPos()): Vi
         .clampZoom({
             minScale: 0.3,
             maxScale: 2.5,
-        });
-    
-    // Dynamic clamp boundaries
-    const updateClamp = () => {
-        viewport.plugins.remove('clamp');
-
-        const scale = viewport.scale.x;
-        const expandFactor = Math.max(1, 2 / scale);
-        const padding = 800 * expandFactor;
-        
-        viewport.clamp({
-            left: -size.x * 1.5 - padding,
-            right: size.x * 1.5 + padding,
-            top: -size.y * 1.5 - padding,
-            bottom: size.y * 1.5 + padding,
+        })
+        .clamp({
+            direction: 'all',
             underflow: 'center'
-        });
-    };
-    
-    viewport.on('zoomed', updateClamp);
-    viewport.on('drag-end', updateClamp);
-    updateClamp();
+        })
 
     // Center on the start node
     const startNode = findStartNode();
