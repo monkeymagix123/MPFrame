@@ -543,7 +543,8 @@ function showSkillTooltip(skill: Skill, pos: Vec2): void {
         'Cost: ' + skill.cost,
     ];
 
-    if (skill.prereq !== undefined) {
+    // Show prereqs if nonempty
+    if (skill.prereq.length > 0) {
         text.push('Prereq: ' + skill.prereq.map(prereq => skillData[prereq].name).join(', '));
     }
 
