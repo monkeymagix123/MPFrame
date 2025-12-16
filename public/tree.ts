@@ -2,7 +2,7 @@ import { Application, Graphics, GraphicsContext, Container, TextStyle, Text } fr
 import { Player } from "../shared/player";
 import { session } from "./session";
 import { Skill, skillData, treeUtil } from "../shared/skillTree";
-import { Vec2 } from "../shared/v2";
+import { v2, Vec2 } from "../shared/v2";
 import { Viewport } from 'pixi-viewport';
 
 const COLOR_CONFIG = {
@@ -189,6 +189,9 @@ function initTreeUI(): void {
         // create viewport
         viewport = createViewport(app);
         app.stage.addChild(viewport);
+
+        // move container to center
+        upgrades.position.set(viewport.worldWidth / 2, viewport.worldHeight / 2);
 
         // add nodes container to viewport
         viewport.addChild(upgrades);
@@ -394,13 +397,14 @@ function createEdges(): void {
 // Replace the existing createViewport function's zoom configuration
 
 function createViewport(app: Application, size: Vec2 = treeUtil.getMaxPos()): Viewport {
-    const worldScale = 4;
-    
+    // Initialize viewport
+    const paddedSize = v2.mul(size, 1.1);
+
     const viewport = new Viewport({
         screenWidth: app.screen.width,
         screenHeight: app.screen.height,
-        worldWidth: size.x * worldScale,
-        worldHeight: size.y * worldScale,
+        worldWidth: paddedSize.x * 2,
+        worldHeight: paddedSize.y * 2,
         events: app.renderer.events,
     });
     
@@ -448,12 +452,11 @@ function createViewport(app: Application, size: Vec2 = treeUtil.getMaxPos()): Vi
 
     // Center on the start node
     const startNode = findStartNode();
-    if (startNode) {
-        viewport.moveCenter(startNode.x, -startNode.y);
-    } else {
-        // Fallback to center of world if no start node found
-        viewport.moveCenter(0, 0);
-    }
+    // Fallback to center of world if no start node found
+    const startPos = !startNode ? new Vec2(0, 0) : new Vec2(startNode.x, -startNode.y);
+
+    // shift to center of viewport
+    viewport.moveCenter(v2.add(startPos, paddedSize));
 
     // Enhanced cursor management
     let isDragging = false;
