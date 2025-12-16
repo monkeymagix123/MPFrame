@@ -4,6 +4,7 @@ import { session } from "./session";
 import { Skill, skillData, treeUtil } from "../shared/skillTree";
 import { v2, Vec2 } from "../shared/v2";
 import { Viewport } from 'pixi-viewport';
+import { calcTooltips, updateTooltips, getTooltip } from "./treeHelper";
 
 const COLOR_CONFIG = {
     background: '#11111b',
@@ -63,9 +64,9 @@ let tooltipBg: Graphics;
 // Skill points display
 let skillPointsText: Text;
 
-const nodes: Map<string, Graphics> = new Map();
+const nodes = new Map<string, Graphics>();
 type EdgeKey = `${string}-${string}`;
-const edges: Map<EdgeKey, Graphics> = new Map();
+const edges = new Map<EdgeKey, Graphics>();
 
 // UI Elements
 const treeArea = document.getElementById('tree-area') as HTMLElement;
@@ -73,7 +74,7 @@ const treeElement = document.getElementById('skill-tree') as HTMLDivElement;
 
 // Logic elements
 let interval: number; // game loop
-let hasInitTree: boolean = false;
+let hasInitTree = false;
 let running = false;
 
 // Basic graphics
@@ -113,6 +114,7 @@ export function drawTree(): void {
     if (!hasInitTree) {
         initTreeUI();
         initReadyBtn();
+        calcTooltips(player);
         hasInitTree = true;
     }
 
@@ -358,7 +360,7 @@ function createNode(skillId: string, skill: Skill): Graphics {
                 node.scale.set(originalScale * 1.1);
             }
             const globalPos = node.getGlobalPosition();
-            showSkillTooltip(skill, globalPos);
+            showSkillTooltip(skillId, globalPos);
         })
         .on('pointerout', () => {
             const status = getClass(skillId);
@@ -530,25 +532,10 @@ function createTooltip(): void {
     tooltipContainer.visible = false;
 }
 
-function showSkillTooltip(skill: Skill, pos: Vec2): void {
+function showSkillTooltip(skillId: string, pos: Vec2): void {
     tooltipContainer.visible = true;
 
-    const text = [
-        skill.desc,
-        'Cost: ' + skill.cost,
-    ];
-
-    // Show prereqs if nonempty
-    if (skill.prereq.length > 0) {
-        text.push('Prereq: ' + skill.prereq.map(prereq => skillData[prereq].name).join(', '));
-    }
-
-    if (skill.effects !== undefined) {
-        text.push('Effects:');
-        text.push(treeUtil.effectsString(player, skill.effects));
-    }
-
-    setText(text.join('\n'));
+    setText(getTooltip(skillId));
 
     updateTooltipPosition(pos, tooltipContainer);
 }
@@ -612,6 +599,11 @@ function cancelUpdateLoop() {
 function gameLoop() {
     if (!running) return;
     redrawUI();
+
+    // update tooltips
+    updateTooltips(player);
+
+    // schedule next frame
     requestAnimationFrame(gameLoop);
 }
 

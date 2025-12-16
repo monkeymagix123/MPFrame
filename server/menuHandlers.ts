@@ -20,7 +20,7 @@ export function setupMenuHandlers(socket: GameSocket, io: Server): void {
          return;
       }
 
-      let roomCode = generateRoomCode();
+      const roomCode = generateRoomCode();
 
       const room = new Room(roomCode);
       rooms.set(roomCode, room);

@@ -38,7 +38,7 @@ export class State {
    }
 
    updateAll(dt: number, collisions?: boolean): void {
-      let segments: PlayerSegment[] = [];
+      const segments: PlayerSegment[] = [];
 
       // calculate time since match start, in seconds
       // we assume intervals are [curTime - dt, curTime]

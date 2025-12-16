@@ -43,14 +43,14 @@ export class Session {
 
          // Log all outgoing socket events
          const originalEmit = this.socket.emit.bind(this.socket);
-         this.socket.emit = function (event: string, ...args: any[]) {
+         this.socket.emit = function (event: string, ...args: unknown[]) {
             console.log(
                `%c⬆ [EMIT] ${event}`,
                "color: #4CAF50; font-weight: bold",
                args
             );
             return originalEmit(event, ...args);
-         } as any;
+         };
       }
    }
 

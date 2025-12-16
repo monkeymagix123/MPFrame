@@ -3,7 +3,6 @@ import { session } from "./session";
 
 // Global variable to store the timestamp of the last frame
 let lastTime = 0;
-let lastDrawTime = 0;
 
 // The main game loop function using requestAnimationFrame
 function gameLoop(currentTime: number): void {
