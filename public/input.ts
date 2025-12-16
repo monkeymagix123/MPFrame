@@ -2,6 +2,7 @@ import { session } from "./session";
 import { renderGame, resizeCanvas } from "./canvas";
 import { config } from "../shared/config";
 import { emitPlayerMove } from "./socket";
+import { v2 } from "../shared/v2";
 
 export function initGame(): void {
    const canvas = document.getElementById("game-canvas") as HTMLCanvasElement;
@@ -54,4 +55,6 @@ function moveUpdate(): void {
    session.player.moveVel.y =
       ((session.keys["s"] || session.keys["arrowdown"] ? 1 : 0) - (session.keys["w"] || session.keys["arrowup"] ? 1 : 0)) *
       session.player.stats.moveSpeed;
+   
+   session.player.moveVel = v2.mul(v2.normalize(session.player.moveVel), session.player.stats.moveSpeed);
 }
