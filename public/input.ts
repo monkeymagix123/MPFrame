@@ -1,6 +1,5 @@
 import { session } from "./session";
-import { renderGame, resizeCanvas } from "./canvas";
-import { config } from "../shared/config";
+import { resizeCanvas } from "./canvas";
 import { emitPlayerMove } from "./socket";
 import { v2 } from "../shared/v2";
 
