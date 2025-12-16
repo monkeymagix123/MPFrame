@@ -458,15 +458,21 @@ function createViewport(app: Application, size: Vec2 = treeUtil.getMaxPos()): Vi
     // Enhanced cursor management
     let isDragging = false;
 
+    viewport.on('pointerdown', () => {
+        app.canvas.style.cursor = 'grabbing';
+    })
+
+    viewport.on('pointerup', () => {
+        app.canvas.style.cursor = 'grab';
+    })
+
     viewport.on('drag-start', () => {
         isDragging = true;
-        app.canvas.style.cursor = 'grabbing';
         hideTooltip();
     });
 
     viewport.on('drag-end', () => {
         isDragging = false;
-        app.canvas.style.cursor = 'grab';
     });
 
     viewport.cursor = 'grab';
