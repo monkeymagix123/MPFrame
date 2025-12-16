@@ -14,8 +14,8 @@
       "dev": "concurrently --raw -n build,server \"pnpm run build:watch\" \"pnpm run start:server\"",
       "start": "node --no-deprecation server/dist/server.js",
       "host": "tailscale funnel 3000 & pnpm run start",
-      "lint": "pnpm eslint .",
-      "lint:fix": "pnpm eslint . --fix"
+      "lint": "eslint .",
+      "lint:fix": "eslint . --fix"
    },
    "dependencies": {
       "concurrently": "^9.2.1",
