@@ -398,8 +398,8 @@ function createEdges(): void {
 
 function createViewport(app: Application, size: Vec2 = treeUtil.getMaxPos()): Viewport {
     // Initialize viewport
-    const padding = 800;
-    const paddedSize = v2.add(size, new Vec2(padding));
+    const padding = 200;
+    const paddedSize = v2.add(size, new Vec2(padding, padding));
 
     const viewport = new Viewport({
         screenWidth: app.screen.width,
