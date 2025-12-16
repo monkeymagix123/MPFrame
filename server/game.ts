@@ -1,12 +1,9 @@
 import { Server } from "socket.io";
 import { Room } from "../shared/room";
 import { PlayerDelta } from "../shared/player";
-import { serverConfig } from "serverConfig";
-
 import { broadcastLobbiesList } from "./misc";
-import { config } from "../shared/config";
 import { Serializer } from "../shared/serializer";
-import { EndGameMsg, EndGameResult, TeamColor, type WinColor } from "../shared/types";
+import { EndGameMsg, EndGameResult, TeamColor } from "../shared/types";
 
 import { io } from "./server";
 import * as gameLoops from "serverLoop";
@@ -256,6 +253,10 @@ export class Game {
 		// Broadcast end match message
 		Serializer.emitToRoom(io, room.code, "game/end-match", msg);
 
+		// Reset object timers
+		this.gameObjectCreation.clear();
+
+		// Tell room to end match
 		room.endMatch();
 
 		for (const player of room.gameState.players) {

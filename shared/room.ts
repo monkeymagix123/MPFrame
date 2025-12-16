@@ -1,7 +1,9 @@
 import { Chat } from "./chat";
+import { addBots, config } from "./config";
 import { Player } from "./player";
 import { State } from "./state";
 import { TeamColor } from "./types";
+import { Vec2 } from "./v2";
 
 export type RoomState = "waiting" | "playing" | "finished" | "skill-selection";
 
@@ -23,6 +25,17 @@ export class Room {
    addPlayer(player: Player): void {
       this.players.set(player.id, player);
       this.gameState.players.push(player);
+
+      if (config.devMode) {
+         console.log("Added player to room:", player);
+      }
+
+      if (addBots) {
+         // add another bot player
+         const player2 = new Player("player67", TeamColor.blue, new Vec2(67, 667), "Player 2", true);
+         this.players.set(player2.id, player2);
+         this.gameState.players.push(player2);
+      }
    }
 
    removePlayer(playerId: string): void {
@@ -62,6 +75,7 @@ export class Room {
    endMatch(): void {
       this.roomState = "skill-selection";
       // this.gameState.resetState();
+      this.gameState.endMatch();
    }
 
    resetGame(): void {

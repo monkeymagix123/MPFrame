@@ -3,20 +3,26 @@
 }
 
 #tree-area {
-    all: inherit; /* extend game area */
+    position: relative;
     width: 100%;
-    gap: 20px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 .skill-tree {
-    /* Basic container styling */
-    position: relative;
-    padding: 20px;
-    text-align: center;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.skill-tree canvas {
+    width: 100% !important;
+    height: 100% !important;
 }
 
 .skill {
@@ -70,46 +76,60 @@
 }
 
 .tooltip {
-  position: relative;
+    position: relative;
 }
 
 /* Tooltip text */
 .tooltiptext {
-  visibility: hidden; /* Hidden by default */
-  width: 100%;
-  background-color: black;
-  color: #ffffff;
-  text-align: center;
-  padding: 5px 0;
-  border-radius: 6px;
-  position: absolute;
-  z-index: 1; /* Ensure tooltip is displayed above content */
-  bottom: 100%;
-  left: 50%;
-  margin-left: -50%;
+    visibility: hidden; /* Hidden by default */
+    width: 100%;
+    background-color: black;
+    color: #ffffff;
+    text-align: center;
+    padding: 5px 0;
+    border-radius: 6px;
+    position: absolute;
+    z-index: 1; /* Ensure tooltip is displayed above content */
+    bottom: 100%;
+    left: 50%;
+    margin-left: -50%;
 }
 
 /* Show the tooltip text when you hover over the tooltip container */
 .tooltip:hover .tooltiptext {
-  visibility: visible;
+    visibility: visible;
 }
 
 /* Ready button */
 .ready-btn {
-   background: #4caf50;
-   color: white;
-   font-size: 18px;
-   padding: 15px 30px;
-   border: none;
-   border-radius: 10px;
-   font-weight: 600;
-   cursor: pointer;
-   transition: all 0.3s;
+    position: absolute;
+    bottom: 20px;
+    width: 200px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #4caf50;
+    color: white;
+    font-size: 18px;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    z-index: 100;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
 
-   width: auto;
-   margin: 10px;
+.ready-btn:hover {
+    background: #45a049;
+    transform: translateX(-50%) translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
 }
 
 .ready-btn.ready {
-   background: #ff9800;
+    background: #ff9800;
+}
+
+.ready-btn.ready:hover {
+    background: #fb8c00;
 }

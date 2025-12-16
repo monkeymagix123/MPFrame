@@ -3,45 +3,78 @@
         "name": "Start",
         "cost": 1,
         "prereq": [],
-        "desc": "Well, you gotta start somewhere. \n (Does nothing)"
+        "desc": "Well, you gotta start somewhere. \n (Does nothing)",
+        "pos": {
+            "x": 0,
+            "y": 0
+        }
     },
     "speed1": {
         "name": "Speed Boost 1",
-        "cost": 2,
+        "cost": 1,
         "prereq": [
             "start"
         ],
-        "desc": "Increase speed by +50.",
+        "desc": "Increase speed by +25.",
         "effects": {
             "stats": {
-                "speed": 50
+                "speed": 25
             }
+        },
+        "pos": {
+            "x": 0,
+            "y": -100
         }
     },
-    "dashDmg1": {
+    "dashDamage1": {
         "name": "Dash Damage 1",
-        "cost": 2,
+        "cost": 1,
         "prereq": [
-            "start"
+            "dashDistance1"
         ],
-        "desc": "Increase damage by 25.",
+        "desc": "Increase damage by 10.",
         "effects": {
             "stats": {
-                "damage": 25
+                "damage": 10
             }
+        },
+        "pos": {
+            "x": -100,
+            "y": 100
+        }
+    },
+    "dashDamage2": {
+        "name": "Dash Damage 2",
+        "cost": 3,
+        "prereq": [
+            "dashDamage1"
+        ],
+        "desc": "Increase damage again by 15.",
+        "effects": {
+            "stats": {
+                "damage": 15
+            }
+        },
+        "pos": {
+            "x": -200,
+            "y": 100
         }
     },
     "health1": {
         "name": "More Health 1",
-        "cost": 2,
+        "cost": 1,
         "prereq": [
             "start"
         ],
-        "desc": "Increase max health by 50.",
+        "desc": "Increase max health by 25.",
         "effects": {
             "stats": {
-                "health": 50
+                "health": 25
             }
+        },
+        "pos": {
+            "x": 100,
+            "y": 0
         }
     },
     "speed2": {
@@ -50,11 +83,15 @@
         "prereq": [
             "speed1"
         ],
-        "desc": "Increase speed again by +50.",
+        "desc": "Increase speed again by +25.",
         "effects": {
             "stats": {
-                "speed": 50
+                "speed": 25
             }
+        },
+        "pos": {
+            "x": 0,
+            "y": -200
         }
     },
     "dashCooldown1": {
@@ -63,24 +100,32 @@
         "prereq": [
             "start"
         ],
-        "desc": "Decrease dash cooldown by 0.5s.",
+        "desc": "Decrease dash cooldown by 1.0s.",
         "effects": {
             "stats": {
-                "dashCooldown": -0.5
+                "dashCooldown": -1.0
             }
+        },
+        "pos": {
+            "x": 50,
+            "y": 100
         }
     },
     "dashCooldown2": {
         "name": "Dash Cooldown 2",
-        "cost": 5,
+        "cost": 4,
         "prereq": [
             "dashCooldown1"
         ],
-        "desc": "Decrease dash cooldown again by 0.5s.",
+        "desc": "Decrease dash cooldown again by 1.0s.",
         "effects": {
             "stats": {
-                "dashCooldown": -0.5
+                "dashCooldown": -1.0
             }
+        },
+        "pos": {
+            "x": 50,
+            "y": 200
         }
     },
     "speed3": {
@@ -89,29 +134,37 @@
         "prereq": [
             "speed2"
         ],
-        "desc": "Increase speed once again by +50.",
+        "desc": "Increase speed once again by +25.",
         "effects": {
             "stats": {
-                "speed": 50
+                "speed": 25
             }
+        },
+        "pos": {
+            "x": 0,
+            "y": -300
         }
     },
-    "dash-invulnerability": {
+    "dashInvulnerability": {
         "name": "Dash Invulnerability",
-        "cost": 5,
+        "cost": 10,
         "prereq": [
-            "speed1", "dashCooldown1", "dashDmg1", "health1"
+            "speed1", "dashCooldown1", "dashDamage1", "health1"
         ],
         "desc": "Become invulnerable while dashing.",
         "effects": {
             "flags": {
                 "dashInvulnerable": true
             }
+        },
+        "pos": {
+            "x": 0,
+            "y": 150
         }
     },
-    "dash-distance-1": {
+    "dashDistance1": {
         "name": "Dash Distance 1",
-        "cost": 3,
+        "cost": 2,
         "prereq": [
             "start"
         ],
@@ -120,19 +173,27 @@
             "stats": {
                 "dashDistance": 50
             }
+        },
+        "pos": {
+            "x": -50,
+            "y": 100
         }
     },
-    "dash-distance-2": {
+    "dashDistance2": {
         "name": "Dash Distance 2",
-        "cost": 5,
+        "cost": 3,
         "prereq": [
-            "dash-distance-1"
+            "dashDistance1"
         ],
         "desc": "Increase dash distance again by 50.",
         "effects": {
             "stats": {
                 "dashDistance": 50
             }
+        },
+        "pos": {
+            "x": -50,
+            "y": 200
         }
     }
 }

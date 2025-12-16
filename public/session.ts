@@ -5,10 +5,9 @@ import { Vec2 } from "../shared/v2";
 import { config } from "../shared/config";
 import { Room } from "../shared/room";
 import { colorSettings, Settings } from "./settings";
-import { PlayerDelta } from "../shared/player";
 import { drawEndScreen } from "./canvas";
 import { stopGameLoop } from "./gameLoop";
-import * as tree from "./tree";
+import { drawTree } from "./tree";
 
 export class Session {
    socket: Socket;
@@ -102,11 +101,16 @@ export class Session {
             break;
       }
 
+      // reset game objects in room
+      this.room?.endMatch();
+
       // hide the canvas
       this.canvas.classList.add("hidden");
 
       // draw the tree
-      tree.drawUI();
+      // tree.drawUI();
+      // document.getElementById('tree-area')!.classList.remove('hidden');
+      drawTree();
 
       console.log(this.player);
    }

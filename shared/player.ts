@@ -28,6 +28,7 @@ export class Player {
    dashVel: Vec2;
 
    health: number = config.maxHealth;
+   isDead: boolean = false;
 
    // Stats, fully refreshed at the start and end of each match
    stats: PlayerStats = new PlayerStats();
@@ -82,6 +83,8 @@ export class Player {
 
       this.health -= amount;
       if (this.health <= 0) {
+         this.isDead = true;
+
          // update round stats
          this.deathCount++;
          if (source) source.killCount++;
@@ -136,7 +139,7 @@ export class Player {
     * @returns {boolean} True if player is alive, false otherwise.
     */
    isAlive(): boolean {
-      return this.health > 0;
+      return this.health > 0 && !this.isDead;
       // TODO: also add check for if disconnected
    }
 
@@ -187,6 +190,8 @@ export class Player {
     * @returns {PlayerSegment[]} An array of player segments, each representing a portion of the player's movement over the given delta time.
     */
    update(dt: number, startTime: number): PlayerSegment[] {
+      if (!this.isAlive()) return [];
+
       this.dashProgress = Math.min(this.dashProgress + dt, this.stats.dashCooldown);
       
       let vel = this.moveVel;
@@ -350,6 +355,11 @@ export class Player {
       this.skillPoints += config.points.base
          + this.killCount * config.points.perKill
          + this.deathCount * config.points.perDeath;
+
+      // need to be alive to count as win
+      if (this.isAlive()) {
+         this.skillPoints += config.points.perWin;
+      }
    }
    
    /**
@@ -368,6 +378,7 @@ export class Player {
 		this.dashing = false;
 
       // reset match stats
+      this.isDead = false;
       this.killCount = 0;
       this.deathCount = 0;
    }

@@ -87,6 +87,9 @@ export function renderGame(): void {
 }
 
 function drawPlayer(player: Player, ctx: CanvasRenderingContext2D): void {
+   // dont draw dead players
+   if (!player.isAlive()) return;
+
    const isCurrentPlayer = player.id === session.socket.id;
 
    // Draw dash arrow for current player
