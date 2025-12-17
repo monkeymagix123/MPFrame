@@ -8,6 +8,7 @@ import { calcTooltips, updateTooltips } from "./treeHelper";
 import { initReadyBtn } from "./treeUI/readyBtn";
 import { TooltipManager } from "./treeUI/tooltip";
 import { COLOR_CONFIG } from "./treeUI/colorConfig";
+import { SkillPtsManager } from "./treeUI/skillPoints";
 
 
 // Game elements
@@ -23,7 +24,7 @@ const ui = new Container();
 let tooltipManager: TooltipManager;
 
 // Skill points display
-let skillPointsText: Text;
+let skillPointsManager: SkillPtsManager;
 
 const nodes = new Map<string, Graphics>();
 type EdgeKey = `${string}-${string}`;
@@ -125,9 +126,10 @@ function initTreeUI(): void {
         createEdges();
 
         // create skill points display (added to stage, not viewport)
-        createSkillPointsDisplay();
+        skillPointsManager = new SkillPtsManager(app, ui, player.skillPoints);
+
+        // add ui to stage
         app.stage.addChild(ui);
-        ui.addChild(skillPointsText);
 
         // create tooltip (must be last to appear on top)
         tooltipManager = new TooltipManager(ui, app);
@@ -138,7 +140,7 @@ export function redrawUI(): void {
     player = session.player!;
 
     // update skill points display on canvas
-    updateSkillPointsDisplay();
+    skillPointsManager.updateSkillPointsDisplay(player.skillPoints);
 
     // update skill tree
     for (const skillId in skillData) {
@@ -393,34 +395,6 @@ function findStartNode(): Vec2 | null {
         }
     }
     return null;
-}
-
-// Skill Points Display
-function createSkillPointsDisplay(): void {
-    const style = new TextStyle({
-        fontSize: 24,
-        fill: COLOR_CONFIG.skillPoints.text,
-        fontFamily: 'system-ui, -apple-system, sans-serif',
-        fontWeight: 'bold',
-    });
-    
-    skillPointsText = new Text({
-        text: '0',
-        style: style
-    });
-    skillPointsText.resolution = window.devicePixelRatio || 1;
-    skillPointsText.anchor.set(0.5, 0);
-    
-    updateSkillPointsDisplay();
-}
-
-function updateSkillPointsDisplay(): void {
-    if (!skillPointsText || !player || !app) return;
-    
-    skillPointsText.text = player.skillPoints.toString();
-    
-    // Center the text at the top of the screen
-    skillPointsText.position.set(app.screen.width / 2, 20);
 }
 
 // Loops
