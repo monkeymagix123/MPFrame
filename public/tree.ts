@@ -5,6 +5,7 @@ import { Skill, skillData, treeUtil } from "../shared/skillTree";
 import { v2, Vec2 } from "../shared/v2";
 import { Viewport } from 'pixi-viewport';
 import { calcTooltips, updateTooltips, getTooltip } from "./treeHelper";
+import { initReadyBtn } from "./treeUI/readyBtn";
 
 const COLOR_CONFIG = {
     background: '#11111b',
@@ -46,9 +47,6 @@ const COLOR_CONFIG = {
 
 // Game elements
 let player: Player;
-
-// Ready button
-const readyBtn = document.getElementById('skill-ready-btn') as HTMLButtonElement;
 
 // PIXI elements
 let app: Application;
@@ -124,50 +122,6 @@ export function drawTree(): void {
 export function hideTree(): void {
     cancelUpdateLoop();
     treeArea.classList.add('hidden');
-}
-
-// ready button
-function initReadyBtn(): void {
-    readyBtn.onclick = () => { toggleReadyBtn() };
-}
-
-function toggleReadyBtn(): void {
-    const curState: boolean = player.skillReady;
-
-    // toggle state
-    player.skillReady = !player.skillReady;
-
-    // change button content
-    setBtnState(curState);
-
-    // emit player ready to server
-    session.socket.emit('game/player-skill-ready');
-}
-
-// helper
-
-/**
- * Sets the button state to 'status'.
- * If 'status' is true, gives it default status (click to ready up)
- * If 'status' is false, gives it status of click to not ready
- */
-function setBtnState(status: boolean = true) {
-    switch (status) {
-        case false:
-            // now ready
-            readyBtn.classList.add('ready');
-            readyBtn.innerText = 'Not Ready';
-            break;
-        case true:
-            // now not ready
-            readyBtn.classList.remove('ready');
-            readyBtn.innerText = 'Ready';
-            break;
-    }
-}
-
-export function resetReadyBtn(): void {
-    setBtnState();
 }
 
 // tree

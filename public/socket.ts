@@ -10,6 +10,7 @@ import { Room } from "../shared/room";
 import { Serializer } from "../shared/serializer";
 import { Deserializer } from "../shared/deserializer";
 import * as tree from "./tree";
+import { resetReadyBtn } from "./treeUI/readyBtn";
 import { GameObject } from "../shared/gameObjects";
 
 export function initSocket(): void {
@@ -57,7 +58,7 @@ export function initSocket(): void {
 
          // hide skill tree and ready button
          tree.hideTree();
-         tree.resetReadyBtn();
+         resetReadyBtn();
       })
    );
 
