@@ -70,11 +70,11 @@ const stateConfig: Record<NodeStatus, { scale: number, visible: boolean }> = {
     hidden: { scale: 1, visible: false },
 };
 
-export function drawTree(): void {
+export async function drawTree(): Promise<void> {
     treeArea.classList.remove('hidden');
 
     if (!hasInitTree) {
-        initTreeUI();
+        await initTreeUI();
         initReadyBtn();
         calcTooltips(player);
         hasInitTree = true;
@@ -89,51 +89,49 @@ export function hideTree(): void {
 }
 
 // tree
-function initTreeUI(): void {
+async function initTreeUI(): Promise<void> {
     player = session.player!;
 
     app = new Application();
 
-    (async () => {
-        await app.init({
-            backgroundAlpha: 1,
-            backgroundColor: COLOR_CONFIG.background,
-            resizeTo: treeElement,
-            resolution: window.devicePixelRatio || 1,
-            autoDensity: true,
-            antialias: true
-        });
+    await app.init({
+        backgroundAlpha: 1,
+        backgroundColor: COLOR_CONFIG.background,
+        resizeTo: treeElement,
+        resolution: window.devicePixelRatio || 1,
+        autoDensity: true,
+        antialias: true
+    });
 
-        treeElement.appendChild(app.canvas);
+    treeElement.appendChild(app.canvas);
 
-        // create viewport
-        viewport = createViewport(app);
-        app.stage.addChild(viewport);
+    // create viewport
+    viewport = createViewport(app);
+    app.stage.addChild(viewport);
 
-        // move container to center
-        upgrades.position.set(viewport.worldWidth / 2, viewport.worldHeight / 2);
+    // move container to center
+    upgrades.position.set(viewport.worldWidth / 2, viewport.worldHeight / 2);
 
-        // add nodes container to viewport
-        viewport.addChild(upgrades);
+    // add nodes container to viewport
+    viewport.addChild(upgrades);
 
-        // initialize skill tree nodes
-        for (const [skillId, skill] of Object.entries(skillData)) {
-            const node = createNode(skillId, skill);
-            upgrades.addChild(node);
-        }
-        
-        // add edges (must be added before nodes so they appear behind)
-        createEdges();
+    // initialize skill tree nodes
+    for (const [skillId, skill] of Object.entries(skillData)) {
+        const node = createNode(skillId, skill);
+        upgrades.addChild(node);
+    }
+    
+    // add edges (must be added before nodes so they appear behind)
+    createEdges();
 
-        // create skill points display (added to stage, not viewport)
-        skillPointsManager = new SkillPtsManager(app, ui, player.skillPoints);
+    // create skill points display (added to stage, not viewport)
+    skillPointsManager = new SkillPtsManager(app, ui, player.skillPoints);
 
-        // add ui to stage
-        app.stage.addChild(ui);
+    // add ui to stage
+    app.stage.addChild(ui);
 
-        // create tooltip (must be last to appear on top)
-        tooltipManager = new TooltipManager(ui, app);
-    })();
+    // create tooltip (must be last to appear on top)
+    tooltipManager = new TooltipManager(ui, app);
 }
 
 export function redrawUI(): void {
@@ -412,6 +410,9 @@ function cancelUpdateLoop() {
 
 function gameLoop() {
     if (!running) return;
+    if (!hasInitTree) return;
+
+    // update UI
     redrawUI();
 
     // update tooltips
