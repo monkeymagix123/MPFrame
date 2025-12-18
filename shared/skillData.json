@@ -77,6 +77,57 @@
             "y": 0
         }
     },
+    "health2": {
+        "name": "More Health 2",
+        "cost": 2,
+        "prereq": [
+            "health1"
+        ],
+        "desc": "Increase max health again by 25.",
+        "effects": {
+            "stats": {
+                "health": 25
+            }
+        },
+        "pos": {
+            "x": 200,
+            "y": 0
+        }
+    },
+    "health3": {
+        "name": "More Health 3",
+        "cost": 6,
+        "prereq": [
+            "health2"
+        ],
+        "desc": "Increase max health, this time by 50.",
+        "effects": {
+            "stats": {
+                "health": 50
+            }
+        },
+        "pos": {
+            "x": 300,
+            "y": 0
+        }
+    },
+    "health4": {
+        "name": "More Health 4",
+        "cost": 10,
+        "prereq": [
+            "health3"
+        ],
+        "desc": "Increase max health again by 50.",
+        "effects": {
+            "stats": {
+                "health": 50
+            }
+        },
+        "pos": {
+            "x": 400,
+            "y": 0
+        }
+    },
     "speed2": {
         "name": "Speed Boost 2",
         "cost": 3,
@@ -98,7 +149,7 @@
         "name": "Dash Cooldown 1",
         "cost": 2,
         "prereq": [
-            "start"
+            "dashDistance1"
         ],
         "desc": "Decrease dash cooldown by 1.0s.",
         "effects": {
@@ -107,7 +158,7 @@
             }
         },
         "pos": {
-            "x": 50,
+            "x": 100,
             "y": 100
         }
     },
@@ -124,8 +175,42 @@
             }
         },
         "pos": {
-            "x": 50,
-            "y": 200
+            "x": 200,
+            "y": 100
+        }
+    },
+    "dashCooldown3": {
+        "name": "Dash Cooldown 3",
+        "cost": 7,
+        "prereq": [
+            "dashCooldown2"
+        ],
+        "desc": "Decrease dash cooldown again, but this time by 0.5s.",
+        "effects": {
+            "stats": {
+                "dashCooldown": -0.5
+            }
+        },
+        "pos": {
+            "x": 300,
+            "y": 100
+        }
+    },
+    "dashCooldown4": {
+        "name": "Dash Cooldown 4",
+        "cost": 10,
+        "prereq": [
+            "dashCooldown3"
+        ],
+        "desc": "Decrease dash cooldown for the final time by 0.5s.",
+        "effects": {
+            "stats": {
+                "dashCooldown": -0.5
+            }
+        },
+        "pos": {
+            "x": 400,
+            "y": 100
         }
     },
     "speed3": {
@@ -145,11 +230,28 @@
             "y": -300
         }
     },
-    "dashInvulnerability": {
-        "name": "Dash Invulnerability",
+    "speed4": {
+        "name": "Speed Boost 4",
         "cost": 10,
         "prereq": [
-            "speed1", "dashCooldown1", "dashDamage1", "health1"
+            "speed3"
+        ],
+        "desc": "Increase speed once again by +25.",
+        "effects": {
+            "stats": {
+                "speed": 25
+            }
+        },
+        "pos": {
+            "x": 0,
+            "y": -400
+        }
+    },
+    "dashInvulnerability": {
+        "name": "Dash Invulnerability",
+        "cost": 20,
+        "prereq": [
+            "speed2", "dashCooldown3", "dashDamage2", "health2"
         ],
         "desc": "Become invulnerable while dashing.",
         "effects": {
@@ -158,8 +260,8 @@
             }
         },
         "pos": {
-            "x": 0,
-            "y": 150
+            "x": 200,
+            "y": 200
         }
     },
     "dashDistance1": {
@@ -175,7 +277,7 @@
             }
         },
         "pos": {
-            "x": -50,
+            "x": 0,
             "y": 100
         }
     },
@@ -192,7 +294,7 @@
             }
         },
         "pos": {
-            "x": -50,
+            "x": 0,
             "y": 200
         }
     }
