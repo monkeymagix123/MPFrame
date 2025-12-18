@@ -1,4 +1,4 @@
-import { rooms } from "server";
+import { rooms } from "./server";
 import { Server } from "socket.io";
 import { TeamColor } from "../shared/types";
 

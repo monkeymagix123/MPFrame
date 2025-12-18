@@ -2,16 +2,16 @@
    "scripts": {
       "clean": "rm -rf public/dist server/dist shared/dist",
       "prebuild": "pnpm run clean && mkdir -p public/dist server/dist shared/dist",
-      "build:public": "esbuild public/*.ts --bundle --outdir=public/dist --sourcemap --minify",
-      "build:server": "esbuild server/*.ts --bundle --platform=node --outdir=server/dist --sourcemap --minify",
-      "build:shared": "esbuild shared/*.ts --bundle --platform=node --outdir=shared/dist --sourcemap --minify",
-      "build": "pnpm run build:public && pnpm run build:server && pnpm run build:shared",
-      "build:public:watch": "esbuild public/*.ts --bundle --outdir=public/dist --sourcemap --minify --watch",
+      "dev:client": "vite",
+      "dev:server": "concurrently \"pnpm run build:server:watch\" \"pnpm run start:server\"",
+      "dev": "concurrently --raw -n build,server \"pnpm run dev:client\" \"pnpm run dev:server\"",
+      "build": "tsc --build && pnpm run build:client && pnpm run build:server",
+      "build:client": "vite build",
+      "build:server": "tsc --build server/tsconfig.json",
+      "build:shared": "tsc --build shared/tsconfig.json",
       "build:server:watch": "esbuild server/*.ts --bundle --platform=node --outdir=server/dist --sourcemap --minify --watch",
       "build:shared:watch": "esbuild shared/*.ts --bundle --platform=node --outdir=shared/dist --sourcemap --minify --watch",
-      "build:watch": "concurrently -n public,server,shared \"pnpm run build:public:watch\" \"pnpm run build:server:watch\" \"pnpm run build:shared:watch\"",
-      "start:server": "nodemon --watch server/dist --watch public/dist --watch shared/dist --exec 'clear && node --no-deprecation' server/dist/server.js",
-      "dev": "concurrently --raw -n build,server \"pnpm run build:watch\" \"pnpm run start:server\"",
+      "start:server": "nodemon --watch server/dist --watch shared/dist --exec 'clear && node --no-deprecation' server/dist/server.js",
       "start": "node --no-deprecation server/dist/server.js",
       "host": "tailscale funnel 3000 & pnpm run start",
       "lint": "eslint .",
@@ -34,7 +34,10 @@
       "eslint": "^9.39.1",
       "nodemon": "^3.1.9",
       "prettier": "^3.7.4",
+      "ts-node-dev": "^2.0.0",
       "typescript": "^5.9.3",
-      "typescript-eslint": "^8.50.0"
+      "typescript-eslint": "^8.50.0",
+      "vite": "^7.3.0",
+      "vite-tsconfig-paths": "^6.0.2"
    }
 }

@@ -1,54 +1,18 @@
 import { Application, Graphics, GraphicsContext, Container, TextStyle, Text } from "pixi.js";
 import { Player } from "../shared/player";
 import { session } from "./session";
-import { Skill, skillData, treeUtil } from "../shared/skillTree";
+import { Skill, skillData, treeUtil } from "../shared/skill";
 import { v2, Vec2 } from "../shared/v2";
 import { Viewport } from 'pixi-viewport';
-import { calcTooltips, updateTooltips, getTooltip } from "./treeHelper";
-
-const COLOR_CONFIG = {
-    background: '#11111b',
-    
-    nodes: {
-        unlocked: {
-            fill: '#22c55e',
-            border: '#16a34a'
-        },
-        available: {
-            fill: '#3b82f6',
-            border: '#2563eb'
-        },
-        locked: {
-            fill: '#6b7280',
-            border: '#4b5563'
-        }
-    },
-    
-    edges: {
-        bothUnlocked: { color: '#4a5568', alpha: 0.6, width: 4 },
-        startUnlocked: { color: '#3367d6', alpha: 0.8, width: 6 },
-        locked: { color: '#666666', alpha: 0.3, width: 3 }
-    },
-    
-    tooltip: {
-        background: '#1f2937',
-        backgroundAlpha: 0.95,
-        border: '#374151',
-        borderAlpha: 0.8,
-        text: '#f3f4f6'
-    },
-    
-    skillPoints: {
-        text: '#f3f4f6'
-    }
-};
+import { calcTooltips, updateTooltips } from "./treeHelper";
+import { initReadyBtn } from "./treeUI/readyBtn";
+import { TooltipManager } from "./treeUI/tooltip";
+import { COLOR_CONFIG } from "./treeUI/colorConfig";
+import { SkillPtsManager } from "./treeUI/skillPoints";
 
 
 // Game elements
 let player: Player;
-
-// Ready button
-const readyBtn = document.getElementById('skill-ready-btn') as HTMLButtonElement;
 
 // PIXI elements
 let app: Application;
@@ -57,12 +21,10 @@ let viewport: Viewport;
 const upgrades = new Container(); // nodes themselves
 
 const ui = new Container();
-const tooltipContainer = new Container();
-let tooltipText: Text;
-let tooltipBg: Graphics;
+let tooltipManager: TooltipManager;
 
 // Skill points display
-let skillPointsText: Text;
+let skillPointsManager: SkillPtsManager;
 
 const nodes = new Map<string, Graphics>();
 type EdgeKey = `${string}-${string}`;
@@ -108,11 +70,11 @@ const stateConfig: Record<NodeStatus, { scale: number, visible: boolean }> = {
     hidden: { scale: 1, visible: false },
 };
 
-export function drawTree(): void {
+export async function drawTree(): Promise<void> {
     treeArea.classList.remove('hidden');
 
     if (!hasInitTree) {
-        initTreeUI();
+        await initTreeUI();
         initReadyBtn();
         calcTooltips(player);
         hasInitTree = true;
@@ -126,103 +88,57 @@ export function hideTree(): void {
     treeArea.classList.add('hidden');
 }
 
-// ready button
-function initReadyBtn(): void {
-    readyBtn.onclick = () => { toggleReadyBtn() };
-}
-
-function toggleReadyBtn(): void {
-    const curState: boolean = player.skillReady;
-
-    // toggle state
-    player.skillReady = !player.skillReady;
-
-    // change button content
-    setBtnState(curState);
-
-    // emit player ready to server
-    session.socket.emit('game/player-skill-ready');
-}
-
-// helper
-
-/**
- * Sets the button state to 'status'.
- * If 'status' is true, gives it default status (click to ready up)
- * If 'status' is false, gives it status of click to not ready
- */
-function setBtnState(status: boolean = true) {
-    switch (status) {
-        case false:
-            // now ready
-            readyBtn.classList.add('ready');
-            readyBtn.innerText = 'Not Ready';
-            break;
-        case true:
-            // now not ready
-            readyBtn.classList.remove('ready');
-            readyBtn.innerText = 'Ready';
-            break;
-    }
-}
-
-export function resetReadyBtn(): void {
-    setBtnState();
-}
-
 // tree
-function initTreeUI(): void {
+async function initTreeUI(): Promise<void> {
     player = session.player!;
 
     app = new Application();
 
-    (async () => {
-        await app.init({
-            backgroundAlpha: 1,
-            backgroundColor: COLOR_CONFIG.background,
-            resizeTo: treeElement,
-            resolution: window.devicePixelRatio || 1,
-            autoDensity: true,
-            antialias: true
-        });
+    await app.init({
+        backgroundAlpha: 1,
+        backgroundColor: COLOR_CONFIG.background,
+        resizeTo: treeElement,
+        resolution: window.devicePixelRatio || 1,
+        autoDensity: true,
+        antialias: true
+    });
 
-        treeElement.appendChild(app.canvas);
+    treeElement.appendChild(app.canvas);
 
-        // create viewport
-        viewport = createViewport(app);
-        app.stage.addChild(viewport);
+    // create viewport
+    viewport = createViewport(app);
+    app.stage.addChild(viewport);
 
-        // move container to center
-        upgrades.position.set(viewport.worldWidth / 2, viewport.worldHeight / 2);
+    // move container to center
+    upgrades.position.set(viewport.worldWidth / 2, viewport.worldHeight / 2);
 
-        // add nodes container to viewport
-        viewport.addChild(upgrades);
+    // add nodes container to viewport
+    viewport.addChild(upgrades);
 
-        // initialize skill tree nodes
-        for (const [skillId, skill] of Object.entries(skillData)) {
-            const node = createNode(skillId, skill);
-            upgrades.addChild(node);
-        }
-        
-        // add edges (must be added before nodes so they appear behind)
-        createEdges();
+    // initialize skill tree nodes
+    for (const [skillId, skill] of Object.entries(skillData)) {
+        const node = createNode(skillId, skill);
+        upgrades.addChild(node);
+    }
+    
+    // add edges (must be added before nodes so they appear behind)
+    createEdges();
 
-        // create skill points display (added to stage, not viewport)
-        createSkillPointsDisplay();
-        app.stage.addChild(ui);
-        ui.addChild(skillPointsText);
+    // create skill points display (added to stage, not viewport)
+    skillPointsManager = new SkillPtsManager(app, ui, player.skillPoints);
 
-        // create tooltip (must be last to appear on top)
-        createTooltip();
-        ui.addChild(tooltipContainer);
-    })();
+    // add ui to stage
+    app.stage.addChild(ui);
+
+    // create tooltip (must be last to appear on top)
+    tooltipManager = new TooltipManager(ui, app);
 }
 
 export function redrawUI(): void {
     player = session.player!;
 
     // update skill points display on canvas
-    updateSkillPointsDisplay();
+    skillPointsManager.updateSkillPointsDisplay(player.skillPoints);
 
     // update skill tree
     for (const skillId in skillData) {
@@ -360,12 +276,12 @@ function createNode(skillId: string, skill: Skill): Graphics {
                 node.scale.set(originalScale * 1.1);
             }
             const globalPos = node.getGlobalPosition();
-            showSkillTooltip(skillId, globalPos);
+            tooltipManager.showSkillTooltip(skillId, globalPos);
         })
         .on('pointerout', () => {
             const status = getClass(skillId);
             node.scale.set(stateConfig[status].scale);
-            hideTooltip();
+            tooltipManager.hideTooltip();
         });
     
     return node;
@@ -400,7 +316,7 @@ function createEdges(): void {
 
 function createViewport(app: Application, size: Vec2 = treeUtil.getMaxPos()): Viewport {
     // Initialize viewport
-    const padding = 200;
+    const padding = 800;
     const paddedSize = v2.add(size, new Vec2(padding, padding));
 
     const viewport = new Viewport({
@@ -457,7 +373,7 @@ function createViewport(app: Application, size: Vec2 = treeUtil.getMaxPos()): Vi
 
     viewport.on('drag-start', () => {
         isDragging = true;
-        hideTooltip();
+        tooltipManager.hideTooltip();
     });
 
     viewport.on('drag-end', () => {
@@ -479,110 +395,6 @@ function findStartNode(): Vec2 | null {
     return null;
 }
 
-// Skill Points Display
-function createSkillPointsDisplay(): void {
-    const style = new TextStyle({
-        fontSize: 24,
-        fill: COLOR_CONFIG.skillPoints.text,
-        fontFamily: 'system-ui, -apple-system, sans-serif',
-        fontWeight: 'bold',
-    });
-    
-    skillPointsText = new Text({
-        text: '0',
-        style: style
-    });
-    skillPointsText.resolution = window.devicePixelRatio || 1;
-    skillPointsText.anchor.set(0.5, 0);
-    
-    updateSkillPointsDisplay();
-}
-
-function updateSkillPointsDisplay(): void {
-    if (!skillPointsText || !player || !app) return;
-    
-    skillPointsText.text = player.skillPoints.toString();
-    
-    // Center the text at the top of the screen
-    skillPointsText.position.set(app.screen.width / 2, 20);
-}
-
-// Tooltip Utilities
-function createTooltip(): void {
-    tooltipBg = new Graphics();
-
-    const style = new TextStyle({
-        fontSize: 14,
-        fill: COLOR_CONFIG.tooltip.text,
-        fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
-        wordWrap: true,
-        wordWrapWidth: 240,
-        lineHeight: 20,
-        leading: 2
-    });
-    
-    tooltipText = new Text({
-        text: 'Hello',
-        style: style
-    });
-    tooltipText.resolution = window.devicePixelRatio || 1;
-    tooltipText.position.set(10, 8);
-
-    tooltipContainer.addChild(tooltipBg, tooltipText);
-    tooltipContainer.visible = false;
-}
-
-function showSkillTooltip(skillId: string, pos: Vec2): void {
-    tooltipContainer.visible = true;
-
-    setText(getTooltip(skillId));
-
-    updateTooltipPosition(pos, tooltipContainer);
-}
-
-function updateTooltipPosition(pos: Vec2, tooltip: Container): void {
-    const margin = 15;
-    let x = pos.x + margin;
-    let y = pos.y + margin;
-
-    // Clamp right edge
-    if (x + tooltip.width > app.screen.width) {
-        x = pos.x - tooltip.width - margin;
-    }
-
-    // Clamp bottom edge
-    if (y + tooltip.height > app.screen.height) {
-        y = pos.y - tooltip.height - margin;
-    }
-
-    // Clamp left/top
-    x = Math.max(margin, x);
-    y = Math.max(margin, y);
-
-    tooltip.position.set(Math.round(x), Math.round(y));
-}
-
-function hideTooltip(): void {
-    tooltipContainer.visible = false;
-}
-
-function setText(value: string) {
-    tooltipText.text = value;
-
-    // Padding for background
-    const padding = { x: 10, y: 8 };
-    tooltipText.position.set(padding.x, padding.y);
-    
-    tooltipBg.clear();
-    const width = tooltipText.width + 2 * padding.x;
-    const height = tooltipText.height + 2 * padding.y;
-    
-    tooltipBg
-        .rect(0, 0, width, height)
-        .fill({ color: COLOR_CONFIG.tooltip.background, alpha: COLOR_CONFIG.tooltip.backgroundAlpha })
-        .stroke({ width: 2, color: COLOR_CONFIG.tooltip.border, alpha: COLOR_CONFIG.tooltip.borderAlpha });
-}
-
 // Loops
 function startUpdateLoop() {
     if (running) return;
@@ -598,6 +410,9 @@ function cancelUpdateLoop() {
 
 function gameLoop() {
     if (!running) return;
+    if (!hasInitTree) return;
+
+    // update UI
     redrawUI();
 
     // update tooltips

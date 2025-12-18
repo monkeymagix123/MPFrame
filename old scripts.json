@@ -1,0 +1,12 @@
+{
+    "build:public": "esbuild public/*.ts --bundle --outdir=public/dist --sourcemap --minify",
+    "build:server": "esbuild server/*.ts --bundle --platform=node --outdir=server/dist --sourcemap --minify",
+    "build:shared": "esbuild shared/*.ts --bundle --platform=node --outdir=shared/dist --sourcemap --minify",
+    "build": "pnpm run build:public && pnpm run build:server && pnpm run build:shared",
+    "build:public:watch": "esbuild public/*.ts --bundle --outdir=public/dist --sourcemap --minify --watch",
+    "build:server:watch": "esbuild server/*.ts --bundle --platform=node --outdir=server/dist --sourcemap --minify --watch",
+    "build:shared:watch": "esbuild shared/*.ts --bundle --platform=node --outdir=shared/dist --sourcemap --minify --watch",
+    "build:watch": "concurrently -n public,server,shared \"pnpm run build:public:watch\" \"pnpm run build:server:watch\" \"pnpm run build:shared:watch\"",
+    "start:server": "nodemon --watch server/dist --watch public/dist --watch shared/dist --exec 'clear && node --no-deprecation' server/dist/server.js",
+    "dev": "concurrently --raw -n build,server \"pnpm run build:watch\" \"pnpm run start:server\""
+}

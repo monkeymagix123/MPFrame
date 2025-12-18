@@ -1,4 +1,4 @@
-const devMode = false;
+const devMode = true;
 export const addBots = false;
 
 export const config = {
@@ -10,7 +10,7 @@ export const config = {
    playerLength: 30,
    headLength: 30,
 
-   moveSpeed: 120,
+   moveSpeed: devMode ? 500 : 120,
 
    dashCooldown: 5.0,
    dashDistance: 100,
@@ -22,7 +22,7 @@ export const config = {
       return this.devMode ? this.maxHealth : 25;
    },
 
-   maxHealth: devMode ? 0.1 : 100,
+   maxHealth: 100,
 
    damageOverTimeBase: 1,
    damageOverTimeScaling: 0.1,

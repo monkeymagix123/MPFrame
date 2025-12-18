@@ -5,7 +5,7 @@ import { Vec2 } from "./v2";
 
 export const skillData = rawSkillData as Record<string, Skill>;
 
-export type Skill = {
+export interface Skill {
     name: string,
     cost: number,
     prereq: string[],
@@ -14,7 +14,7 @@ export type Skill = {
     pos: Vec2,
 }
 
-export type Effect = {
+export interface Effect {
     stats?: Record<string, number>
     flags?: Record<string, boolean>
 }
@@ -51,7 +51,7 @@ export const treeUtil = {
         return result;
     },
 
-    getEffectsString(data: Partial<PlayerStats>[]): string {
+    getEffectsString(data: Partial<PlayerStats>[], delimiter = "\n"): string {
         const oldStats = data[0]!;
         const newStats = data[1]!;
         let s = "";
@@ -60,19 +60,19 @@ export const treeUtil = {
             const oldVal = oldStats[key];
             const newVal = newStats[key];
             if (newVal === undefined) continue;
-            s += `${this.translateEffectKey(key)}: ${oldVal} -> ${newVal}\n`;
+            s += `${this.translateEffectKey(key)}: ${oldVal} -> ${newVal}${delimiter}`;
         }
         return s;
     },
 
-    effectsString(player?: Player, skillEffects?: Effect): string {
+    effectsString(player?: Player, skillEffects?: Effect, delimiter = "\n"): string {
         if (!skillEffects) {
             return "";
         }
         if (!player) {
             return "";
         }
-        return treeUtil.getEffectsString(player.previewEffects(skillEffects));
+        return treeUtil.getEffectsString(player.previewEffects(skillEffects), delimiter);
     },
 
     getMaxPos(): Vec2 {

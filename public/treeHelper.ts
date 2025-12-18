@@ -1,11 +1,13 @@
 // Helper for skill effects
+// Does not draw any ui
 
 import type { Player } from "../shared/player";
-import { skillData, treeUtil } from "../shared/skillTree";
+import { skillData, treeUtil } from "../shared/skill";
+import { type Tooltip } from "./treeUI/tooltip";
 
 // Map from skill id to calculated effect string
 // Don't update if node unlocked
-const effects = new Map<string, string>();
+const effects = new Map<string, Tooltip>();
 
 /**
  * Calculate all tooltips for every skill in the skill tree.
@@ -39,37 +41,34 @@ export function updateTooltips(player: Player): void {
  * Calculates the tooltip string for a given skill id.
  * @param {string} skillId - The skill id to calculate the tooltip for.
  * @param {Player} player - The player instance to calculate the tooltip for.
- * @returns {string} The calculated tooltip string.
+ * @returns {Tooltip} The calculated tooltip string.
  */
-function calcTooltip(skillId: string, player: Player): string {
+function calcTooltip(skillId: string, player: Player): Tooltip {
     const skill = skillData[skillId];
 
-    const text = [
-        skill.name,
-        skill.desc,
-        'Cost: ' + skill.cost,
-    ];
+    const tooltip: Tooltip = {
+        name: skill.name,
+        desc: skill.desc,
+        cost: skill.cost,
+    };
 
     // Show prereqs if nonempty
     if (skill.prereq.length > 0) {
-        text.push('Prereq: ' + skill.prereq.map(prereq => skillData[prereq].name).join(', '));
+        tooltip.prereq = skill.prereq.map(prereq => skillData[prereq].name).join(', ');
     }
 
     if (skill.effects !== undefined) {
-        text.push('Effects:');
-        text.push(treeUtil.effectsString(player, skill.effects));
+        tooltip.effects = treeUtil.effectsString(player, skill.effects).split('\n');
     }
 
-    const result = text.join('\n');
-
-    return result;
+    return tooltip;
 }
 
 /**
  * Retrieves the calculated tooltip from the cache.
  * Throws if the tooltip has not been initialized.
  */
-export function getTooltip(skillId: string): string {
+export function getTooltip(skillId: string): Tooltip {
     const tooltip = effects.get(skillId);
     if (tooltip === undefined) {
         // Now the error message is accurate: it should have been initialized

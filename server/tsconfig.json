@@ -8,9 +8,7 @@
       "lib": ["ES2020"],
       "composite": true,
       "baseUrl": ".",
-      "paths": {
-         "../shared/*": ["../shared/dist/*"]
-      }
+      "types": ["node"],
    },
    "ts-node": {
       "transpileOnly": true,

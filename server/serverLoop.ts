@@ -1,5 +1,5 @@
-import { Game } from "game";
-import { serverConfig } from "serverConfig";
+import { Game } from "./game";
+import { serverConfig } from "./serverConfig";
 
 const activeGames = new Map<string, Game>();
 
