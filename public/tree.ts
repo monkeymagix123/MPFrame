@@ -1,4 +1,4 @@
-import { Application, Graphics, GraphicsContext, Container, TextStyle, Text } from "pixi.js";
+import { Application, Graphics, GraphicsContext, Container } from "pixi.js";
 import { Player } from "../shared/player";
 import { session } from "./session";
 import { Skill, skillData, treeUtil } from "../shared/skill";
@@ -249,16 +249,16 @@ function createNode(skillId: string, skill: Skill): Graphics {
     let hasMoved = false;
 
     node
-        .on('pointerdown', (e) => {
+        .on('pointerdown', () => {
             isPointerDown = true;
             hasMoved = false;
         })
-        .on('pointermove', (e) => {
+        .on('pointermove', () => {
             if (isPointerDown) {
                 hasMoved = true;
             }
         })
-        .on('pointerup', (e) => {
+        .on('pointerup', () => {
             if (isPointerDown && !hasMoved) {
                 requestUnlock(skillId);
             }
@@ -360,9 +360,6 @@ function createViewport(app: Application, size: Vec2 = treeUtil.getMaxPos()): Vi
     // shift to center of viewport
     viewport.moveCenter(v2.add(startPos, paddedSize));
 
-    // Enhanced cursor management
-    let isDragging = false;
-
     viewport.on('pointerdown', () => {
         app.canvas.style.cursor = 'grabbing';
     })
@@ -372,12 +369,7 @@ function createViewport(app: Application, size: Vec2 = treeUtil.getMaxPos()): Vi
     })
 
     viewport.on('drag-start', () => {
-        isDragging = true;
         tooltipManager.hideTooltip();
-    });
-
-    viewport.on('drag-end', () => {
-        isDragging = false;
     });
 
     viewport.cursor = 'grab';
@@ -387,7 +379,7 @@ function createViewport(app: Application, size: Vec2 = treeUtil.getMaxPos()): Vi
 
 // Helper function to find the start node (node with no prerequisites)
 function findStartNode(): Vec2 | null {
-    for (const [skillId, skill] of Object.entries(skillData)) {
+    for (const [, skill] of Object.entries(skillData)) {
         if (!skill.prereq || skill.prereq.length === 0) {
             return skill.pos;
         }
