@@ -6,7 +6,7 @@ import { Serializer } from "../shared/serializer";
 import { EndGameMsg, EndGameResult, TeamColor } from "../shared/types";
 
 import { io } from "./server";
-import * as gameLoops from "serverLoop";
+import * as gameLoops from "./serverLoop";
 
 import { GameObject, objectTypes } from "../shared/gameObjects";
 

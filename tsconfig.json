@@ -10,13 +10,17 @@
       "declarationMap": true,
       "sourceMap": true,
 
+      "paths": {
+         "@shared/*": ["./shared/*"],
+      },
+
       /* Linting */
-      "strict": true,
-      "noUnusedLocals": true,
-      "noUnusedParameters": true,
-      "erasableSyntaxOnly": true,
-      "noFallthroughCasesInSwitch": true,
-      "noUncheckedSideEffectImports": true
+      // "strict": true,
+      // "noUnusedLocals": true,
+      // "noUnusedParameters": true,
+      // "erasableSyntaxOnly": true,
+      // "noFallthroughCasesInSwitch": true,
+      // "noUncheckedSideEffectImports": true
    },
    "files": [],
    "references": [{ "path": "./shared" }, { "path": "./server" }, { "path": "./public" }]

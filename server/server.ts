@@ -4,7 +4,7 @@ import { Server } from "socket.io";
 import path from "path";
 import { setupSocketHandlers } from "./socket";
 import { Room } from "../shared/room";
-import { serverConfig } from "serverConfig";
+import { serverConfig } from "./serverConfig";
 
 const app = express();
 const server = http.createServer(app);

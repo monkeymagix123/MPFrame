@@ -48,4 +48,5 @@ function setBtnState(status: boolean = true) {
 
 export function resetReadyBtn(): void {
     setBtnState();
+    player.skillReady = false;
 }

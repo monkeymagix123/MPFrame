@@ -3,7 +3,7 @@ import { GameSocket } from "./types";
 import { PlayerDelta } from "../shared/player";
 import { rooms } from "./server";
 import { Serializer } from "../shared/serializer";
-import { startMatch } from "game";
+import { startMatch } from "./game";
 
 export function setupGameHandlers(socket: GameSocket, io: Server): void {
    socket.on("game/player-move", (data: PlayerDelta) => {
