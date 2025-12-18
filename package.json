@@ -2,8 +2,8 @@
    "scripts": {
       "clean": "rm -rf public/dist server/dist shared/dist",
       "prebuild": "pnpm run clean && mkdir -p public/dist server/dist shared/dist",
-      "dev:client": "vite",
-      "dev:server": "concurrently \"pnpm run build:server:watch\" \"pnpm run start:server\"",
+      "dev:client": "cross-env NODE_ENV=development vite",
+      "dev:server": "cross-env NODE_ENV=development concurrently \"pnpm run build:server:watch\" \"pnpm run start:server\"",
       "dev": "concurrently --raw -n build,server \"pnpm run dev:client\" \"pnpm run dev:server\"",
       "build": "tsc --build && pnpm run build:client && pnpm run build:server",
       "build:client": "vite build",
@@ -31,6 +31,7 @@
       "@eslint/js": "^9.39.2",
       "@types/express": "^5.0.3",
       "@types/node": "^24.7.1",
+      "cross-env": "^10.1.0",
       "eslint": "^9.39.1",
       "nodemon": "^3.1.9",
       "prettier": "^3.7.4",
