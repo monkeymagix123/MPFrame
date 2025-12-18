@@ -13,8 +13,10 @@
       "build:shared": "tsc --build shared/tsconfig.json",
       "build:server:watch": "esbuild server/*.ts --bundle --platform=node --outdir=server/dist --sourcemap --minify --watch",
       "build:shared:watch": "esbuild shared/*.ts --bundle --platform=node --outdir=shared/dist --sourcemap --minify --watch",
-      "start:server": "nodemon --watch server/dist --watch shared/dist --exec 'clear && node --no-deprecation' server/dist/server.js",
-      "start": "node --no-deprecation server/dist/server.js",
+      "start:server:watch": "nodemon --watch server/dist --watch shared/dist --exec 'clear && node --no-deprecation' server/dist/server.js",
+      "start:server": "node --no-deprecation server/dist/server.js",
+      "start:client": "vite preview",
+      "start": "pnpm run build && pnpm run start:server",
       "host": "tailscale funnel 3000 & pnpm run start",
       "lint": "eslint .",
       "lint:fix": "eslint . --fix"
