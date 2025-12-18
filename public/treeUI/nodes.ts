@@ -15,6 +15,8 @@ export class NodeManager {
     nodes = new Map<string, Graphics>();
     edges = new Map<EdgeKey, Graphics>();
 
+    nodeStatus: Record<string, NodeStatus> = {};
+
     constructor(upgrades: Container, player: Player) {
         this.upgrades = upgrades;
         this.player = player;
@@ -46,7 +48,13 @@ export class NodeManager {
             if (!node) {
                 throw new Error(`Node ${skillId} not found while updating nodes`);
             }
-            setClass(node, this.getClass(skillId));
+            
+            const newStatus = this.getClass(skillId);
+            const oldStatus = this.nodeStatus[skillId];
+            if (newStatus !== oldStatus) {
+                setClass(node, newStatus);
+                this.nodeStatus[skillId] = newStatus;
+            }
         }
     
         // update edges
