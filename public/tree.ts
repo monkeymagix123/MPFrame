@@ -174,7 +174,7 @@ function createViewport(app: Application, size: Vec2 = treeUtil.getMaxPos()): Vi
 
 // Helper function to find the start node (node with no prerequisites)
 function findStartNode(): Vec2 | null {
-    for (const [, skill] of Object.entries(skillData)) {
+    for (const skill of Object.values(skillData)) {
         if (!skill.prereq || skill.prereq.length === 0) {
             return skill.pos;
         }
