@@ -1,4 +1,4 @@
-const devMode = false;
+const devMode = true;
 export const addBots = false;
 
 export const config = {

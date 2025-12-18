@@ -1,25 +1,34 @@
-import { Application, Graphics, GraphicsContext, Container, TextStyle, Text } from "pixi.js";
+import { Application, Graphics, Container, HTMLTextStyle, HTMLText } from "pixi.js";
+import tooltipCss from "./tooltip.css?raw";
 
 import { COLOR_CONFIG } from "./colorConfig";
-import type { Vec2 } from "../../shared/v2";
+import type { Vec2 } from "@shared/v2";
 import { getTooltip } from "../treeHelper";
 
-const style = new TextStyle({
+const style = new HTMLTextStyle({
     fontSize: 14,
     fill: COLOR_CONFIG.tooltip.text,
     fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
     wordWrap: true,
     wordWrapWidth: 240,
     lineHeight: 20,
-    leading: 2
-});
+    cssOverrides: [tooltipCss],
+})
+
+export interface Tooltip {
+    name: string;
+    desc: string;
+    cost: number;
+    prereq?: string;
+    effects?: string[];
+}
 
 export class TooltipManager {
     app: Application;
     ui: Container;
 
     tooltipContainer = new Container();
-    tooltipText!: Text;
+    tooltipText!: HTMLText;
     tooltipBg!: Graphics;
 
     constructor(ui: Container, app: Application) {
@@ -33,7 +42,7 @@ export class TooltipManager {
     private createTooltip(): void {
         this.tooltipBg = new Graphics();
         
-        this.tooltipText = new Text({
+        this.tooltipText = new HTMLText({
             text: 'Hello',
             style: style
         });
@@ -47,7 +56,8 @@ export class TooltipManager {
     showSkillTooltip(skillId: string, pos: Vec2): void {
         this.tooltipContainer.visible = true;
     
-        this.setText(getTooltip(skillId));
+        const tooltip = getTooltip(skillId);
+        this.setText(parseTooltip(tooltip));
     
         this.updateTooltipPosition(pos);
     }
@@ -82,16 +92,58 @@ export class TooltipManager {
         this.tooltipText.text = value;
 
         // Padding for background
-        const padding = { x: 10, y: 8 };
+        const padding = { x: 16, y: 12 };
+        const cornerRadius = 8;
+
         this.tooltipText.position.set(padding.x, padding.y);
-        
-        this.tooltipBg.clear();
+
         const width = this.tooltipText.width + 2 * padding.x;
         const height = this.tooltipText.height + 2 * padding.y;
         
         this.tooltipBg
-            .rect(0, 0, width, height)
-            .fill({ color: COLOR_CONFIG.tooltip.background, alpha: COLOR_CONFIG.tooltip.backgroundAlpha })
-            .stroke({ width: 2, color: COLOR_CONFIG.tooltip.border, alpha: COLOR_CONFIG.tooltip.borderAlpha });
+            .clear()
+            .roundRect(0, 0, width, height, cornerRadius)
+            .fill({
+                color: COLOR_CONFIG.tooltip.background,
+                alpha: COLOR_CONFIG.tooltip.backgroundAlpha
+            })
+            .stroke({
+                width: 2,
+                color: COLOR_CONFIG.tooltip.border,
+                alpha: COLOR_CONFIG.tooltip.borderAlpha,
+                alignment: 0,
+            });
     }
+}
+
+/**
+ * Parses an html tooltip from an array of text strings
+ * @example
+ * text = [
+ *  name,
+ *  description,
+ *  Cost: (cost),
+ *  Prereqs: 1, 2, 3
+ *  Effects: 1, 2, 3
+ * ]
+ */
+function parseTooltip(tooltip: Tooltip): string {
+    let result =
+        `<div class="name"> ${tooltip.name} </div>` +
+        `<div class="desc"> ${tooltip.desc} </div>` +
+        `<div class="divider"></div>` +
+        `<div class="cost"> Cost: ${tooltip.cost} </div>`;
+    
+    if (tooltip.prereq) {
+        result += `<div class="meta">Prereqs: ${tooltip.prereq}</div>`;
+    }
+
+    if (tooltip.effects) {
+        result += `<div class="meta">Effects: </div>`;
+        for (const effect of tooltip.effects) {
+            result += `<div class="meta">${effect}</div>`;
+        }
+    }
+
+    return result;
 }
