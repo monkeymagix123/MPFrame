@@ -1,7 +1,7 @@
 // Helper for skill effects
 
 import type { Player } from "../shared/player";
-import { skillData, treeUtil } from "../shared/skillTree";
+import { skillData, treeUtil } from "../shared/skill";
 
 // Map from skill id to calculated effect string
 // Don't update if node unlocked

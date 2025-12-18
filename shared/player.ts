@@ -2,7 +2,7 @@ import { config } from "./config";
 import { GameObject } from "./gameObjects";
 import { clampPos } from "./math";
 import { PlayerFlags, PlayerStats } from "./playerStats";
-import { Effect, skillData, treeUtil } from "./skillTree";
+import { Effect, skillData, treeUtil } from "./skill";
 import { PlayerSegment } from "./state";
 import { TeamColor } from "./types";
 import { v2, Vec2 } from "./v2";

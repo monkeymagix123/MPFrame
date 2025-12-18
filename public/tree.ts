@@ -1,7 +1,7 @@
 import { Application, Graphics, GraphicsContext, Container, TextStyle, Text } from "pixi.js";
 import { Player } from "../shared/player";
 import { session } from "./session";
-import { Skill, skillData, treeUtil } from "../shared/skillTree";
+import { Skill, skillData, treeUtil } from "../shared/skill";
 import { v2, Vec2 } from "../shared/v2";
 import { Viewport } from 'pixi-viewport';
 import { calcTooltips, updateTooltips } from "./treeHelper";
