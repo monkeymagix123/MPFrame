@@ -14,9 +14,11 @@
       "build:server:watch": "esbuild server/*.ts --bundle --platform=node --outdir=server/dist --sourcemap --minify --watch",
       "build:shared:watch": "esbuild shared/*.ts --bundle --platform=node --outdir=shared/dist --sourcemap --minify --watch",
       "start:server:watch": "nodemon --watch server/dist --watch shared/dist --exec 'clear && node --no-deprecation' server/dist/server.js",
-      "start:server": "node --no-deprecation server/dist/server.js",
-      "start": "pnpm run start:server",
+
+      "start:server": "cross-env NODE_ENV=production node --no-deprecation server/dist/server.js",
+      "start": "pnpm run build && cross-env NODE_ENV=production pnpm run start:server",
       "host": "tailscale funnel 3000 & pnpm run start",
+
       "lint": "eslint .",
       "lint:fix": "eslint . --fix"
    },
