@@ -15,8 +15,7 @@
       "build:shared:watch": "esbuild shared/*.ts --bundle --platform=node --outdir=shared/dist --sourcemap --minify --watch",
       "start:server:watch": "nodemon --watch server/dist --watch shared/dist --exec 'clear && node --no-deprecation' server/dist/server.js",
       "start:server": "node --no-deprecation server/dist/server.js",
-      "start:client": "vite preview",
-      "start": "concurrently \"pnpm run start:client\" && \"pnpm run start:server\"",
+      "start": "pnpm run start:server",
       "host": "tailscale funnel 3000 & pnpm run start",
       "lint": "eslint .",
       "lint:fix": "eslint . --fix"
