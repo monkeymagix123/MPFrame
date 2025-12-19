@@ -1,8 +1,8 @@
 import { Server } from "socket.io";
 import { GameSocket } from "./types";
-import { PlayerDelta } from "../shared/player";
+import { PlayerDelta } from "@shared/player";
 import { rooms } from "./server";
-import { Serializer } from "../shared/serializer";
+import { Serializer } from "@shared/serializer";
 import { startMatch } from "./game";
 
 export function setupGameHandlers(socket: GameSocket, io: Server): void {

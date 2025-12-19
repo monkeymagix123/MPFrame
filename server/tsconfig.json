@@ -9,6 +9,9 @@
       "composite": true,
       "baseUrl": ".",
       "types": ["node"],
+      "paths": {
+         "@shared/*": ["../shared/*"],
+      }
    },
    "ts-node": {
       "transpileOnly": true,

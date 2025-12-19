@@ -1,8 +1,8 @@
 import { Server } from "socket.io";
 import { GameSocket } from "./types";
 import { rooms } from "./server";
-import { Serializer } from "../shared/serializer";
-import { TeamColor } from "../shared/types";
+import { Serializer } from "@shared/serializer";
+import { TeamColor } from "@shared/types";
 
 import { startGame } from "./game";
 

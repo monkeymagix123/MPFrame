@@ -2,8 +2,8 @@ import { Server } from "socket.io";
 import { GameSocket } from "./types";
 import { rooms, playerNames } from "./server";
 import { broadcastLobbiesList } from "./misc";
-import { Serializer } from "../shared/serializer";
-import { EndGameResult, TeamColor } from "../shared/types";
+import { Serializer } from "@shared/serializer";
+import { EndGameResult, TeamColor } from "@shared/types";
 import { endGame } from "./game";
 
 export function setupDisconnectHandler(socket: GameSocket, io: Server): void {

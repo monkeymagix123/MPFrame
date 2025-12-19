@@ -1,9 +1,9 @@
-import { Player } from "../shared/player";
-import { Room } from "../shared/room";
-import { Chat } from "../shared/chat";
-import { State } from "../shared/state";
-import { ChatMessage } from "../shared/chat";
-import { Vec2 } from "../shared/v2";
+import { Player } from "@shared/player";
+import { Room } from "@shared/room";
+import { Chat } from "@shared/chat";
+import { State } from "@shared/state";
+import { ChatMessage } from "@shared/chat";
+import { Vec2 } from "@shared/v2";
 import { networkUtil } from "./networkHelper";
 import { GameObject } from "./gameObjects";
 
