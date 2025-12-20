@@ -1,4 +1,4 @@
-const devMode = true;
+const devMode = process.env.NODE_ENV === "development";
 export const addBots = false;
 
 export const config = {
@@ -12,8 +12,8 @@ export const config = {
 
    moveSpeed: devMode ? 500 : 120,
 
-   dashCooldown: 5.0,
-   dashDistance: 100,
+   dashCooldown: devMode ? 1.5 : 5.0,
+   dashDistance: devMode ? 500 : 100,
    get dashDuration() { // includes part of cooldown, use for computed property
       return this.dashDistance / (this.moveSpeed * this.dashSpeedMultiplier);
    },

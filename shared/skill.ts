@@ -51,18 +51,20 @@ export const treeUtil = {
         return result;
     },
 
-    getEffectsString(data: Partial<PlayerStats>[], delimiter = "\n"): string {
+    getEffectsString(data: Partial<PlayerStats>[], separator = "\n"): string {
         const oldStats = data[0]!;
         const newStats = data[1]!;
-        let s = "";
+        
+        const effects: string[] = [];
         
         for (const key of Object.keys(oldStats) as (keyof PlayerStats)[]) {
             const oldVal = oldStats[key];
             const newVal = newStats[key];
             if (newVal === undefined) continue;
-            s += `${this.translateEffectKey(key)}: ${oldVal} -> ${newVal}${delimiter}`;
+            effects.push(`${this.translateEffectKey(key)}: ${oldVal} -> ${newVal}${separator}`);
         }
-        return s;
+
+        return effects.join(separator);
     },
 
     effectsString(player?: Player, skillEffects?: Effect, delimiter = "\n"): string {

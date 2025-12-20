@@ -1,13 +1,13 @@
 import { Server } from "socket.io";
 import { GameSocket } from "./types";
-import { Room } from "../shared/room";
-import { Player } from "../shared/player";
+import { Room } from "@shared/room";
+import { Player } from "@shared/player";
 import { rooms, playerNames } from "./server";
 import { broadcastLobbiesList, generateRoomCode } from "./misc";
-import { Vec2 } from "../shared/v2";
-import { config } from "../shared/config";
-import { Serializer } from "../shared/serializer";
-import { TeamColor } from "../shared/types";
+import { Vec2 } from "@shared/v2";
+import { config } from "@shared/config";
+import { Serializer } from "@shared/serializer";
+import { TeamColor } from "@shared/types";
 
 export function setupMenuHandlers(socket: GameSocket, io: Server): void {
    socket.on("menu/list-lobbies", () => {

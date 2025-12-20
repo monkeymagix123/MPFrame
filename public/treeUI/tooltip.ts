@@ -93,7 +93,7 @@ export class TooltipManager {
 
         // Padding for background
         const padding = { x: 16, y: 12 };
-        const cornerRadius = 8;
+        const cornerRadius = 4;
 
         this.tooltipText.position.set(padding.x, padding.y);
 
@@ -129,19 +129,26 @@ export class TooltipManager {
  */
 function parseTooltip(tooltip: Tooltip): string {
     let result =
-        `<div class="name"> ${tooltip.name} </div>` +
-        `<div class="desc"> ${tooltip.desc} </div>` +
+        `<div class="name">${tooltip.name}</div>` +
+        `<div class="desc">${tooltip.desc}</div>` +
         `<div class="divider"></div>` +
-        `<div class="cost"> Cost: ${tooltip.cost} </div>`;
+        `<div class="cost">Cost: ${tooltip.cost}</div>`;
     
-    if (tooltip.prereq) {
-        result += `<div class="meta">Prereqs: ${tooltip.prereq}</div>`;
-    }
+    // if (tooltip.prereq) {
+    //     result += `<div class="prereqs">Prereqs: ${tooltip.prereq}</div>`;
+    // }
 
     if (tooltip.effects) {
-        result += `<div class="meta">Effects: </div>`;
+        result += `<div class="effects-label">Effects: </div>`;
+
         for (const effect of tooltip.effects) {
-            result += `<div class="meta">${effect}</div>`;
+            if (!effect.includes(':')) continue;
+
+            const split = effect.split(': ', 2);
+            const key = split[0];
+            const value = split[1].replace('->', '&rarr;');
+            console.log(split);
+            result += `<div><span class="effects-name">${key}:</span> <span class="effects-value">${value}</span></div>`;
         }
     }
 

@@ -1,8 +1,8 @@
 import { Server } from "socket.io";
-import { ChatMessage } from "../shared/chat";
+import { ChatMessage } from "@shared/chat";
 import { GameSocket } from "./types";
 import { rooms, playerNames } from "./server";
-import { Serializer } from "../shared/serializer";
+import { Serializer } from "@shared/serializer";
 
 export function setupMiscHandlers(socket: GameSocket, io: Server): void {
    socket.on("misc/set-name", (name: string) => {

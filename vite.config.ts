@@ -11,7 +11,7 @@ export default defineConfig({
     ],
     root: './public',
     build: {
-        outDir: './public/dist',
+        outDir: './dist',
         sourcemap: true,
         minify: true,
         emptyOutDir: true
@@ -33,5 +33,4 @@ export default defineConfig({
             }
         }
     },
-    
 })

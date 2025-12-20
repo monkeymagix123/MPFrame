@@ -1,14 +1,14 @@
 import { Server } from "socket.io";
-import { Room } from "../shared/room";
-import { PlayerDelta } from "../shared/player";
+import { Room } from "@shared/room";
+import { PlayerDelta } from "@shared/player";
 import { broadcastLobbiesList } from "./misc";
-import { Serializer } from "../shared/serializer";
-import { EndGameMsg, EndGameResult, TeamColor } from "../shared/types";
+import { Serializer } from "@shared/serializer";
+import { EndGameMsg, EndGameResult, TeamColor } from "@shared/types";
 
 import { io } from "./server";
 import * as gameLoops from "./serverLoop";
 
-import { GameObject, objectTypes } from "../shared/gameObjects";
+import { GameObject, objectTypes } from "@shared/gameObjects";
 
 // map room code to game object
 const games = new Map<string, Game>();

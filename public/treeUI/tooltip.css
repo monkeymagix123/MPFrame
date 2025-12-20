@@ -1,38 +1,80 @@
+/* Container Suggestion: Add a semi-transparent blur for a modern glass look */
+/* .tooltip-container {
+    background: rgba(10, 20, 40, 0.9);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5), 0 0 10px rgba(0, 150, 255, 0.1);
+} */
+
+.tooltip-container {
+    background: rgba(20, 27, 45, 0.95); /* Deep navy with slight transparency */
+    border: 1px solid rgba(255, 255, 255, 0.15); /* Subtle white rim */
+    border-radius: 4px; /* Sharper corners often look better with "simple shapes" */
+    padding: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); /* Soft shadow to lift it off the background */
+}
+
 .name {
-    font-size: 18px;
-    font-weight: 700;
+    font-size: 22px;
+    font-weight: 800;
     color: #ffffff;
-    margin: 0 0 6px 0;
-    letter-spacing: 0.2px;
+    margin-bottom: 2px;
+    letter-spacing: 0.5px;
 }
 
 .desc {
     font-size: 14px;
-    color: #d1d1d1;
-    line-height: 1.45;
-    margin: 0 0 10px 0;
+    color: #94a3b8; /* Soft blue-grey */
+    line-height: 1.4;
+    margin-bottom: 12px;
+    font-style: italic;
 }
 
 .divider {
-    border: none;
-    height: 1px;
+    height: 2px;
     background: linear-gradient(to right,
-            transparent,
-            rgba(255, 255, 255, 0.25),
-            transparent);
-    margin: 8px 0;
+    rgba(255, 255, 255, 0.5),
+    rgba(255, 255, 255, 0.35),
+    rgba(255, 255, 255, 0.5)
+    );
+    margin: 12px 0;
 }
 
+/* Aligning gameplay stats into a cleaner "data" look */
 .cost {
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 700;
-    color: #ffd700;
-    margin: 0 0 6px 0;
+    color: #4ade80; /* Brighter, modern green */
+    margin-bottom: 8px;
 }
 
-.meta {
-    font-size: 12px;
-    color: #a0a0a0;
-    line-height: 1.35;
-    margin: 0 0;
+.prereqs {
+    font-size: 13px;
+    font-weight: 600;
+    color: #fca5a5; /* Softer coral/red */
+    /* text-transform: uppercase; */
+    /* letter-spacing: 0.5px; */
+    /* letter-spacing: -0.5px; */
+}
+
+.effects-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #7dd3fc; /* Softer sky blue */
+    /* text-transform: uppercase; */
+    margin-top: 8px;
+}
+
+.effects-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #7dd3fc; /* Softer sky blue */
+}
+
+.effects-value {
+    font-size: 16px;
+    color: #ffffff;
+    font-family: "Open Sans", sans-serif;
+    font-variant-numeric: tabular-nums;
 }

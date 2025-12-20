@@ -1,4 +1,4 @@
-import { config } from "../shared/config";
+import { config } from "./config";
 import { GameObject } from "./gameObjects";
 import { PlayerSegment } from "./state";
 import { v2, Vec2 } from "./v2";

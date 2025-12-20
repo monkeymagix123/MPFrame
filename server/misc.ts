@@ -1,6 +1,6 @@
 import { rooms } from "./server";
 import { Server } from "socket.io";
-import { TeamColor } from "../shared/types";
+import { TeamColor } from "@shared/types";
 
 export function generateRoomCode(): string {
 	const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
