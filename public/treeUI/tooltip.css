@@ -32,8 +32,12 @@
 }
 
 .divider {
-    height: 1px;
-    background: rgba(255, 255, 255, 0.1);
+    height: 2px;
+    background: linear-gradient(to right,
+    rgba(255, 255, 255, 0.5),
+    rgba(255, 255, 255, 0.35),
+    rgba(255, 255, 255, 0.5)
+    );
     margin: 12px 0;
 }
 
@@ -50,7 +54,8 @@
     font-weight: 600;
     color: #fca5a5; /* Softer coral/red */
     /* text-transform: uppercase; */
-    letter-spacing: 0.5px;
+    /* letter-spacing: 0.5px; */
+    /* letter-spacing: -0.5px; */
 }
 
 .effects-label {

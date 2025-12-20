@@ -9,7 +9,7 @@ export type NodeStatus = 'unlocked' | 'available' | 'locked' | 'hidden';
 export type EdgeKey = `${string}-${string}`;
 
 function createNodeType(color: string, borderColor?: string): GraphicsContext {
-    const size = 20; // Changed from 30 to 20
+    const size = 30; // Changed from 30 to 20
     const ctx = new GraphicsContext()
         // .rect(-size / 2, -size / 2, size, size)
         .circle(0, 0, size / 2)

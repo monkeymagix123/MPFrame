@@ -93,7 +93,7 @@ export class TooltipManager {
 
         // Padding for background
         const padding = { x: 16, y: 12 };
-        const cornerRadius = 8;
+        const cornerRadius = 4;
 
         this.tooltipText.position.set(padding.x, padding.y);
 
@@ -134,9 +134,9 @@ function parseTooltip(tooltip: Tooltip): string {
         `<div class="divider"></div>` +
         `<div class="cost">Cost: ${tooltip.cost}</div>`;
     
-    if (tooltip.prereq) {
-        result += `<div class="prereqs">Prereqs: ${tooltip.prereq}</div>`;
-    }
+    // if (tooltip.prereq) {
+    //     result += `<div class="prereqs">Prereqs: ${tooltip.prereq}</div>`;
+    // }
 
     if (tooltip.effects) {
         result += `<div class="effects-label">Effects: </div>`;
@@ -146,7 +146,7 @@ function parseTooltip(tooltip: Tooltip): string {
 
             const split = effect.split(': ', 2);
             const key = split[0];
-            const value = split[1];
+            const value = split[1].replace('->', '&rarr;');
             console.log(split);
             result += `<div><span class="effects-name">${key}:</span> <span class="effects-value">${value}</span></div>`;
         }
