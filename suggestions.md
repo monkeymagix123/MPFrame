@@ -1,8 +1,8 @@
 # Suggestions
 
 LZ
-- show which upgrade unlocks what, "more clear about future upgrades"
-- dash quicker, upgrades better / clearer
+- (DONE) show which upgrade unlocks what, "more clear about future upgrades"
+- (DONE) dash quicker, upgrades better / clearer
 - show other players upgrades
 
 AL
@@ -15,7 +15,7 @@ AL
 
 SS
 - Shield (reduce damage / initial shield)
-- Fix orbs
+- (DONE) Fix orbs
 - Rebalance speed (doing)
 - Dash immunity rebalance -> make later
 - Trail
