@@ -19,7 +19,9 @@ let player: Player;
 let app: Application;
 let viewport: Viewport;
 
-const upgrades = new Container(); // nodes themselves
+const upgrades = new Container({
+    isRenderGroup: true,
+}); // nodes themselves
 
 const ui = new Container();
 let tooltipManager: TooltipManager;
